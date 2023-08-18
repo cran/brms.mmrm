@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Methods</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Methods</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#model"><span class="toc-section-number">1</span> Model</a></li>
+<li><a href="#notation"><span class="toc-section-number">2</span> Notation</a></li>
+<li><a href="#data"><span class="toc-section-number">3</span> Data</a></li>
+<li><a href="#parameters"><span class="toc-section-number">4</span> Parameters</a></li>
+<li><a href="#priors"><span class="toc-section-number">5</span> Priors</a></li>
+<li><a href="#sampling"><span class="toc-section-number">6</span> Sampling</a></li>
+<li><a href="#inference"><span class="toc-section-number">7</span> Inference</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<p>The <code>brms.mmrm</code> R package implements a mixed model of repeated measures (MMRM) <span class="citation">(Mallinckrodt et al. 2008)</span>, a popular and flexible model to analyze continuous longitudinal outcomes. <code>brms.mmrm</code> focuses on marginal MMRMs for randomized controlled parallel studies with discrete time points, where each subject shares the same set of time points. Whereas the <a href="https://openpharma.github.io/mmrm/"><code>mmrm</code></a> package is frequentist, <code>brms.mmrm</code> fits models in Bayesian fashion using <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a> <span class="citation">(Bürkner 2017)</span>.</p>
+<div id="model" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Model</h1>
+<p>The MMRM in <code>brms.mmrm</code> is mathematically expressed as follows. Subsequent sections define notation, data, parameters, and priors.</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;y_i \stackrel{\text{ind}}{\sim} \text{Multivariate-Normal} \left (\text{mean} = X_{i} \beta, \ \text{covariance} = \text{diag}(\sigma) \cdot \Lambda \cdot \text{diag}(\sigma) \right ) \\
+&amp;\qquad \beta_p \stackrel{\text{ind}}{\sim} q_p() \\
+&amp;\qquad \Lambda \sim r() \\
+&amp;\qquad \tau = \log(\sigma) \\
+&amp;\qquad \qquad \tau_t \stackrel{\text{ind}}{\sim} s_t()
+\end{aligned}
+\]</span></p>
+</div>
+<div id="notation" class="section level1" number="2">
+<h1 number="2"><span class="header-section-number">2</span> Notation</h1>
+<ul>
+<li><span class="math inline">\(i\)</span>: positive integer index of a subject or patient in the study.</li>
+<li><span class="math inline">\(t\)</span>: positive integer index of a discrete time point in the study.</li>
+<li><span class="math inline">\(p\)</span>: positive integer index of a model coefficient parameter <span class="math inline">\(\beta_p\)</span>.</li>
+<li><span class="math inline">\(\theta_j \stackrel{\text{ind}}{\sim} f()\)</span>: assuming <span class="math inline">\(j\)</span> is a positive integer index that ranges from 1 to positive integer <span class="math inline">\(J\)</span>, this notation declares that parameters <span class="math inline">\(\theta_1, \ldots, \theta_J\)</span> are independent and each follow the prior distribution with a common probability density function <span class="math inline">\(f()\)</span>.</li>
+<li><span class="math inline">\(\theta_j \stackrel{\text{ind}}{\sim} f_j()\)</span>: same as above, except each <span class="math inline">\(\theta_j\)</span> parameter follows its own separate prior distribution with probability density function <span class="math inline">\(p_j()\)</span>. <span class="math inline">\(p_i()\)</span> and <span class="math inline">\(f_j()\)</span> may differ if <span class="math inline">\(i \ne j\)</span>.</li>
+<li><span class="math inline">\(\text{diag}(\theta)\)</span>: diagonal matrix with the scalar elements of vector <span class="math inline">\(\theta\)</span> on the diagonal and off-diagonal elements equal to 0. The number of rows and number of columns in this matrix are both equal to the number of elements in vector <span class="math inline">\(\theta\)</span>.</li>
+</ul>
+</div>
+<div id="data" class="section level1" number="3">
+<h1 number="3"><span class="header-section-number">3</span> Data</h1>
+<ul>
+<li><span class="math inline">\(y_i\)</span>: numeric vector of outcome observations for subject <span class="math inline">\(i\)</span>. The number of elements in the vector equals the number of discrete time points in the study, and for the purposes of this model specification, they are sorted chronologically with the first element of <span class="math inline">\(y_i\)</span> observed first in the study. One or more elements of each <span class="math inline">\(y_i\)</span> may be missing due to dropout, discontinuation, etc. The likelihood of the model assumes <span class="math inline">\(y_i\)</span> is independent of <span class="math inline">\(y_j\)</span> for <span class="math inline">\(i \ne j\)</span>.</li>
+<li><span class="math inline">\(X_i\)</span>: a matrix containing the rows of the model matrix that correspond to subject <span class="math inline">\(i\)</span>. The rows of <span class="math inline">\(X_i\)</span> correspond to the elements of the vector <span class="math inline">\(y_i\)</span> (equivalently, the discrete time points of the study), and the columns of <span class="math inline">\(X_i\)</span> correspond to the model coefficient parameters <span class="math inline">\(\beta_p\)</span>. The composition of <span class="math inline">\(X_i\)</span> is determined by the covariates in the input dataset and the choice of model formula supplied by the user (via <code>brm_formula()</code>).</li>
+</ul>
+</div>
+<div id="parameters" class="section level1" number="4">
+<h1 number="4"><span class="header-section-number">4</span> Parameters</h1>
+<ul>
+<li><span class="math inline">\(\beta\)</span>: vector of model coefficients. <span class="math inline">\(\beta_p\)</span> is scalar element <span class="math inline">\(p\)</span> of <span class="math inline">\(\beta\)</span>.</li>
+<li><span class="math inline">\(\Lambda\)</span>: matrix of pairwise correlations among each pair of time points within subjects. Outcomes measured from different subjects are assumed to be independent, and outcomes observed at different time points for the same subject are assumed to be correlated according to this matrix. <span class="math inline">\(\Lambda\)</span> is positive-definite and symmetric, and the number of rows and columns is equal to the number of discrete time points of the study.</li>
+<li><span class="math inline">\(\sigma\)</span>: vector of time-point-specific standard deviations of the residuals on the linear scale. <span class="math inline">\(\sigma_t\)</span> is scalar element <span class="math inline">\(t\)</span> of <span class="math inline">\(\sigma\)</span>.</li>
+<li><span class="math inline">\(\tau\)</span>: same as <span class="math inline">\(\sigma\)</span>, but on the natural logarithmic scale. Each scalar element <span class="math inline">\(\tau_t\)</span> of <span class="math inline">\(\tau\)</span> is defined as the natural logarithm of <span class="math inline">\(\sigma_t\)</span>.</li>
+</ul>
+</div>
+<div id="priors" class="section level1" number="5">
+<h1 number="5"><span class="header-section-number">5</span> Priors</h1>
+<p>The priors on the parameters depend on the <code>prior</code> argument of <code>brm_model()</code> and related functions. If priors are not specified by the user, then the <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a> package sets defaults. You can view the default priors using the <a href="http://paul-buerkner.github.io/brms/reference/get_prior.html"><code>get_prior()</code></a> function in <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a>. See the <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a> for information on how <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a> sets default priors.</p>
+<ul>
+<li><span class="math inline">\(q_p()\)</span>: univariate prior on the model coefficient <span class="math inline">\(\beta_p\)</span>.</li>
+<li><span class="math inline">\(r()\)</span>: matrix prior on the within-subject residual correlation matrix parameter <span class="math inline">\(\Lambda\)</span>.</li>
+<li><span class="math inline">\(s_t()\)</span>: univariate prior on the natural-log-standard-deviation parameter <span class="math inline">\(\tau_t\)</span> of discrete time point <span class="math inline">\(t\)</span>.</li>
+</ul>
+</div>
+<div id="sampling" class="section level1" number="6">
+<h1 number="6"><span class="header-section-number">6</span> Sampling</h1>
+<p><code>brms.mmrm</code>, through <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a>, fits the model to the data using the Markov chain Monte Carlo (MCMC) capabilities of <a href="https://mc-stan.org/">Stan</a> <span class="citation">(Stan Development Team 2023)</span>. Please read <a href="https://mc-stan.org/users/documentation/" class="uri">https://mc-stan.org/users/documentation/</a> for more details on the methodology of <a href="https://mc-stan.org/">Stan</a>. The result of MCMC is a collection of draws from the full joint posterior distribution of the parameters given the data. Individual draws of scalar parameters such as <span class="math inline">\(\beta_3\)</span> are considered draws from the marginal posterior distribution of e.g. <span class="math inline">\(\beta_3\)</span> given the data.</p>
+</div>
+<div id="inference" class="section level1" number="7">
+<h1 number="7"><span class="header-section-number">7</span> Inference</h1>
+<p>Inference in <code>brms.mmrm</code>, uses the estimated marginal posterior distribution of the mean response at each combination of study arm and time point. The <a href="https://github.com/rvlenth/emmeans"><code>emmeans</code></a> package <span class="citation">(Lenth 2016)</span> derives these marginal posteriors while averaging over other covariates as nuisance parameters. During this averaging process, the levels of categorical nuisance parameters are weighted proportionally to their frequencies in the dataset (with <code>wt.nuis = &quot;proportional&quot;</code> in <code>emmeans::ref_grid()</code>).</p>
+<p>The <code>brm_marginal_draws()</code> function, described in the usage vignette, derives posterior draws of the marginals using posterior draws of the model coefficients <span class="math inline">\(\beta_p\)</span>. Then, downstream functions like <code>brm_marginal_probabilities()</code> compute numerical summaries of these marginal draws.</p>
+</div>
+<div id="references" class="section level1 unnumbered" number>
+<h1 class="unnumbered" number>References</h1>
+<div id="refs" class="references hanging-indent">
+<div id="ref-burkner2017">
+<p>Bürkner, Paul-Christian. 2017. “brms: An R Package for Bayesian Multilevel Models Using Stan.” <em>Journal of Statistical Software</em> 80 (1): 1–28. <a href="https://doi.org/10.18637/jss.v080.i01">https://doi.org/10.18637/jss.v080.i01</a>.</p>
+</div>
+<div id="ref-lenth2016">
+<p>Lenth, Russell V. 2016. “Least-Squares Means: The R Package Lsmeans.” <em>Journal of Statistical Software</em> 69 (1): 1–33. <a href="https://doi.org/10.18637/jss.v069.i01">https://doi.org/10.18637/jss.v069.i01</a>.</p>
+</div>
+<div id="ref-mallinckrodt2008">
+<p>Mallinckrodt, C. H., P. W. Lane, D. Schnell, and others. 2008. “Recommendations for the Primary Analysis of Continuous Endpoints in Longitudinal Clinical Trials.” <em>Ther Innov Regul Sci</em> 42: 303–19. <a href="https://doi.org/10.1177/009286150804200402">https://doi.org/10.1177/009286150804200402</a>.</p>
+</div>
+<div id="ref-stan2023">
+<p>Stan Development Team. 2023. <em>Stan Modeling Language Users Guide and Reference Manual</em> (version 2.32.2). <a href="https://mc-stan.org">https://mc-stan.org</a>.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

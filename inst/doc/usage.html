@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Usage</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Usage</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#data"><span class="toc-section-number">1</span> Data</a></li>
+<li><a href="#formula"><span class="toc-section-number">2</span> Formula</a></li>
+<li><a href="#priors"><span class="toc-section-number">3</span> Priors</a></li>
+<li><a href="#model"><span class="toc-section-number">4</span> Model</a></li>
+<li><a href="#marginals"><span class="toc-section-number">5</span> Marginals</a></li>
+<li><a href="#visualization"><span class="toc-section-number">6</span> Visualization</a></li>
+</ul>
+</div>
+
+<p>A mixed model of repeated measures (MMRM) analyzes longitudinal clinical trial data. In a longitudinal dataset, there are multiple patients, and each patient has multiple observations at a common set of discrete points in time.</p>
+<div id="data" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Data</h1>
+<p>To use the <code>brms.mmrm</code> package, begin with a longitudinal dataset with one row per patient observation and columns for the response variable, treatment group indicator, discrete time point indicator, patient ID variable, and optional baseline covariates such as age and region. If you do not have a real dataset of your own, you can simulate one from the package. The following dataset has the raw response variable and only the most essential factor variables. In general, the outcome variable can either be the raw response or change from baseline.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(brms.mmrm)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="kw">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="kw">set.seed</span>(0L)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>raw_data &lt;-<span class="st"> </span><span class="kw">brm_simulate</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="dt">n_group =</span> <span class="dv">3</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>  <span class="dt">n_patient =</span> <span class="dv">100</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>  <span class="dt">n_time =</span> <span class="dv">4</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>)<span class="op">$</span>data</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>raw_data</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co">#&gt; # A tibble: 1,200 × 4</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co">#&gt;    response group   patient   time  </span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">#&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt; </span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="co">#&gt;  1    1.03  group 1 patient 1 time 1</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="co">#&gt;  2    3.15  group 1 patient 1 time 2</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="co">#&gt;  3    1.74  group 1 patient 1 time 3</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a><span class="co">#&gt;  4   -0.173 group 1 patient 1 time 4</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="co">#&gt;  5    1.40  group 1 patient 2 time 1</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="co">#&gt;  6    2.24  group 1 patient 2 time 2</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a><span class="co">#&gt;  7    1.75  group 1 patient 2 time 3</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a><span class="co">#&gt;  8   -0.212 group 1 patient 2 time 4</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a><span class="co">#&gt;  9    1.14  group 1 patient 3 time 1</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a><span class="co">#&gt; 10    2.27  group 1 patient 3 time 2</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true"></a><span class="co">#&gt; # ℹ 1,190 more rows</span></span></code></pre></div>
+<p>Next, create a special classed dataset that the package will recognize. The classed data object contains a pre-processed version of the data, along with attributes to declare the outcome variable, whether the outcome is response or change from baseline, the treatment group variable, the discrete time point variable, and other details.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>data &lt;-<span class="st"> </span><span class="kw">brm_data</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="dt">data =</span> raw_data,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  <span class="dt">outcome =</span> <span class="st">&quot;response&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  <span class="dt">role =</span> <span class="st">&quot;response&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="dt">group =</span> <span class="st">&quot;group&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="dt">patient =</span> <span class="st">&quot;patient&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>  <span class="dt">time =</span> <span class="st">&quot;time&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>data</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="co">#&gt; # A tibble: 1,200 × 4</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a><span class="co">#&gt;    response group   time   patient    </span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a><span class="co">#&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;      </span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a><span class="co">#&gt;  1    1.03  group.1 time.1 patient 1  </span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a><span class="co">#&gt;  2    3.15  group.1 time.2 patient 1  </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a><span class="co">#&gt;  3    1.74  group.1 time.3 patient 1  </span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a><span class="co">#&gt;  4   -0.173 group.1 time.4 patient 1  </span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a><span class="co">#&gt;  5   -0.224 group.1 time.1 patient 10 </span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a><span class="co">#&gt;  6    2.36  group.1 time.2 patient 10 </span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a><span class="co">#&gt;  7    0.232 group.1 time.3 patient 10 </span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a><span class="co">#&gt;  8   -3.36  group.1 time.4 patient 10 </span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a><span class="co">#&gt;  9   -0.232 group.1 time.1 patient 100</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true"></a><span class="co">#&gt; 10    2.31  group.1 time.2 patient 100</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true"></a><span class="co">#&gt; # ℹ 1,190 more rows</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true"></a><span class="kw">class</span>(data)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true"></a><span class="co">#&gt; [1] &quot;brm_data&quot;   &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true"></a>roles &lt;-<span class="st"> </span><span class="kw">attributes</span>(data)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true"></a>roles<span class="op">$</span>row.names &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true"></a><span class="kw">str</span>(roles)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true"></a><span class="co">#&gt; List of 12</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true"></a><span class="co">#&gt;  $ names           : chr [1:4] &quot;response&quot; &quot;group&quot; &quot;time&quot; &quot;patient&quot;</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true"></a><span class="co">#&gt;  $ class           : chr [1:4] &quot;brm_data&quot; &quot;tbl_df&quot; &quot;tbl&quot; &quot;data.frame&quot;</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true"></a><span class="co">#&gt;  $ brm_outcome     : chr &quot;response&quot;</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true"></a><span class="co">#&gt;  $ brm_role        : chr &quot;response&quot;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true"></a><span class="co">#&gt;  $ brm_group       : chr &quot;group&quot;</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true"></a><span class="co">#&gt;  $ brm_time        : chr &quot;time&quot;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true"></a><span class="co">#&gt;  $ brm_patient     : chr &quot;patient&quot;</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true"></a><span class="co">#&gt;  $ brm_covariates  : chr(0) </span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true"></a><span class="co">#&gt;  $ brm_levels_group: chr [1:3] &quot;group.1&quot; &quot;group.2&quot; &quot;group.3&quot;</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true"></a><span class="co">#&gt;  $ brm_levels_time : chr [1:4] &quot;time.1&quot; &quot;time.2&quot; &quot;time.3&quot; &quot;time.4&quot;</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true"></a><span class="co">#&gt;  $ brm_labels_group: chr [1:3] &quot;group 1&quot; &quot;group 2&quot; &quot;group 3&quot;</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true"></a><span class="co">#&gt;  $ brm_labels_time : chr [1:4] &quot;time 1&quot; &quot;time 2&quot; &quot;time 3&quot; &quot;time 4&quot;</span></span></code></pre></div>
+<p>Above, the levels of the <code>group</code> and <code>time</code> columns are automatically cleaned with <code>make.names()</code> to ensure alignment between the data and <code>brms</code> output. Whenever <code>brms.mmrm</code> calls <code>make.names()</code>, it always sets <code>unique = FALSE</code> and <code>allow_ = TRUE</code>.</p>
+</div>
+<div id="formula" class="section level1" number="2">
+<h1 number="2"><span class="header-section-number">2</span> Formula</h1>
+<p>Next, choose a <code>brms</code> model formula for the fixed effect and variance parameters. The <code>brm_formula()</code> function from <code>brms.mmrm</code> makes this process easier. A cell means parameterization for this particular model can be expressed as follows. It specifies one fixed effect parameter for each combination of treatment group and time point, and it makes the specification of informative priors straightforward through the <code>prior</code> argument of <code>brm_model()</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">brm_formula</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  <span class="dt">data =</span> data,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>  <span class="dt">intercept =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>  <span class="dt">effect_base =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>  <span class="dt">effect_group =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>  <span class="dt">effect_time =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>  <span class="dt">interaction_base =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>  <span class="dt">interaction_group =</span> <span class="ot">TRUE</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">#&gt; response ~ 0 + group:time + unstr(time = time, gr = patient) </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="co">#&gt; sigma ~ 0 + time</span></span></code></pre></div>
+<p>For the purposes of our example, we choose a fully parameterized analysis of the raw response.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>formula &lt;-<span class="st"> </span><span class="kw">brm_formula</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  <span class="dt">data =</span> data,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>  <span class="dt">intercept =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>  <span class="dt">effect_base =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>  <span class="dt">effect_group =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>  <span class="dt">effect_time =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>  <span class="dt">interaction_base =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>  <span class="dt">interaction_group =</span> <span class="ot">TRUE</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>formula</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a><span class="co">#&gt; response ~ time + group + group:time + unstr(time = time, gr = patient) </span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a><span class="co">#&gt; sigma ~ 0 + time</span></span></code></pre></div>
+</div>
+<div id="priors" class="section level1" number="3">
+<h1 number="3"><span class="header-section-number">3</span> Priors</h1>
+<p>Some analyses require informative priors, others require non-informative ones. Please use <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a> to construct a prior suitable for your analysis. The <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a> package has documentation on how its default priors are constructed and how to set your own priors. Once you have an R object that represents the joint prior distribution of your model, you can pass it to the <code>brm_model()</code> function described below. The <code>get_prior()</code> function shows the default priors for a given dataset and model formula.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>brms<span class="op">::</span><span class="kw">get_prior</span>(<span class="dt">data =</span> data, <span class="dt">formula =</span> formula)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">#&gt;                   prior     class                    coef group resp  dpar</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="co">#&gt;  student_t(3, 1.1, 2.5) Intercept                                         </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b                                         </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b            groupgroup.2                 </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b            groupgroup.3                 </span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b              timetime.2                 </span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b timetime.2:groupgroup.2                 </span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b timetime.2:groupgroup.3                 </span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b              timetime.3                 </span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b timetime.3:groupgroup.2                 </span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b timetime.3:groupgroup.3                 </span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b              timetime.4                 </span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b timetime.4:groupgroup.2                 </span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b timetime.4:groupgroup.3                 </span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a><span class="co">#&gt;                  lkj(1)   cortime                                         </span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b                                    sigma</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b              timetime.1            sigma</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b              timetime.2            sigma</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b              timetime.3            sigma</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true"></a><span class="co">#&gt;                  (flat)         b              timetime.4            sigma</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true"></a><span class="co">#&gt;  nlpar lb ub       source</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true"></a><span class="co">#&gt;                   default</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true"></a><span class="co">#&gt;                   default</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true"></a><span class="co">#&gt;                   default</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true"></a><span class="co">#&gt;                   default</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true"></a><span class="co">#&gt;              (vectorized)</span></span></code></pre></div>
+</div>
+<div id="model" class="section level1" number="4">
+<h1 number="4"><span class="header-section-number">4</span> Model</h1>
+<p>To run an MMRM, use the <code>brm_model()</code> function. This function calls <code>brms::brm()</code> behind the scenes, using the formula and prior you set in the <code>formula</code> and <code>prior</code> arguments.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>model &lt;-<span class="st"> </span><span class="kw">brm_model</span>(<span class="dt">data =</span> data, <span class="dt">formula =</span> formula, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
+<p>The result is a <code>brms</code> model object.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>model</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="co">#&gt;  Family: gaussian </span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="co">#&gt;   Links: mu = identity; sigma = log </span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="co">#&gt; Formula: response ~ time + group + group:time + unstr(time = time, gr = patient) </span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="co">#&gt;          sigma ~ 0 + time</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">#&gt;    Data: data (Number of observations: 1200) </span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="co">#&gt;          total post-warmup draws = 4000</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">#&gt; Correlation Structures:</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a><span class="co">#&gt;                        Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a><span class="co">#&gt; cortime(time.1,time.2)     0.39      0.05     0.29     0.48 1.00     5103</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a><span class="co">#&gt; cortime(time.1,time.3)     0.74      0.03     0.69     0.78 1.00     4466</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a><span class="co">#&gt; cortime(time.2,time.3)     0.28      0.05     0.17     0.38 1.00     5440</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a><span class="co">#&gt; cortime(time.1,time.4)     0.34      0.05     0.23     0.44 1.00     5982</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a><span class="co">#&gt; cortime(time.2,time.4)     0.08      0.06    -0.03     0.19 1.00     4990</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a><span class="co">#&gt; cortime(time.3,time.4)     0.25      0.06     0.14     0.36 1.00     5807</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a><span class="co">#&gt;                        Tail_ESS</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a><span class="co">#&gt; cortime(time.1,time.2)     3274</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a><span class="co">#&gt; cortime(time.1,time.3)     3737</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a><span class="co">#&gt; cortime(time.2,time.3)     3073</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a><span class="co">#&gt; cortime(time.1,time.4)     3303</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true"></a><span class="co">#&gt; cortime(time.2,time.4)     3064</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true"></a><span class="co">#&gt; cortime(time.3,time.4)     2831</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true"></a><span class="co">#&gt; Population-Level Effects: </span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true"></a><span class="co">#&gt;                         Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true"></a><span class="co">#&gt; Intercept                  -0.15      0.05    -0.24    -0.05 1.00     4451</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true"></a><span class="co">#&gt; timetime.2                  1.24      0.07     1.10     1.39 1.00     3406</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true"></a><span class="co">#&gt; timetime.3                  0.43      0.04     0.34     0.51 1.00     3221</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true"></a><span class="co">#&gt; timetime.4                 -1.51      0.09    -1.68    -1.34 1.00     3711</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true"></a><span class="co">#&gt; groupgroup.2                1.29      0.07     1.17     1.42 1.00     4707</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true"></a><span class="co">#&gt; groupgroup.3                1.41      0.07     1.29     1.54 1.00     4634</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true"></a><span class="co">#&gt; timetime.2:groupgroup.2     0.02      0.10    -0.18     0.22 1.00     4073</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true"></a><span class="co">#&gt; timetime.3:groupgroup.2    -0.05      0.06    -0.16     0.07 1.00     4309</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true"></a><span class="co">#&gt; timetime.4:groupgroup.2     0.01      0.12    -0.23     0.24 1.00     3954</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true"></a><span class="co">#&gt; timetime.2:groupgroup.3    -0.04      0.10    -0.25     0.15 1.00     4069</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true"></a><span class="co">#&gt; timetime.3:groupgroup.3    -0.04      0.06    -0.15     0.07 1.00     3965</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true"></a><span class="co">#&gt; timetime.4:groupgroup.3     0.05      0.12    -0.19     0.29 1.00     3885</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.1           -0.80      0.04    -0.88    -0.73 1.00     4211</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.2           -0.25      0.04    -0.33    -0.16 1.00     4623</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.3           -0.54      0.04    -0.61    -0.46 1.00     4560</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.4           -0.11      0.04    -0.18    -0.02 1.00     5180</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true"></a><span class="co">#&gt;                         Tail_ESS</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true"></a><span class="co">#&gt; Intercept                   3336</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true"></a><span class="co">#&gt; timetime.2                  3023</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true"></a><span class="co">#&gt; timetime.3                  3236</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true"></a><span class="co">#&gt; timetime.4                  3074</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true"></a><span class="co">#&gt; groupgroup.2                3229</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true"></a><span class="co">#&gt; groupgroup.3                2904</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true"></a><span class="co">#&gt; timetime.2:groupgroup.2     3320</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true"></a><span class="co">#&gt; timetime.3:groupgroup.2     3430</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true"></a><span class="co">#&gt; timetime.4:groupgroup.2     2960</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true"></a><span class="co">#&gt; timetime.2:groupgroup.3     3164</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true"></a><span class="co">#&gt; timetime.3:groupgroup.3     3223</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true"></a><span class="co">#&gt; timetime.4:groupgroup.3     3332</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.1            3539</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.2            3358</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.3            3363</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true"></a><span class="co">#&gt; sigma_timetime.4            3427</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true"></a><span class="co">#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true"></a><span class="co">#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true"></a><span class="co">#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).</span></span></code></pre></div>
+</div>
+<div id="marginals" class="section level1" number="5">
+<h1 number="5"><span class="header-section-number">5</span> Marginals</h1>
+<p>Regardless of the choice of fixed effects formula, <code>brms.mmrm</code> performs inference on the marginal distributions at each treatment group and time point of the mean of the following quantities:</p>
+<ol style="list-style-type: decimal">
+<li>Response.</li>
+<li>Change from baseline, if you set <code>role</code> to <code>&quot;change&quot;</code> in <code>brm_data()</code>.</li>
+<li>Treatment difference, in terms of change from baseline.</li>
+<li>Effect size: treatment difference divided by the residual standard deviation.</li>
+</ol>
+<p>To derive posterior draws of these marginals, use the <code>brm_marginal_draws()</code> function.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>draws &lt;-<span class="st"> </span><span class="kw">brm_marginal_draws</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  <span class="dt">model =</span> model,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  <span class="dt">data =</span> data,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>  <span class="dt">control =</span> <span class="st">&quot;group 1&quot;</span>, <span class="co"># automatically cleaned with make.names()</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>  <span class="dt">baseline =</span> <span class="st">&quot;time 1&quot;</span> <span class="co"># also cleaned with make.names()</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>draws</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a><span class="co">#&gt; $response</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 12 variables</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a><span class="co">#&gt;    group.1|time.1 group.2|time.1 group.3|time.1 group.1|time.2 group.2|time.2</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a><span class="co">#&gt; 1          -0.133            1.1            1.3            1.1            2.4</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a><span class="co">#&gt; 2          -0.126            1.2            1.3            1.1            2.4</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a><span class="co">#&gt; 3          -0.150            1.2            1.2            1.1            2.3</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a><span class="co">#&gt; 4          -0.120            1.2            1.2            1.2            2.5</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a><span class="co">#&gt; 5          -0.121            1.1            1.3            1.1            2.5</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true"></a><span class="co">#&gt; 6          -0.194            1.1            1.3            1.0            2.4</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true"></a><span class="co">#&gt; 7          -0.117            1.1            1.2            1.3            2.4</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true"></a><span class="co">#&gt; 8          -0.049            1.1            1.3            1.3            2.4</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true"></a><span class="co">#&gt; 9          -0.095            1.1            1.3            1.2            2.5</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true"></a><span class="co">#&gt; 10         -0.165            1.2            1.3            1.3            2.3</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true"></a><span class="co">#&gt;    group.3|time.2 group.1|time.3 group.2|time.3</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true"></a><span class="co">#&gt; 1             2.3           0.24            1.4</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true"></a><span class="co">#&gt; 2             2.6           0.32            1.6</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true"></a><span class="co">#&gt; 3             2.5           0.26            1.6</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true"></a><span class="co">#&gt; 4             2.5           0.35            1.5</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true"></a><span class="co">#&gt; 5             2.5           0.34            1.5</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true"></a><span class="co">#&gt; 6             2.6           0.21            1.6</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true"></a><span class="co">#&gt; 7             2.4           0.28            1.4</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true"></a><span class="co">#&gt; 8             2.4           0.33            1.5</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true"></a><span class="co">#&gt; 9             2.5           0.29            1.5</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true"></a><span class="co">#&gt; 10            2.4           0.25            1.6</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws, and 4 more variables</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true"></a><span class="co">#&gt; $change</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 9 variables</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true"></a><span class="co">#&gt;    group.1|time.2 group.1|time.3 group.1|time.4 group.2|time.2 group.2|time.3</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true"></a><span class="co">#&gt; 1             1.2           0.38           -1.5            1.3           0.33</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true"></a><span class="co">#&gt; 2             1.2           0.45           -1.6            1.2           0.34</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true"></a><span class="co">#&gt; 3             1.2           0.40           -1.4            1.1           0.44</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true"></a><span class="co">#&gt; 4             1.3           0.47           -1.7            1.3           0.38</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true"></a><span class="co">#&gt; 5             1.3           0.46           -1.5            1.3           0.33</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true"></a><span class="co">#&gt; 6             1.2           0.41           -1.5            1.2           0.42</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true"></a><span class="co">#&gt; 7             1.4           0.40           -1.4            1.4           0.35</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true"></a><span class="co">#&gt; 8             1.3           0.38           -1.4            1.2           0.36</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true"></a><span class="co">#&gt; 9             1.3           0.38           -1.5            1.4           0.37</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true"></a><span class="co">#&gt; 10            1.4           0.42           -1.5            1.1           0.42</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true"></a><span class="co">#&gt;    group.2|time.4 group.3|time.2 group.3|time.3</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true"></a><span class="co">#&gt; 1            -1.5            1.1           0.35</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true"></a><span class="co">#&gt; 2            -1.5            1.3           0.34</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true"></a><span class="co">#&gt; 3            -1.6            1.2           0.41</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true"></a><span class="co">#&gt; 4            -1.6            1.3           0.37</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true"></a><span class="co">#&gt; 5            -1.4            1.2           0.38</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true"></a><span class="co">#&gt; 6            -1.6            1.3           0.39</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true"></a><span class="co">#&gt; 7            -1.4            1.2           0.40</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true"></a><span class="co">#&gt; 8            -1.5            1.1           0.42</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true"></a><span class="co">#&gt; 9            -1.5            1.2           0.41</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true"></a><span class="co">#&gt; 10           -1.5            1.2           0.35</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws, and 1 more variables</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true"></a><span class="co">#&gt; $difference</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 6 variables</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true"></a><span class="co">#&gt;    group.2|time.2 group.2|time.3 group.2|time.4 group.3|time.2 group.3|time.3</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true"></a><span class="co">#&gt; 1           0.057        -0.0436        -0.0172       -0.14395        -0.0216</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true"></a><span class="co">#&gt; 2          -0.023        -0.1025         0.1381        0.04942        -0.1066</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true"></a><span class="co">#&gt; 3          -0.099         0.0349        -0.1632        0.00031         0.0029</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true"></a><span class="co">#&gt; 4           0.019        -0.0918         0.0717       -0.01002        -0.1083</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true"></a><span class="co">#&gt; 5           0.060        -0.1264         0.1523       -0.05260        -0.0823</span></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true"></a><span class="co">#&gt; 6           0.012         0.0092        -0.0710        0.08494        -0.0182</span></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true"></a><span class="co">#&gt; 7          -0.032        -0.0491         0.0456       -0.17976         0.0042</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true"></a><span class="co">#&gt; 8          -0.093        -0.0226        -0.0118       -0.20878         0.0357</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true"></a><span class="co">#&gt; 9           0.074        -0.0131        -0.0031       -0.08358         0.0278</span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true"></a><span class="co">#&gt; 10         -0.287        -0.0016         0.0295       -0.28053        -0.0691</span></span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true"></a><span class="co">#&gt;    group.3|time.4</span></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true"></a><span class="co">#&gt; 1           0.038</span></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true"></a><span class="co">#&gt; 2           0.181</span></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true"></a><span class="co">#&gt; 3          -0.092</span></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true"></a><span class="co">#&gt; 4           0.112</span></span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true"></a><span class="co">#&gt; 5           0.080</span></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true"></a><span class="co">#&gt; 6           0.162</span></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true"></a><span class="co">#&gt; 7          -0.048</span></span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true"></a><span class="co">#&gt; 8           0.053</span></span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true"></a><span class="co">#&gt; 9          -0.011</span></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true"></a><span class="co">#&gt; 10          0.065</span></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws</span></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true"></a><span class="co">#&gt; $effect</span></span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 6 variables</span></span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true"></a><span class="co">#&gt;    group.2|time.2 group.2|time.3 group.2|time.4 group.3|time.2 group.3|time.3</span></span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true"></a><span class="co">#&gt; 1           0.069        -0.0807        -0.0186       -0.17425        -0.0399</span></span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true"></a><span class="co">#&gt; 2          -0.032        -0.1843         0.1572        0.06791        -0.1917</span></span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true"></a><span class="co">#&gt; 3          -0.133         0.0588        -0.1799        0.00042         0.0049</span></span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true"></a><span class="co">#&gt; 4           0.025        -0.1608         0.0772       -0.01346        -0.1897</span></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true"></a><span class="co">#&gt; 5           0.077        -0.2318         0.1634       -0.06787        -0.1508</span></span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true"></a><span class="co">#&gt; 6           0.016         0.0153        -0.0842        0.11189        -0.0304</span></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true"></a><span class="co">#&gt; 7          -0.040        -0.0892         0.0478       -0.22122         0.0077</span></span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true"></a><span class="co">#&gt; 8          -0.119        -0.0392        -0.0128       -0.26933         0.0617</span></span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true"></a><span class="co">#&gt; 9           0.094        -0.0218        -0.0033       -0.10621         0.0464</span></span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true"></a><span class="co">#&gt; 10         -0.349        -0.0027         0.0338       -0.34090        -0.1191</span></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true"></a><span class="co">#&gt;    group.3|time.4</span></span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true"></a><span class="co">#&gt; 1           0.041</span></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true"></a><span class="co">#&gt; 2           0.206</span></span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true"></a><span class="co">#&gt; 3          -0.101</span></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true"></a><span class="co">#&gt; 4           0.120</span></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true"></a><span class="co">#&gt; 5           0.086</span></span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true"></a><span class="co">#&gt; 6           0.192</span></span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true"></a><span class="co">#&gt; 7          -0.050</span></span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true"></a><span class="co">#&gt; 8           0.058</span></span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true"></a><span class="co">#&gt; 9          -0.012</span></span>
+<span id="cb8-113"><a href="#cb8-113" aria-hidden="true"></a><span class="co">#&gt; 10          0.074</span></span>
+<span id="cb8-114"><a href="#cb8-114" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws</span></span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span></code></pre></div>
+<p>If you need samples from these marginals averaged across time points, e.g. an “overall effect size”, <code>brm_marginal_draws_average()</code> can average the draws above across discrete time points (either all or a user-defined subset).</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">brm_marginal_draws_average</span>(<span class="dt">draws =</span> draws, <span class="dt">data =</span> data)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a><span class="co">#&gt; $response</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 3 variables</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="co">#&gt;    group.1|average group.2|average group.3|average</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a><span class="co">#&gt; 1           -0.119             1.1             1.3</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a><span class="co">#&gt; 2           -0.115             1.2             1.3</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a><span class="co">#&gt; 3           -0.093             1.2             1.3</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="co">#&gt; 4           -0.094             1.2             1.2</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="co">#&gt; 5           -0.075             1.2             1.3</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a><span class="co">#&gt; 6           -0.161             1.2             1.4</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="co">#&gt; 7           -0.025             1.2             1.3</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a><span class="co">#&gt; 8            0.018             1.2             1.3</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a><span class="co">#&gt; 9           -0.065             1.2             1.3</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a><span class="co">#&gt; 10          -0.078             1.2             1.3</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true"></a><span class="co">#&gt; $change</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 3 variables</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true"></a><span class="co">#&gt;    group.1|average group.2|average group.3|average</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true"></a><span class="co">#&gt; 1            0.019         1.8e-02          -0.023</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true"></a><span class="co">#&gt; 2            0.015         1.9e-02           0.056</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true"></a><span class="co">#&gt; 3            0.076        -4.2e-05           0.046</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true"></a><span class="co">#&gt; 4            0.035         3.5e-02           0.033</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true"></a><span class="co">#&gt; 5            0.062         9.0e-02           0.043</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true"></a><span class="co">#&gt; 6            0.044         2.7e-02           0.120</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true"></a><span class="co">#&gt; 7            0.123         1.1e-01           0.049</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true"></a><span class="co">#&gt; 8            0.090         4.7e-02           0.050</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true"></a><span class="co">#&gt; 9            0.040         5.9e-02           0.018</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true"></a><span class="co">#&gt; 10           0.116         2.9e-02           0.021</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true"></a><span class="co">#&gt; $difference</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 2 variables</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true"></a><span class="co">#&gt;    group.2|average group.3|average</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true"></a><span class="co">#&gt; 1         -0.00134         -0.0425</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true"></a><span class="co">#&gt; 2          0.00417          0.0412</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true"></a><span class="co">#&gt; 3         -0.07561         -0.0294</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true"></a><span class="co">#&gt; 4         -0.00045         -0.0022</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true"></a><span class="co">#&gt; 5          0.02846         -0.0183</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true"></a><span class="co">#&gt; 6         -0.01666          0.0762</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true"></a><span class="co">#&gt; 7         -0.01193         -0.0744</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true"></a><span class="co">#&gt; 8         -0.04233         -0.0400</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true"></a><span class="co">#&gt; 9          0.01920         -0.0223</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true"></a><span class="co">#&gt; 10        -0.08641         -0.0949</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true"></a><span class="co">#&gt; </span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true"></a><span class="co">#&gt; $effect</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true"></a><span class="co">#&gt; # A draws_df: 1000 iterations, 4 chains, and 2 variables</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true"></a><span class="co">#&gt;    group.2|average group.3|average</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true"></a><span class="co">#&gt; 1          -0.0102          -0.058</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true"></a><span class="co">#&gt; 2          -0.0196           0.027</span></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true"></a><span class="co">#&gt; 3          -0.0847          -0.032</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true"></a><span class="co">#&gt; 4          -0.0195          -0.028</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true"></a><span class="co">#&gt; 5           0.0028          -0.044</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true"></a><span class="co">#&gt; 6          -0.0177           0.091</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true"></a><span class="co">#&gt; 7          -0.0270          -0.088</span></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true"></a><span class="co">#&gt; 8          -0.0571          -0.050</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true"></a><span class="co">#&gt; 9           0.0229          -0.024</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true"></a><span class="co">#&gt; 10         -0.1060          -0.129</span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true"></a><span class="co">#&gt; # ... with 3990 more draws</span></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true"></a><span class="co">#&gt; # ... hidden reserved variables {&#39;.chain&#39;, &#39;.iteration&#39;, &#39;.draw&#39;}</span></span></code></pre></div>
+<p>The <code>brm_marginal_summaries()</code> function produces posterior summaries of these marginals, and it includes the Monte Carlo standard error (MCSE) of each estimate.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>summaries &lt;-<span class="st"> </span><span class="kw">brm_marginal_summaries</span>(draws, <span class="dt">level =</span> <span class="fl">0.95</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>summaries</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="co">#&gt; # A tibble: 165 × 6</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">#&gt;    marginal statistic group   time    value    mcse</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a><span class="co">#&gt;  1 change   lower     group.1 time.2  1.10  0.00388</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a><span class="co">#&gt;  2 change   lower     group.1 time.3  0.345 0.00151</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a><span class="co">#&gt;  3 change   lower     group.1 time.4 -1.68  0.00356</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a><span class="co">#&gt;  4 change   lower     group.2 time.2  1.12  0.00357</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a><span class="co">#&gt;  5 change   lower     group.2 time.3  0.304 0.00203</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a><span class="co">#&gt;  6 change   lower     group.2 time.4 -1.67  0.00356</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a><span class="co">#&gt;  7 change   lower     group.3 time.2  1.06  0.00215</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a><span class="co">#&gt;  8 change   lower     group.3 time.3  0.309 0.00130</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true"></a><span class="co">#&gt;  9 change   lower     group.3 time.4 -1.63  0.00403</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true"></a><span class="co">#&gt; 10 change   mean      group.1 time.2  1.24  0.00126</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true"></a><span class="co">#&gt; # ℹ 155 more rows</span></span></code></pre></div>
+<p>The <code>brm_marginal_probabilities()</code> function shows posterior probabilities of the form,</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{Prob}(\text{treatment effect} &gt; \text{threshold})
+\end{aligned}
+\]</span></p>
+<p>or</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{Prob}(\text{treatment effect} &lt; \text{threshold})
+\end{aligned}
+\]</span></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">brm_marginal_probabilities</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>  <span class="dt">draws =</span> draws,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>  <span class="dt">threshold =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>  <span class="dt">direction =</span> <span class="kw">c</span>(<span class="st">&quot;greater&quot;</span>, <span class="st">&quot;less&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a><span class="co">#&gt; # A tibble: 12 × 5</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a><span class="co">#&gt;    direction threshold group   time   value</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a><span class="co">#&gt;    &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;  &lt;dbl&gt;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a><span class="co">#&gt;  1 greater        -0.1 group.2 time.2 0.879</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a><span class="co">#&gt;  2 greater        -0.1 group.2 time.3 0.829</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a><span class="co">#&gt;  3 greater        -0.1 group.2 time.4 0.824</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a><span class="co">#&gt;  4 greater        -0.1 group.3 time.2 0.706</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a><span class="co">#&gt;  5 greater        -0.1 group.3 time.3 0.856</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a><span class="co">#&gt;  6 greater        -0.1 group.3 time.4 0.895</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true"></a><span class="co">#&gt;  7 less            0.1 group.2 time.2 0.780</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true"></a><span class="co">#&gt;  8 less            0.1 group.2 time.3 0.994</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true"></a><span class="co">#&gt;  9 less            0.1 group.2 time.4 0.772</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true"></a><span class="co">#&gt; 10 less            0.1 group.3 time.2 0.918</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true"></a><span class="co">#&gt; 11 less            0.1 group.3 time.3 0.992</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true"></a><span class="co">#&gt; 12 less            0.1 group.3 time.4 0.654</span></span></code></pre></div>
+<p>Finally, the <code>brm_marignals_data()</code> computes marginal means and confidence intervals on the response variable in the data, along with other summary statistics.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>summaries_data &lt;-<span class="st"> </span><span class="kw">brm_marginal_data</span>(<span class="dt">data =</span> data, <span class="dt">level =</span> <span class="fl">0.95</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>summaries_data</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="co">#&gt; # A tibble: 84 × 4</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="co">#&gt;    statistic group   time     value</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;    &lt;dbl&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a><span class="co">#&gt;  1 lower     group.1 time.1 -0.0475</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a><span class="co">#&gt;  2 lower     group.1 time.2  1.25  </span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a><span class="co">#&gt;  3 lower     group.1 time.3  0.406 </span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a><span class="co">#&gt;  4 lower     group.1 time.4 -1.49  </span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a><span class="co">#&gt;  5 lower     group.2 time.1  1.26  </span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a><span class="co">#&gt;  6 lower     group.2 time.2  2.56  </span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true"></a><span class="co">#&gt;  7 lower     group.2 time.3  1.66  </span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true"></a><span class="co">#&gt;  8 lower     group.2 time.4 -0.163 </span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true"></a><span class="co">#&gt;  9 lower     group.3 time.1  1.30  </span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true"></a><span class="co">#&gt; 10 lower     group.3 time.2  2.62  </span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true"></a><span class="co">#&gt; # ℹ 74 more rows</span></span></code></pre></div>
+</div>
+<div id="visualization" class="section level1" number="6">
+<h1 number="6"><span class="header-section-number">6</span> Visualization</h1>
+<p>The <code>brm_plot_compare()</code> function compares means and intervals from many different models and data sources in the same plot. First, we need the marginals of the data.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">brm_plot_compare</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>  <span class="dt">data =</span> summaries_data,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>  <span class="dt">model1 =</span> summaries,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>  <span class="dt">model2 =</span> summaries</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>If you omit the marginals of the data, you can show inference on change from baseline or the treatment effect.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">brm_plot_compare</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>  <span class="dt">model1 =</span> summaries,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>  <span class="dt">model2 =</span> summaries,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>  <span class="dt">marginal =</span> <span class="st">&quot;difference&quot;</span> <span class="co"># treatment effect</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Finally, <code>brm_plot_draws()</code> can plot the posterior draws of the response, change from baseline, or treatment difference.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">brm_plot_draws</span>(<span class="dt">draws =</span> draws<span class="op">$</span>difference)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
