@@ -1,17 +1,18 @@
 ---
 title: "Methods"
-bibliography: bibliography.bib
+bibliography: '`r system.file("bibliography.bib", package = "brms.mmrm")`'
+csl: '`r system.file("asa.csl", package = "brms.mmrm")`'
 output:
   rmarkdown::html_vignette:
     toc: true
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{methods}
+  %\VignetteIndexEntry{Methods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-The `brms.mmrm` R package implements a mixed model of repeated measures (MMRM) [@mallinckrodt2008], a popular and flexible model to analyze continuous longitudinal outcomes. `brms.mmrm` focuses on marginal MMRMs for randomized controlled parallel studies with discrete time points, where each subject shares the same set of time points. Whereas the [`mmrm`](https://openpharma.github.io/mmrm/) package is frequentist, `brms.mmrm` fits models in Bayesian fashion using [`brms`](https://paul-buerkner.github.io/brms/) [@burkner2017].
+The `brms.mmrm` R package implements a mixed model of repeated measures (MMRM), a popular and flexible model to analyze continuous longitudinal outcomes (@mallinckrodt2008, @mallinckrodt2017). `brms.mmrm` focuses on marginal MMRMs for randomized controlled parallel studies with discrete time points, where each subject shares the same set of time points. Whereas the [`mmrm`](https://openpharma.github.io/mmrm/) package is frequentist, `brms.mmrm` fits models in Bayesian fashion using [`brms`](https://paul-buerkner.github.io/brms/) [@burkner2017].
 
 # Model
 
@@ -65,5 +66,9 @@ The priors on the parameters depend on the `prior` argument of `brm_model()` and
 Inference in `brms.mmrm`, uses the estimated marginal posterior distribution of the mean response at each combination of study arm and time point. The [`emmeans`](https://github.com/rvlenth/emmeans) package [@lenth2016] derives these marginal posteriors while averaging over other covariates as nuisance parameters. During this averaging process, the levels of categorical nuisance parameters are weighted proportionally to their frequencies in the dataset (with `wt.nuis = "proportional"` in `emmeans::ref_grid()`).
 
 The `brm_marginal_draws()` function, described in the usage vignette, derives posterior draws of the marginals using posterior draws of the model coefficients $\beta_p$. Then, downstream functions like `brm_marginal_probabilities()` compute numerical summaries of these marginal draws.
+
+# Subgroup analysis
+
+The model above supports subgroup analysis through the addition of a categorical variable in the data to denote subgroup levels. To analyze the subgroup, new fixed effects parameters $\beta_p$ and columns of the model matrices $X_i$ are added to the model to describe the additive effect of the subgroup and plausible two-way and three-way interactions with treatment group, discrete time, and baseline (if applicable). Marginal means may include subgroup-specific terms, and model comparison via the widely applicable information criterion (WAIC) and expected log predictive density (ELPD) is implemented via R packages `loo` and `brms` (@GabryVisualization2019, @GelmanData2007, @VehtariPractical2017, @VehtariPareto2019).
 
 # References

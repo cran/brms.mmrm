@@ -2,17 +2,19 @@ test_that("brm_model() runs", {
   skip_on_cran()
   set.seed(0L)
   data <- brm_data(
-    data = tibble::as_tibble(brm_simulate()$data),
+    data = tibble::as_tibble(brm_simulate_simple()$data),
     outcome = "response",
     role = "response",
     group = "group",
     time = "time",
-    patient = "patient"
+    patient = "patient",
+    reference_group = "group_1",
+    reference_time = "time_1"
   )
   formula <- brm_formula(
     data = data,
-    effect_base = FALSE,
-    interaction_base = FALSE
+    baseline = FALSE,
+    baseline_time = FALSE
   )
   tmp <- utils::capture.output(
     suppressMessages(

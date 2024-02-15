@@ -1,12 +1,15 @@
 test_that("brm_simulate() data", {
   set.seed(0L)
-  out <- brm_simulate(
-    n_group = 2L,
-    n_patient = 2L,
-    n_time = 3L,
-    hyper_beta = 1,
-    hyper_sigma = 1,
-    hyper_correlation = 1
+  expect_warning(
+    out <- brm_simulate(
+      n_group = 2L,
+      n_patient = 2L,
+      n_time = 3L,
+      hyper_beta = 1,
+      hyper_sigma = 1,
+      hyper_correlation = 1
+    ),
+    class = "brm_deprecate"
   )
   data <- out$data
   expect_equal(dim(data), c(12L, 4L))
@@ -20,13 +23,16 @@ test_that("brm_simulate() data", {
 
 test_that("brm_simulate() model_matrix", {
   set.seed(0L)
-  out <- brm_simulate(
-    n_group = 2L,
-    n_patient = 2L,
-    n_time = 3L,
-    hyper_beta = 1,
-    hyper_sigma = 1,
-    hyper_correlation = 1
+  expect_warning(
+    out <- brm_simulate(
+      n_group = 2L,
+      n_patient = 2L,
+      n_time = 3L,
+      hyper_beta = 1,
+      hyper_sigma = 1,
+      hyper_correlation = 1
+    ),
+    class = "brm_deprecate"
   )
   matrix <- out$model_matrix
   expect_equal(dim(matrix), c(12L, 4L))
@@ -47,16 +53,22 @@ test_that("brm_simulate() model_matrix", {
 test_that("brm_simulate() parameters", {
   set.seed(0L)
   set.seed(0L)
-  out <- brm_simulate(
-    n_group = 2L,
-    n_patient = 2L,
-    n_time = 3L,
-    hyper_beta = 1,
-    hyper_sigma = 1,
-    hyper_correlation = 1
+  expect_warning(
+    out <- brm_simulate(
+      n_group = 2L,
+      n_patient = 2L,
+      n_time = 3L,
+      hyper_beta = 1,
+      hyper_sigma = 1,
+      hyper_correlation = 1
+    ),
+    class = "brm_deprecate"
   )
   params <- out$parameters
-  expect_equal(names(params), c("beta", "sigma", "covariance"))
+  expect_equal(
+    sort(names(params)),
+    sort(c("beta", "sigma", "covariance"))
+  )
   expect_equal(length(params$beta), 4L)
   expect_null(dim(params$beta))
   expect_equal(length(params$sigma), 3L)

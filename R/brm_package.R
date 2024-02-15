@@ -1,5 +1,4 @@
 #' brms.mmrm: Bayesian MMRMs using `brms`
-#' @docType package
 #' @name brms.mmrm-package
 #' @description The mixed model for repeated measures (MMRM) is a
 #'   popular model for longitudinal clinical trial data with
@@ -9,19 +8,22 @@
 #'   it supports a simplified interfaced to reduce difficulty
 #'   and align with the best practices of the life sciences.
 #' @references
-#'   * Paul-Christian Bürkner (2017). brms: An R Package for Bayesian
-#'     Multilevel Models Using Stan.
-#'.    Journal of Statistical Software, 80(1), 1-28.
-#'     doi:10.18637/jss.v080.i01
-#'   * Mallinckrodt, C.H., Lane, P.W., Schnell, D. et al.
-#'     Recommendations for the Primary Analysis of Continuous Endpoints
-#'     in Longitudinal Clinical Trials.
-#'     Ther Innov Regul Sci 42, 303–319 (2008).
-#'     doi:10.1177/009286150804200402
+#'   * Bürkner, P.-C. (2017), "brms: An R package for Bayesian
+#'     multilevel models using Stan,"
+#'     Journal of Statistical Software, 80, 1–28.
+#'     https://doi.org/10.18637/jss.v080.i01.
+#'   * Mallinckrodt, C. H., Lane, P. W., Schnell, D., and others (2008),
+#'     "Recommendations for the primary analysis of continuous endpoints
+#'     in longitudinal clinical trials,"
+#'     Therapeutic Innovation and Regulatory Science, 42, 303–319.
+#'     https://doi.org/10.1177/009286150804200402.
+#'   * Mallinckrodt, C. H., and Lipkovich, I. (2017),
+#'     Analyzing longitudinal clinical trial data: A practical guide,
+#'     CRC Press, Taylor & Francis Group.
 #' @family help
 #' @importFrom brms brm brmsformula get_prior prior unstr
 #' @importFrom coda as.mcmc
-#' @importFrom dplyr bind_rows left_join
+#' @importFrom dplyr bind_rows left_join rename
 #' @importFrom emmeans emm_options emmeans get_emm_option
 #' @importFrom ggplot2 aes facet_wrap geom_point geom_errorbar ggplot
 #'   position_dodge theme_gray xlab ylab
@@ -31,7 +33,7 @@
 #'   mcse_sd
 #' @importFrom purrr map_dbl map_df map2_df
 #' @importFrom rlang warn
-#' @importFrom stats as.formula median model.matrix rnorm runif sd
+#' @importFrom stats as.formula median model.matrix rbinom rnorm runif sd
 #' @importFrom tibble tibble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider
 #' @importFrom tidyselect any_of everything
@@ -55,7 +57,8 @@ globalVariables(
     "time",
     "value",
     "outcome",
-    "level"
+    "level",
+    "patient"
   ),
   package = "brms.mmrm"
 )

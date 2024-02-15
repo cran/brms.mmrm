@@ -2,40 +2,83 @@
 % Please edit documentation in R/brm_plot_compare.R
 \name{brm_plot_compare}
 \alias{brm_plot_compare}
-\title{Visually compare the marginals of models and datasets.}
+\title{Visually compare the marginals of multiple models and/or datasets.}
 \usage{
-brm_plot_compare(..., marginal = "response")
+brm_plot_compare(
+  ...,
+  marginal = "response",
+  compare = "source",
+  axis = "time",
+  facet = c("group", "subgroup")
+)
 }
 \arguments{
-\item{...}{Named data frames of marginals posterior summaries
+\item{...}{Named \code{tibble}s of marginals posterior summaries
 from \code{\link[=brm_marginal_summaries]{brm_marginal_summaries()}} and/or \code{\link[=brm_marginal_data]{brm_marginal_data()}}.}
 
 \item{marginal}{Character of length 1, which kind of marginal
-to visualize: either \code{"response"}, \code{"change"}, or \code{"difference"}.
+to visualize. Must be a value in the \code{marginal} column of the supplied
+\code{tibble}s in the \code{...} argument.
 Only applies to MCMC output, the data is always on the scale of the
 response variable.}
+
+\item{compare}{Character of length 1 identifying the variable to display
+using back-to-back interval plots of different colors. This is
+the primary comparison of interest. Must be one of
+\code{"source"} (the source of the marginal summaries,
+e.g. a model or dataset), \code{"time"} or \code{"group"}
+(in the non-subgroup case). Can also be \code{"subgroup"}
+if the marginal summaries are subgroup-specific.
+The value must not be in \code{axis} or \code{facet}.}
+
+\item{axis}{Character of length 1 identifying the quantity to put
+on the horizontal axis. Must be be one of \code{"source"}
+(the source of the marginal summaries,
+e.g. a model or dataset), \code{"time"},
+or \code{"group"} (in the non-subgroup case). If the marginals
+are subgroup-specific, then \code{axis} can also be \code{"subgroup"}.
+The value must not be in \code{compare} or \code{facet}.}
+
+\item{facet}{Character vector of length 1 or 2 with quantities to
+generate facets. Each element must be \code{"source"}
+(the source of the marginal summaries,
+e.g. a model or dataset), \code{"time"}, \code{"group"},
+or \code{"subgroup"}, and \code{c(axis, facet)} must all have unique elements.
+\code{"subgroup"} is automatically removed if the marginals have no
+subgroup. If \code{facet} has length 1, then faceting is wrapped.
+If \code{facet} has length 2, then faceting is in a grid,
+and the first element is horizontal facet.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-Visually compare the marginals of models and datasets.
+Visually compare the marginals of multiple models
+and/or datasets.
+}
+\details{
+By default, \code{\link[=brm_plot_compare]{brm_plot_compare()}} compares multiple models
+and/or datasets side-by-side. The \code{compare} argument selects the primary
+comparison of interest, and arguments \code{axis} and \code{facet} control
+the arrangement of various other components of the plot.
 }
 \examples{
 if (identical(Sys.getenv("BRM_EXAMPLES", unset = ""), "true")) {
 set.seed(0L)
 data <- brm_data(
-  data = brm_simulate()$data,
+  data = brm_simulate_simple()$data,
   outcome = "response",
   role = "response",
   group = "group",
   time = "time",
-  patient = "patient"
+  patient = "patient",
+  reference_group = "group_1",
+  reference_time = "time_1"
 )
 formula <- brm_formula(
   data = data,
-  effect_base = FALSE,
-  interaction_base = FALSE
+  baseline = FALSE,
+  baseline_time = FALSE
 )
 tmp <- utils::capture.output(
   suppressMessages(
@@ -50,12 +93,7 @@ tmp <- utils::capture.output(
     )
   )
 )
-draws <- brm_marginal_draws(
-  model = model,
-  data = data,
-  control = "group 1",
-  baseline = "time 1"
-)
+draws <- brm_marginal_draws(model = model, data = data)
 suppressWarnings(summaries_draws <- brm_marginal_summaries(draws))
 summaries_data <- brm_marginal_data(data)
 brm_plot_compare(

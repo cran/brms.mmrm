@@ -4,11 +4,25 @@
 \alias{brm_plot_draws}
 \title{Visualize posterior draws of marginals.}
 \usage{
-brm_plot_draws(draws)
+brm_plot_draws(draws, axis = "time", facet = c("group", "subgroup"))
 }
 \arguments{
 \item{draws}{A data frame of draws from an element of
 the output list of \code{\link[=brm_marginal_summaries]{brm_marginal_summaries()}}.}
+
+\item{axis}{Character of length 1 identifying the quantity to put
+on the horizontal axis. Must be be one of \code{"time"} or \code{"group"} if
+the marginal summaries are not subgroup-specific. If the marginals
+are subgroup-specific, then \code{axis} must be one of
+\code{"time"}, \code{"group"}, or \code{"subgroup"}.}
+
+\item{facet}{Character vector of length 1 or 2 with quantities to
+generate facets. Each element must be \code{"time"}, \code{"group"},
+or \code{"subgroup"}, and \code{c(axis, facet)} must all have unique elements.
+\code{"subgroup"} is automatically removed if the marginals have no
+subgroup. If \code{facet} has length 1, then faceting is wrapped.
+If \code{facet} has length 2, then faceting is in a grid,
+and the first element is horizontal facet.}
 }
 \value{
 A \code{ggplot} object.
@@ -20,17 +34,19 @@ Visualize posterior draws of marginals.
 if (identical(Sys.getenv("BRM_EXAMPLES", unset = ""), "true")) {
 set.seed(0L)
 data <- brm_data(
-  data = brm_simulate()$data,
+  data = brm_simulate_simple()$data,
   outcome = "response",
   role = "response",
   group = "group",
   time = "time",
-  patient = "patient"
+  patient = "patient",
+  reference_group = "group_1",
+  reference_time = "time_1"
 )
 formula <- brm_formula(
   data = data,
-  effect_base = FALSE,
-  interaction_base = FALSE
+  baseline = FALSE,
+  baseline_time = FALSE
 )
 tmp <- utils::capture.output(
   suppressMessages(
@@ -45,13 +61,8 @@ tmp <- utils::capture.output(
     )
   )
 )
-draws <- brm_marginal_draws(
-  model = model,
-  data = data,
-  control = "group 1",
-  baseline = "time 1"
-)
-brm_plot_draws(draws = draws$change)
+draws <- brm_marginal_draws(model = model, data = data)
+brm_plot_draws(draws = draws$difference_time)
 }
 }
 \seealso{

@@ -29,6 +29,7 @@ A tibble of probabilities of the form
 \verb{Prob(treatment effect < threshold | data)}. It has one row per
 probability and the following columns:
 * \code{group}: treatment group.
+* \code{subgroup}: subgroup level, if applicable.
 * \code{time}: discrete time point,
 * \code{direction}: direction of the comparison in the marginal probability:
 \code{"greater"} for \code{>}, \code{"less"} for \code{<}
@@ -42,17 +43,19 @@ Marginal probabilities on the treatment effect for an MMRM.
 if (identical(Sys.getenv("BRM_EXAMPLES", unset = ""), "true")) {
 set.seed(0L)
 data <- brm_data(
-  data = brm_simulate()$data,
+  data = brm_simulate_simple()$data,
   outcome = "response",
   role = "response",
   group = "group",
   time = "time",
-  patient = "patient"
+  patient = "patient",
+  reference_group = "group_1",
+  reference_time = "time_1"
 )
 formula <- brm_formula(
   data = data,
-  effect_base = FALSE,
-  interaction_base = FALSE
+  baseline = FALSE,
+  baseline_time = FALSE
 )
 tmp <- utils::capture.output(
   suppressMessages(
@@ -67,20 +70,15 @@ tmp <- utils::capture.output(
     )
   )
 )
-draws <- brm_marginal_draws(
-  model = model,
-  data = data,
-  control = "group 1",
-  baseline = "time 1"
-)
+draws <- brm_marginal_draws(model = model, data = data)
 brm_marginal_probabilities(draws, direction = "greater", threshold = 0)
 }
 }
 \seealso{
 Other marginals: 
 \code{\link{brm_marginal_data}()},
-\code{\link{brm_marginal_draws_average}()},
 \code{\link{brm_marginal_draws}()},
+\code{\link{brm_marginal_draws_average}()},
 \code{\link{brm_marginal_summaries}()}
 }
 \concept{marginals}

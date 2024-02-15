@@ -27,6 +27,7 @@ change from baseline scale and \code{"difference"} for treatment difference.
 \item \code{statistic}: type of summary statistic. \code{"lower"} and \code{"upper"}
 are bounds of an equal-tailed quantile-based credible interval.
 \item \code{group}: treatment group.
+\item \code{subgroup}: subgroup level, if applicable.
 \item \code{time}: discrete time point.
 \item \code{value}: numeric value of the estimate.
 \item \code{mcse}: Monte Carlo standard error of the estimate.
@@ -47,17 +48,19 @@ Summary statistics of the marginal posterior of an MMRM.
 if (identical(Sys.getenv("BRM_EXAMPLES", unset = ""), "true")) {
 set.seed(0L)
 data <- brm_data(
-  data = brm_simulate()$data,
+  data = brm_simulate_simple()$data,
   outcome = "response",
   role = "response",
   group = "group",
   time = "time",
-  patient = "patient"
+  patient = "patient",
+  reference_group = "group_1",
+  reference_time = "time_1"
 )
 formula <- brm_formula(
   data = data,
-  effect_base = FALSE,
-  interaction_base = FALSE
+  baseline = FALSE,
+  baseline_time = FALSE
 )
 tmp <- utils::capture.output(
   suppressMessages(
@@ -72,20 +75,15 @@ tmp <- utils::capture.output(
     )
   )
 )
-draws <- brm_marginal_draws(
-  model = model,
-  data = data,
-  control = "group 1",
-  baseline = "time 1"
-)
+draws <- brm_marginal_draws(model = model, data = data)
 suppressWarnings(brm_marginal_summaries(draws))
 }
 }
 \seealso{
 Other marginals: 
 \code{\link{brm_marginal_data}()},
-\code{\link{brm_marginal_draws_average}()},
 \code{\link{brm_marginal_draws}()},
+\code{\link{brm_marginal_draws_average}()},
 \code{\link{brm_marginal_probabilities}()}
 }
 \concept{marginals}
