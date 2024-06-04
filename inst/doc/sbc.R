@@ -12,36 +12,15 @@ library(ggplot2)
 library(tibble)
 library(tidyr)
 
-## ----echo = FALSE-------------------------------------------------------------
-n_group <- 3L
-n_patient <- 100L
-n_time <- 4L
-outline <- brms.mmrm::brm_simulate_outline(
-  n_group = n_group,
-  n_patient = n_patient,
-  n_time = n_time,
-  rate_dropout = 0,
-  rate_lapse = 0
-)
-brms.mmrm::brm_formula(
-  data = outline,
-  intercept = FALSE,
-  baseline = FALSE,
-  group = TRUE,
-  time = TRUE,
-  baseline_time = FALSE,
-  group_time = FALSE,
-  correlation = "unstructured"
-)
-
-## ----paged.print = FALSE------------------------------------------------------
-fst::read_fst("sbc/prior_simple.fst")
-
 ## -----------------------------------------------------------------------------
 library(dplyr)
 library(ggplot2)
 library(tibble)
 library(tidyr)
+
+source("sbc/R/prior.R")
+source("sbc/R/response.R")
+source("sbc/R/scenarios.R")
 
 read_ranks <- function(path) {
   fst::read_fst(path) |>
@@ -62,74 +41,189 @@ plot_ranks <- function(ranks) {
     facet_wrap(~parameter)
 }
 
-## -----------------------------------------------------------------------------
-simple_ranks <- read_ranks("sbc/simple.fst")
+## ----echo = FALSE-------------------------------------------------------------
+subgroup()$formula
+
+## ----paged.print = FALSE------------------------------------------------------
+setup_prior(subgroup) |>
+  select(prior, class, coef, dpar) |>
+  as.data.frame()
 
 ## -----------------------------------------------------------------------------
-simple_ranks |>
+ranks_subgroup <- read_ranks("sbc/results/subgroup.fst")
+
+## -----------------------------------------------------------------------------
+ranks_subgroup |>
   filter(grepl("^b_", parameter)) |>
   filter(!grepl("^b_sigma", parameter)) |>
   plot_ranks()
 
 ## -----------------------------------------------------------------------------
-simple_ranks |>
+ranks_subgroup |>
   filter(grepl("b_sigma", parameter)) |>
   plot_ranks()
 
 ## -----------------------------------------------------------------------------
-simple_ranks |>
+ranks_subgroup |>
   filter(grepl("cortime_", parameter)) |>
   plot_ranks()
 
 ## ----echo = FALSE-------------------------------------------------------------
-n_group <- 2L
-n_subgroup <- 2L
-n_patient <- 150L
-n_time <- 3L
-outline <- brms.mmrm::brm_simulate_outline(
-  n_group = n_group,
-  n_subgroup = n_subgroup,
-  n_patient = n_patient,
-  n_time = n_time,
-  rate_dropout = 0.3,
-  rate_lapse = 0.08
-) |>
-  brms.mmrm::brm_simulate_continuous(
-    names = c("continuous1", "continuous2")
-  ) |>
-  brms.mmrm::brm_simulate_categorical(
-    names = "balanced",
-    levels = c("level1", "level2", "level3")
-  ) |>
-  brms.mmrm::brm_simulate_categorical(
-    names = "unbalanced",
-    levels = c("level1", "level2", "level3"),
-    probabilities = c(0.64, 0.26, 0.1)
-  )
-brms.mmrm::brm_formula(
-  data = outline,
-  correlation = "unstructured"
-)
+unstructured()$formula
 
 ## ----paged.print = FALSE------------------------------------------------------
-fst::read_fst("sbc/prior_complex.fst")
+setup_prior(unstructured) |>
+  select(prior, class, coef, dpar) |>
+  as.data.frame()
 
 ## -----------------------------------------------------------------------------
-complex_ranks <- read_ranks("sbc/complex.fst")
+ranks_unstructured <- read_ranks("sbc/results/unstructured.fst")
 
 ## -----------------------------------------------------------------------------
-complex_ranks |>
+ranks_unstructured |>
   filter(grepl("^b_", parameter)) |>
   filter(!grepl("^b_sigma", parameter)) |>
   plot_ranks()
 
 ## -----------------------------------------------------------------------------
-complex_ranks |>
+ranks_unstructured |>
   filter(grepl("b_sigma", parameter)) |>
   plot_ranks()
 
 ## -----------------------------------------------------------------------------
-complex_ranks |>
+ranks_unstructured |>
   filter(grepl("cortime_", parameter)) |>
+  plot_ranks()
+
+## ----echo = FALSE-------------------------------------------------------------
+autoregressive_moving_average()$formula
+
+## ----paged.print = FALSE------------------------------------------------------
+setup_prior(autoregressive_moving_average) |>
+  select(prior, class, coef, dpar) |>
+  as.data.frame()
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive_moving_average <- read_ranks(
+  "sbc/results/autoregressive_moving_average.fst"
+)
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive_moving_average |>
+  filter(grepl("^b_", parameter)) |>
+  filter(!grepl("^b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive_moving_average |>
+  filter(grepl("b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive_moving_average |>
+  filter(parameter %in% c("ar[1]", "ma[1]")) |>
+  plot_ranks()
+
+## ----echo = FALSE-------------------------------------------------------------
+autoregressive()$formula
+
+## ----paged.print = FALSE------------------------------------------------------
+setup_prior(autoregressive) |>
+  select(prior, class, coef, dpar) |>
+  as.data.frame()
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive <- read_ranks("sbc/results/autoregressive.fst")
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive |>
+  filter(grepl("^b_", parameter)) |>
+  filter(!grepl("^b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive |>
+  filter(grepl("b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_autoregressive |>
+  filter(parameter %in% c("ar[1]", "ar[2]")) |>
+  plot_ranks()
+
+## ----echo = FALSE-------------------------------------------------------------
+moving_average()$formula
+
+## ----paged.print = FALSE------------------------------------------------------
+setup_prior(moving_average) |>
+  select(prior, class, coef, dpar) |>
+  as.data.frame()
+
+## -----------------------------------------------------------------------------
+ranks_moving_average <- read_ranks("sbc/results/moving_average.fst")
+
+## -----------------------------------------------------------------------------
+ranks_moving_average |>
+  filter(grepl("^b_", parameter)) |>
+  filter(!grepl("^b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_moving_average |>
+  filter(grepl("b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_moving_average |>
+  filter(parameter %in% c("ma[1]", "ma[2]")) |>
+  plot_ranks()
+
+## ----echo = FALSE-------------------------------------------------------------
+compound_symmetry()$formula
+
+## ----paged.print = FALSE------------------------------------------------------
+setup_prior(compound_symmetry) |>
+  select(prior, class, coef, dpar) |>
+  as.data.frame()
+
+## -----------------------------------------------------------------------------
+ranks_compound_symmetry <- read_ranks("sbc/results/compound_symmetry.fst")
+
+## -----------------------------------------------------------------------------
+ranks_compound_symmetry |>
+  filter(grepl("^b_", parameter)) |>
+  filter(!grepl("^b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_compound_symmetry |>
+  filter(grepl("b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_compound_symmetry |>
+  filter(parameter == "cosy") |>
+  plot_ranks()
+
+## ----echo = FALSE-------------------------------------------------------------
+diagonal()$formula
+
+## ----paged.print = FALSE------------------------------------------------------
+setup_prior(diagonal) |>
+  select(prior, class, coef, dpar) |>
+  as.data.frame()
+
+## -----------------------------------------------------------------------------
+ranks_diagonal <- read_ranks("sbc/results/diagonal.fst")
+
+## -----------------------------------------------------------------------------
+ranks_diagonal |>
+  filter(grepl("^b_", parameter)) |>
+  filter(!grepl("^b_sigma", parameter)) |>
+  plot_ranks()
+
+## -----------------------------------------------------------------------------
+ranks_diagonal |>
+  filter(grepl("b_sigma", parameter)) |>
   plot_ranks()
 

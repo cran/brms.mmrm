@@ -10,15 +10,19 @@ brm_prior_simple(
   intercept = "student_t(3, 0, 2.5)",
   coefficients = "student_t(3, 0, 2.5)",
   sigma = "student_t(3, 0, 2.5)",
-  correlation = "lkj(1)"
+  unstructured = "lkj(1)",
+  autoregressive = "",
+  moving_average = "",
+  compound_symmetry = "",
+  correlation = NULL
 )
 }
 \arguments{
-\item{data}{A tidy data frame with one row per patient per discrete
-time point.}
+\item{data}{A classed data frame from \code{\link[=brm_data]{brm_data()}}, or an informative
+prior archetype from a function like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}}.}
 
 \item{formula}{An object of class \code{"brmsformula"} from \code{\link[=brm_formula]{brm_formula()}}
-or \code{brms::brmsformula()}. Should include the full parameterization
+or \code{brms::brmsformula()}. Should include the full mapping
 of the model, including fixed effects, residual correlation,
 and heterogeneity in the discrete-time-specific residual variance
 components.}
@@ -33,11 +37,43 @@ to set independently on each of the non-intercept model coefficients.}
 to set independently on each of the log-scale standard deviation
 parameters. Should be a symmetric prior in most situations.}
 
-\item{correlation}{Character of length 1, Stan code for the prior
-on the correlation matrix for the residuals of a given patient.
-(Different patients are modeled as independent, and each
-patient has the same correlation structure as each other patient.)
-Should be an LKJ prior in most situations.}
+\item{unstructured}{Character of length 1,
+Stan code for an unstructured correlation prior.
+Supply the empty string \code{""} to set a flat prior (default).
+Applies to the \verb{"cortime} parameter class in \code{brms} priors.
+Used for formulas created with
+\code{brm_formula(correlation = "unstructured")}. LKJ is recommended.
+See also \code{\link[brms:unstr]{brms::unstr()}}.}
+
+\item{autoregressive}{Character of length 1,
+Stan code for a prior on autoregressive correlation parameters.
+Supply the empty string \code{""} to set a flat prior (default).
+Applies to the \verb{"ar} parameter class in \code{brms} priors.
+Used for formulas created with
+\code{brm_formula(correlation = "autoregressive")} and
+\code{brm_formula(correlation = "autoregressive_moving_average")}.
+See also \code{\link[brms:ar]{brms::ar()}} and \code{\link[brms:arma]{brms::arma()}}.}
+
+\item{moving_average}{Character of length 1,
+Stan code for a prior on moving average correlation parameters.
+Supply the empty string \code{""} to set a flat prior (default).
+Applies to the \verb{"ma} parameter class in \code{brms} priors.
+Used for formulas created with
+\code{brm_formula(correlation = "moving_average")} and
+\code{brm_formula(correlation = "autoregressive_moving_average")}.
+See also \code{\link[brms:ma]{brms::ma()}} and \code{\link[brms:arma]{brms::arma()}}.}
+
+\item{compound_symmetry}{Character of length 1,
+Stan code for a prior on compound symmetry correlation parameters.
+Supply the empty string \code{""} to set a flat prior (default).
+Applies to the \verb{"cosy} parameter class in \code{brms} priors.
+Used for formulas created with
+\code{brm_formula(correlation = "compound_symmetry")}.
+See also \code{\link[brms:cosy]{brms::cosy()}}.}
+
+\item{correlation}{Deprecated on 2024-04-22
+(version 0.1.0.9004). Please use arguments like \code{"unstructured"},
+and/or \code{"autoregressive"} to supply correlation-specific priors.}
 }
 \value{
 A classed data frame with the \code{brms} prior.
@@ -60,7 +96,8 @@ data <- brm_simulate_continuous(data, names = c("age", "biomarker"))
 formula <- brm_formula(
   data = data,
   baseline = FALSE,
-  baseline_time = FALSE
+  baseline_time = FALSE,
+  check_rank = FALSE
 )
 brm_prior_simple(
   data = data,
@@ -68,7 +105,12 @@ brm_prior_simple(
   intercept = "student_t(3, 0, 2.5)",
   coefficients = "normal(0, 10)",
   sigma = "student_t(2, 0, 4)",
-  correlation = "lkj(2.5)"
+  unstructured = "lkj(2.5)"
 )
+}
+\seealso{
+Other priors: 
+\code{\link{brm_prior_archetype}()},
+\code{\link{brm_prior_label}()}
 }
 \concept{priors}

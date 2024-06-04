@@ -4,12 +4,13 @@
 \alias{brm_marginal_draws_average}
 \title{Average marginal MCMC draws across time points.}
 \usage{
-brm_marginal_draws_average(draws, data, times = NULL, label = "average")
+brm_marginal_draws_average(data, draws, times = NULL, label = "average")
 }
 \arguments{
-\item{draws}{List of posterior draws from \code{\link[=brm_marginal_draws]{brm_marginal_draws()}}.}
+\item{data}{A classed data frame from \code{\link[=brm_data]{brm_data()}}, or an informative
+prior archetype from a function like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}}.}
 
-\item{data}{Classed tibble with preprocessed data from \code{\link[=brm_data]{brm_data()}}.}
+\item{draws}{List of posterior draws from \code{\link[=brm_marginal_draws]{brm_marginal_draws()}}.}
 
 \item{times}{Character vector of discrete time point levels
 over which to average the MCMC samples within treatment group levels.
@@ -94,7 +95,7 @@ tmp <- utils::capture.output(
     )
   )
 )
-draws <- brm_marginal_draws(model = model, data = data)
+draws <- brm_marginal_draws(data = data, formula = formula, model = model)
 brm_marginal_draws_average(draws = draws, data = data)
 brm_marginal_draws_average(
   draws = draws,

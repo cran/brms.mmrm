@@ -4,8 +4,9 @@
 #' @description Get marginal posterior draws from a fitted MMRM.
 #' @inheritSection brm_data Separation string
 #' @return A named list of tibbles of MCMC draws of the marginal posterior
-#'   distribution of each treatment group and time point
-#'   (or group-by-subgroup-by-time, if applicable).
+#'   distribution of each treatment group and time point. These marginals
+#'   are also subgroup-specific if [brm_formula()] included fixed effects
+#'   that use the `subgroup` variable originally declared in [brm_data()].
 #'   In each tibble, there is 1 row per posterior sample and one column for
 #'   each type of marginal distribution (i.e. each combination of treatment
 #'   group and discrete time point. The specific `tibble`s in the returned
@@ -26,11 +27,31 @@
 #'   * `difference_subgroup`: subgroup differences: the `difference_group`
 #'     at each subgroup level minus the `difference_group` at the subgroup
 #'     reference level (`reference_subgroup`).
-#' @param model Fitted `brms` model object from [brm_model()].
-#' @param data Classed tibble with preprocessed data from [brm_data()].
-#' @param use_subgroup Logical of length 1, whether to summarize the draws by
-#'   each subgroup level. If `TRUE`, subgroup-specific marginals are given.
-#'   Otherwise, the subgroup is marginalized out.
+#'   * `effect`: effect size, defined as the treatment difference
+#'     divided by the residual standard deviation. Omitted if
+#'     the `effect_size` argument is `FALSE` or if the
+#'     [brm_formula_sigma()] includes baseline or covariates.
+#' @inheritParams brm_model
+#' @param model A fitted model object from [brm_model()].
+#' @param transform Matrix with one row per marginal mean and one column
+#'   per model parameter. [brm_marginal_draws()] uses this matrix
+#'   to map posterior draws of model parameters to posterior draws of
+#'   marginal means using matrix multiplication. Please use
+#'   [brm_transform_marginal()] to compute this matrix and then modify
+#'   only if necessary. See the methods vignettes for details on this
+#'   matrix, as well as how `brms.mmrm` computes marginal means more
+#'   generally.
+#' @param effect_size Logical, `TRUE` to derive posterior samples
+#'   of effect size (treatment effect divided by residual standard
+#'   deviation). `FALSE` to omit. `brms.mmrm` does not support
+#'   effect size when baseline or covariates are included
+#'   in the [brm_formula_sigma()] formula. If `effect_size` is `TRUE`
+#'   in this case, then [brm_marginal_draws()] will automatically
+#'   omit effect size and throw an informative warning.
+#' @param use_subgroup Deprecated. No longer used. [brm_marginal_draws()]
+#'   no longer marginalizes over the subgroup declared
+#'   in [brm_data()]. To marginalize over the subgroup, declare
+#'   that variable in `covariates` instead.
 #' @param control Deprecated. Set the control group level in [brm_data()].
 #' @param baseline Deprecated. Set the control group level in [brm_data()].
 #' @examples
@@ -64,15 +85,26 @@
 #'     )
 #'   )
 #' )
-#' brm_marginal_draws(model = model, data = data)
+#' brm_marginal_draws(data = data, formula = formula, model = model)
 #' }
 brm_marginal_draws <- function(
-  model,
   data,
-  use_subgroup = !is.null(attr(data, "brm_subgroup")),
+  formula,
+  model,
+  transform = brms.mmrm::brm_transform_marginal(data, formula),
+  effect_size = TRUE,
+  use_subgroup = NULL,
   control = NULL,
   baseline = NULL
 ) {
+  if (!is.null(use_subgroup)) {
+    brm_deprecate(
+      "The use_subgroup argument is deprectaed. brm_marginal_draws()",
+      "no longer marginalizes over the subgroup declared in brm_data().",
+      "To marginalize over the subgroup, declare that variable",
+      "in 'covariates' instead."
+    )
+  }
   if (!is.null(control)) {
     brm_deprecate(
       "The control argument was deprecated on 2023-09-07. ",
@@ -85,7 +117,16 @@ brm_marginal_draws <- function(
       "Set the reference_time argument of brm_data() instead."
     )
   }
+  assert(
+    effect_size,
+    is.logical(.),
+    !anyNA(.),
+    length(.) == 1L,
+    message = "effect_size must be TRUE or FALSE."
+  )
   brm_data_validate(data)
+  brm_formula_validate(formula)
+  brm_model_validate(model)
   role <- attr(data, "brm_role")
   base <- attr(data, "brm_base")
   group <- attr(data, "brm_group")
@@ -99,49 +140,44 @@ brm_marginal_draws <- function(
   reference_group <- attr(data, "brm_reference_group")
   reference_subgroup <- attr(data, "brm_reference_subgroup")
   reference_time <- attr(data, "brm_reference_time")
-  assert_lgl(use_subgroup, message = "use_subgroup must be TRUE or FALSE.")
-  if (use_subgroup) {
-    assert_chr(
-      subgroup,
-      message = "use_subgroup is TRUE but subgroup not found"
-    )
-    assert_chr_vec(
-      levels_subgroup,
-      message = "use_subgroup is TRUE but levels_subgroup not found"
+  has_subgroup <- brm_has_subgroup(data = data, formula = formula)
+  if (effect_size && !attr(formula, "brm_allow_effect_size")) {
+    effect_size <- FALSE
+    brm_warn(
+      "effect_size is TRUE in brm_marginal_draws(), ",
+      "but the formula from brm_formula_sigma() includes ",
+      "baseline or covariates. Effect size is only supported ",
+      "when the brm_formula_sigma() formula does not have ",
+      "baseline or covariates. Omitting effect size from the output."
     )
   }
-  nuisance <- c(
-    base,
-    patient,
-    covariates,
-    if_any(use_subgroup, NULL, subgroup)
+  draws_model <- posterior::as_draws_df(model)
+  index_mcmc <- tibble::as_tibble(draws_model)[, names_mcmc]
+  draws_beta <- dplyr::select(
+    .data = tibble::as_tibble(draws_model),
+    tidyselect::starts_with("b_"),
+    -tidyselect::starts_with("b_sigma")
   )
-  specs <- if_any(
-    use_subgroup,
-    as.formula(sprintf("~%s:%s:%s", group, subgroup, time)),
-    as.formula(sprintf("~%s:%s", group, time))
-  )
-  emmeans <- emmeans::emmeans(
-    object = model,
-    specs = specs,
-    wt.nuis = "proportional",
-    nuisance = nuisance
-  )
-  old_sep <- emmeans::get_emm_option("sep")
-  on.exit(emmeans::emm_options(sep = old_sep))
-  emmeans::emm_options(sep = brm_sep())
-  mcmc <- coda::as.mcmc(emmeans, fixed = TRUE, names = FALSE)
-  draws_response <- posterior::as_draws_df(mcmc)
   assert(
-    control %in% levels_group,
-    message = sprintf(
-      "control argument \"%s\" is not in one of the treatment groups: %s",
-      control,
-      paste(levels_group, collapse = ", ")
+    sort(colnames(transform)) == sort(colnames(draws_beta)),
+    message = paste(
+      "In brm_marginal_draws(), the column names of the 'transform'",
+      "argument disagree with the names of the brms model parameters.",
+      "Please use brm_transform_marginal() to compute the transform",
+      "and do not modify it except for specialized circumstances.",
+      "If you did use brm_transform_marginal() and supply it directly",
+      "to brms_marginal_draws(), please submit a bug report",
+      "at https://github.com/openpharma/brms.mmrm along with a",
+      "small runnable example that reproduces the issue."
     )
   )
+  draws_beta <- as.matrix(draws_beta[, colnames(transform)])
+  assert(colnames(transform) == colnames(draws_beta))
+  draws_response <- tibble::as_tibble(as.matrix(draws_beta) %*% t(transform))
+  draws_response <- dplyr::bind_cols(draws_response, index_mcmc)
+  draws_response <- posterior::as_draws_df(draws_response)
   if (identical(role, "response")) {
-    if (use_subgroup) {
+    if (has_subgroup) {
       draws_difference_time <- subtract_reference_time_subroup(
         draws = draws_response,
         levels_group = levels_group,
@@ -178,7 +214,7 @@ brm_marginal_draws <- function(
       )
     }
   } else { # role is "change"
-    if (use_subgroup) {
+    if (has_subgroup) {
       draws_difference_group <- subtract_reference_group_subgroup(
         draws = draws_response,
         levels_group = levels_group,
@@ -202,56 +238,100 @@ brm_marginal_draws <- function(
       )
     }
   }
-  draws_sigma <- get_draws_sigma(model = model, time = time)
-  draws_effect <- if_any(
-    use_subgroup,
-    get_draws_effect_subgroup(
-      draws_difference_group = draws_difference_group,
-      draws_sigma = draws_sigma,
-      levels_group = levels_group,
-      levels_subgroup = levels_subgroup,
-      levels_time = levels_time
-    ),
-    get_draws_effect(
-      draws_difference_group = draws_difference_group,
-      draws_sigma = draws_sigma,
-      levels_group = levels_group,
-      levels_time = levels_time
+  if (effect_size) {
+    draws_sigma <- get_draws_sigma(
+      data = data,
+      formula = formula,
+      model = model,
+      group = group,
+      subgroup = subgroup,
+      time = time,
+      has_subgroup = has_subgroup
     )
-  )
+    draws_effect <- if_any(
+      has_subgroup,
+      get_draws_effect_subgroup(
+        draws_difference_group = draws_difference_group,
+        draws_sigma = draws_sigma,
+        levels_group = levels_group,
+        levels_subgroup = levels_subgroup,
+        levels_time = levels_time,
+        variance = attr(formula, "brm_variance")
+      ),
+      get_draws_effect(
+        draws_difference_group = draws_difference_group,
+        draws_sigma = draws_sigma,
+        levels_group = levels_group,
+        levels_time = levels_time,
+        variance = attr(formula, "brm_variance")
+      )
+    )
+  }
   out <- list()
   out$response <- draws_response
   if (identical(role, "response")) {
     out$difference_time <- draws_difference_time
   }
   out$difference_group <- draws_difference_group
-  if (use_subgroup) {
+  if (has_subgroup) {
     out$difference_subgroup <- draws_difference_subgroup
   }
-  out$effect <- draws_effect
+  if (effect_size) {
+    out$effect <- draws_effect
+  }
   out
 }
 
-get_draws_sigma <- function(model, time) {
+get_draws_sigma <- function(
+  data,
+  formula,
+  model,
+  group,
+  subgroup,
+  time,
+  has_subgroup
+) {
   draws <- tibble::as_tibble(posterior::as_draws_df(model))
   draws <- draws[, grep("^b_sigma_", colnames(draws), value = TRUE)]
-  colnames(draws) <- gsub("^b_sigma_", "", colnames(draws))
-  colnames(draws) <- gsub(paste0("^", time), "", x = colnames(draws))
-  exp(draws)
+  x <- brms::make_standata(formula = formula, data = data)$X_sigma
+  colnames(x) <- paste0("b_", colnames(x))
+  x <- as.data.frame(x)
+  x$name <- if_any(
+    has_subgroup,
+    name_marginal_subgroup(
+      group = data[[group]],
+      subgroup = data[[subgroup]],
+      time = data[[time]]
+    ),
+    name_marginal(group = data[[group]], time = data[[time]])
+  )
+  x <- dplyr::group_by(x, name)
+  transform <- dplyr::summarize(
+    .data = x,
+    dplyr::across(tidyselect::starts_with("b_"), mean),
+    .groups = "drop"
+  )
+  name <- transform$name
+  transform$name <- NULL
+  transform <- as.matrix(transform)
+  out <- tibble::as_tibble(as.data.frame(as.matrix(draws) %*% t(transform)))
+  colnames(out) <- name
+  exp(out)
 }
 
 get_draws_effect <- function(
   draws_difference_group,
   draws_sigma,
   levels_group,
-  levels_time
+  levels_time,
+  variance
 ) {
   out <- draws_difference_group
   for (group in levels_group) {
     for (time in levels_time) {
       name <- name_marginal(group = group, time = time)
       if (name %in% colnames(draws_difference_group)) {
-        out[[name]] <- draws_difference_group[[name]] / draws_sigma[[time]]
+        out[[name]] <- draws_difference_group[[name]] / draws_sigma[[name]]
       }
     }
   }
@@ -263,7 +343,8 @@ get_draws_effect_subgroup <- function(
   draws_sigma,
   levels_group,
   levels_subgroup,
-  levels_time
+  levels_time,
+  variance
 ) {
   out <- draws_difference_group
   for (group in levels_group) {
@@ -275,7 +356,7 @@ get_draws_effect_subgroup <- function(
           time = time
         )
         if (name %in% colnames(draws_difference_group)) {
-          out[[name]] <- draws_difference_group[[name]] / draws_sigma[[time]]
+          out[[name]] <- draws_difference_group[[name]] / draws_sigma[[name]]
         }
       }
     }

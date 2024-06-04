@@ -33,6 +33,7 @@
 #' set.seed(0L)
 #' data <- brm_simulate_outline()
 #' data <- brm_simulate_continuous(data, names = c("age", "biomarker"))
+#' data$response <- rnorm(nrow(data))
 #' formula <- brm_formula(
 #'   data = data,
 #'   baseline = FALSE,
@@ -59,11 +60,8 @@ brm_simulate_prior <- function(
   ),
   ...
 ) {
-  brm_data_validate(data = data)
-  assert(
-    inherits(formula, "brmsformula"),
-    message = "formula arg must be a \"brmsformula\" object."
-  )
+  brm_data_validate(data)
+  brm_formula_validate(formula)
   assert(
     inherits(prior, "brmsprior"),
     message = "prior arg must be a \"brmsprior\" object or NULL."

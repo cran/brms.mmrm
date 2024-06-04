@@ -5,21 +5,49 @@
 \title{MCMC draws from the marginal posterior of an MMRM}
 \usage{
 brm_marginal_draws(
-  model,
   data,
-  use_subgroup = !is.null(attr(data, "brm_subgroup")),
+  formula,
+  model,
+  transform = brms.mmrm::brm_transform_marginal(data, formula),
+  effect_size = TRUE,
+  use_subgroup = NULL,
   control = NULL,
   baseline = NULL
 )
 }
 \arguments{
-\item{model}{Fitted \code{brms} model object from \code{\link[=brm_model]{brm_model()}}.}
+\item{data}{A classed data frame from \code{\link[=brm_data]{brm_data()}}, or an informative
+prior archetype from a function like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}}.}
 
-\item{data}{Classed tibble with preprocessed data from \code{\link[=brm_data]{brm_data()}}.}
+\item{formula}{An object of class \code{"brmsformula"} from \code{\link[=brm_formula]{brm_formula()}}
+or \code{brms::brmsformula()}. Should include the full mapping
+of the model, including fixed effects, residual correlation,
+and heterogeneity in the discrete-time-specific residual variance
+components.}
 
-\item{use_subgroup}{Logical of length 1, whether to summarize the draws by
-each subgroup level. If \code{TRUE}, subgroup-specific marginals are given.
-Otherwise, the subgroup is marginalized out.}
+\item{model}{A fitted model object from \code{\link[=brm_model]{brm_model()}}.}
+
+\item{transform}{Matrix with one row per marginal mean and one column
+per model parameter. \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} uses this matrix
+to map posterior draws of model parameters to posterior draws of
+marginal means using matrix multiplication. Please use
+\code{\link[=brm_transform_marginal]{brm_transform_marginal()}} to compute this matrix and then modify
+only if necessary. See the methods vignettes for details on this
+matrix, as well as how \code{brms.mmrm} computes marginal means more
+generally.}
+
+\item{effect_size}{Logical, \code{TRUE} to derive posterior samples
+of effect size (treatment effect divided by residual standard
+deviation). \code{FALSE} to omit. \code{brms.mmrm} does not support
+effect size when baseline or covariates are included
+in the \code{\link[=brm_formula_sigma]{brm_formula_sigma()}} formula. If \code{effect_size} is \code{TRUE}
+in this case, then \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} will automatically
+omit effect size and throw an informative warning.}
+
+\item{use_subgroup}{Deprecated. No longer used. \code{\link[=brm_marginal_draws]{brm_marginal_draws()}}
+no longer marginalizes over the subgroup declared
+in \code{\link[=brm_data]{brm_data()}}. To marginalize over the subgroup, declare
+that variable in \code{covariates} instead.}
 
 \item{control}{Deprecated. Set the control group level in \code{\link[=brm_data]{brm_data()}}.}
 
@@ -27,8 +55,9 @@ Otherwise, the subgroup is marginalized out.}
 }
 \value{
 A named list of tibbles of MCMC draws of the marginal posterior
-distribution of each treatment group and time point
-(or group-by-subgroup-by-time, if applicable).
+distribution of each treatment group and time point. These marginals
+are also subgroup-specific if \code{\link[=brm_formula]{brm_formula()}} included fixed effects
+that use the \code{subgroup} variable originally declared in \code{\link[=brm_data]{brm_data()}}.
 In each tibble, there is 1 row per posterior sample and one column for
 each type of marginal distribution (i.e. each combination of treatment
 group and discrete time point. The specific \code{tibble}s in the returned
@@ -50,6 +79,10 @@ the \code{response} at the control group.
 \item \code{difference_subgroup}: subgroup differences: the \code{difference_group}
 at each subgroup level minus the \code{difference_group} at the subgroup
 reference level (\code{reference_subgroup}).
+\item \code{effect}: effect size, defined as the treatment difference
+divided by the residual standard deviation. Omitted if
+the \code{effect_size} argument is \code{FALSE} or if the
+\code{\link[=brm_formula_sigma]{brm_formula_sigma()}} includes baseline or covariates.
 }
 }
 \description{
@@ -96,7 +129,7 @@ tmp <- utils::capture.output(
     )
   )
 )
-brm_marginal_draws(model = model, data = data)
+brm_marginal_draws(data = data, formula = formula, model = model)
 }
 }
 \seealso{

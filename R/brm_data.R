@@ -49,7 +49,7 @@
 #'   to indicate the control group.
 #'   `reference_group` only applies to the post-processing that happens
 #'   in functions like [brm_marginal_draws()] downstream of the model.
-#'   It does not control the fixed effect parameterization in the
+#'   It does not control the fixed effect mapping in the
 #'   model matrix that `brms` derives from the formula from `brm_formula()`.
 #' @param level_control Deprecated on 2024-01-11 (version 0.2.0.9002).
 #'   Use `reference_group` instead.
@@ -57,7 +57,7 @@
 #'   level of the `subgroup` column
 #'   to use as a reference for pairwise differences in when computing
 #'   marginal means downstream of the model.
-#'   It does not control the fixed effect parameterization in the
+#'   It does not control the fixed effect mapping in the
 #'   model matrix that `brms` derives from the formula from `brm_formula()`.
 #' @param reference_time Character of length 1 or `NULL`,
 #'   level of the `time` column to indicate the baseline time point.
@@ -71,7 +71,7 @@
 #'
 #'   Note: `reference_time` only applies to the post-processing that happens
 #'   in functions like [brm_marginal_draws()] downstream of the model.
-#'   It does not control the fixed effect parameterization in the
+#'   It does not control the fixed effect mapping in the
 #'   model matrix that `brms` derives from the formula from `brm_formula()`.
 #' @param level_baseline Deprecated on 2024-01-11 (version 0.2.0.9002).
 #'   Use `reference_time` instead.
@@ -145,16 +145,16 @@ brm_data <- function(
 
 brm_data_new <- function(
   data,
-  brm_outcome,
-  brm_role,
+  brm_outcome = NULL,
+  brm_role = NULL,
   brm_baseline = NULL,
-  brm_group,
+  brm_group = NULL,
   brm_subgroup = NULL,
-  brm_time,
-  brm_patient,
-  brm_covariates,
+  brm_time = NULL,
+  brm_patient = NULL,
+  brm_covariates = NULL,
   brm_missing = NULL,
-  brm_reference_group,
+  brm_reference_group = NULL,
   brm_reference_subgroup = NULL,
   brm_reference_time = NULL,
   brm_levels_group = NULL,
@@ -164,7 +164,7 @@ brm_data_new <- function(
   brm_labels_subgroup = NULL,
   brm_labels_time = NULL
 ) {
-  out <- tibble::new_tibble(x = data, class = "brm_data")
+  out <- tibble::new_tibble(x = data, class = "brms_mmrm_data")
   structure(
     out,
     brm_outcome = brm_outcome,
@@ -196,6 +196,11 @@ brm_data_preprocess <- function(out) {
 }
 
 brm_data_validate <- function(data) {
+  UseMethod("brm_data_validate")
+}
+
+#' @export
+brm_data_validate.default <- function(data) {
   outcome <- attr(data, "brm_outcome")
   role <- attr(data, "brm_role")
   baseline <- attr(data, "brm_baseline")
@@ -212,7 +217,10 @@ brm_data_validate <- function(data) {
   reference_subgroup <- attr(data, "brm_reference_subgroup")
   reference_time <- attr(data, "brm_reference_time")
   assert(is.data.frame(data), message = "data must be a data frame")
-  assert(inherits(data, "brm_data"), message = "data not from brm_data()")
+  assert(
+    inherits(data, "brms_mmrm_data"),
+    message = "please use brm_data() to preprocess your data"
+  )
   assert_chr(outcome, "outcome of data must be a nonempty character string")
   assert_chr(role, "role of data must be a nonempty character string")
   assert_chr(
@@ -318,6 +326,12 @@ brm_data_validate <- function(data) {
     is.numeric(data[[outcome]]),
     message = "outcome variable in the data must be numeric."
   )
+  if (!is.null(baseline)) {
+    assert(
+      is.numeric(data[[outcome]]),
+      message = "baseline variable must be numeric if supplied."
+    )
+  }
   for (column in c(baseline, group, subgroup, time, patient, covariates)) {
     assert(
       !anyNA(data[[column]]),
@@ -360,8 +374,7 @@ brm_data_select <- function(data) {
     attr(data, "brm_patient"),
     attr(data, "brm_covariates")
   )
-  columns <- as.character(columns)
-  data[, columns, drop = FALSE]
+  data[, as.character(unique(columns)), drop = FALSE]
 }
 
 brm_data_level <- function(data) {
@@ -380,8 +393,8 @@ brm_data_level_group <- function(data) {
   data[[group]] <- as.character(names_group)
   meta_group <- dplyr::arrange(dplyr::distinct(all_group), level)
   attr(data, "brm_reference_group") <- brm_levels(reference_group)
-  attr(data, "brm_levels_group") <- as.character(meta_group$level)
-  attr(data, "brm_labels_group") <- as.character(meta_group$label)
+  attr(data, "brm_levels_group") <- sort(as.character(meta_group$level))
+  attr(data, "brm_labels_group") <- sort(as.character(meta_group$label))
   data
 }
 
@@ -396,8 +409,8 @@ brm_data_level_subgroup <- function(data) {
   data[[subgroup]] <- as.character(names_subgroup)
   meta_subgroup <- dplyr::arrange(dplyr::distinct(all_subgroup), level)
   attr(data, "brm_reference_subgroup") <- brm_levels(reference_subgroup)
-  attr(data, "brm_levels_subgroup") <- as.character(meta_subgroup$level)
-  attr(data, "brm_labels_subgroup") <- as.character(meta_subgroup$label)
+  attr(data, "brm_levels_subgroup") <- sort(as.character(meta_subgroup$level))
+  attr(data, "brm_labels_subgroup") <- sort(as.character(meta_subgroup$label))
   data
 }
 
@@ -411,8 +424,8 @@ brm_data_level_time <- function(data) {
   if (!is.null(reference_time)) {
     attr(data, "brm_reference_time") <- brm_levels(reference_time)
   }
-  attr(data, "brm_levels_time") <- as.character(meta_time$level)
-  attr(data, "brm_labels_time") <- as.character(meta_time$label)
+  attr(data, "brm_levels_time") <- sort(as.character(meta_time$level))
+  attr(data, "brm_labels_time") <- sort(as.character(meta_time$label))
   data
 }
 
@@ -439,19 +452,45 @@ brm_chr_head_unique <- function(x, n = 30L) {
 }
 
 brm_data_fill <- function(data) {
+  UseMethod("brm_data_fill")
+}
+
+#' @export
+brm_data_fill.default <- function(data) {
+  brm_error(
+    "brm_data_fill() is only valid for brm_data() objects,",
+    "not arbitrary data or informative prior archetypes."
+  )
+}
+
+#' @export
+brm_data_fill.brms_mmrm_data <- function(data) {
+  class <- class(data)
   attributes <- brm_data_attributes(data)
   baseline <- attr(data, "brm_baseline")
   group <- attr(data, "brm_group")
   subgroup <- attr(data, "brm_subgroup")
   time <- attr(data, "brm_time")
+  levels_time <- attr(data, "brm_levels_time")
   patient <- attr(data, "brm_patient")
   covariates <- attr(data, "brm_covariates")
   missing <- attr(data, "brm_missing")
+  interest <- attr(data, "brm_archetype_interest")
+  nuisance <- attr(data, "brm_archetype_nuisance")
   args <- list(data = data, as.symbol(patient), as.symbol(time))
   data <- do.call(what = tidyr::complete, args = args)
   args <- list(.data = data, as.symbol(patient), as.symbol(time))
   data <- do.call(what = dplyr::arrange, args = args)
-  for (column in c(baseline, group, subgroup, covariates, missing)) {
+  columns <- c(
+    baseline,
+    group,
+    subgroup,
+    covariates,
+    missing,
+    interest,
+    nuisance
+  )
+  for (column in columns) {
     data[[column]] <- brm_data_fill_column(data[[column]], data[[patient]])
   }
   args <- if_any(
@@ -470,8 +509,20 @@ brm_data_fill <- function(data) {
       as.symbol(time)
     )
   )
-  attributes$data <- do.call(what = dplyr::arrange, args = args)
-  do.call(what = brm_data_new, args = attributes)
+  out <- do.call(what = dplyr::arrange, args = args)
+  class(out) <- class
+  for (name in names(attributes)) {
+    attr(out, name) <- attributes[[name]]
+  }
+  assert(
+    out[[time]] == rep(levels_time, times = nrow(data) / length(levels_time)),
+    message = paste(
+      "data could not be filled. Please submit a bug report to",
+      "https://github.com/openpharma/brms.mmrm/issues",
+      "and include a reproducible example."
+    )
+  )
+  out
 }
 
 brm_data_fill_column <- function(x, index) {
@@ -493,4 +544,8 @@ brm_data_attributes <- function(data) {
   out <- attributes(data)
   out <- out[grep("^brm_", names(out), value = TRUE)]
   out
+}
+
+brm_data_has_subgroup <- function(data) {
+  !is.null(attr(data, "brm_subgroup"))
 }

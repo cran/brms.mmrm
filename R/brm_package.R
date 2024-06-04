@@ -12,6 +12,10 @@
 #'     multilevel models using Stan,"
 #'     Journal of Statistical Software, 80, 1–28.
 #'     https://doi.org/10.18637/jss.v080.i01.
+#'   * Holzhauer, B., and Weber, S. (2024),
+#'     "Bayesian mixed effects model for repeated measures,"
+#'     in Applied Modeling in Drug Development, Novartis AG.
+#'     <https://opensource.nibr.com/bamdd/src/02h_mmrm.html>.
 #'   * Mallinckrodt, C. H., Lane, P. W., Schnell, D., and others (2008),
 #'     "Recommendations for the primary analysis of continuous endpoints
 #'     in longitudinal clinical trials,"
@@ -21,10 +25,9 @@
 #'     Analyzing longitudinal clinical trial data: A practical guide,
 #'     CRC Press, Taylor & Francis Group.
 #' @family help
-#' @importFrom brms brm brmsformula get_prior prior unstr
-#' @importFrom coda as.mcmc
-#' @importFrom dplyr bind_rows left_join rename
-#' @importFrom emmeans emm_options emmeans get_emm_option
+#' @importFrom brms brm brmsformula get_prior make_standata prior unstr
+#' @importFrom dplyr across bind_cols bind_rows left_join rename select
+#'   summarize
 #' @importFrom ggplot2 aes facet_wrap geom_point geom_errorbar ggplot
 #'   position_dodge theme_gray xlab ylab
 #' @importFrom ggridges geom_density_ridges2
@@ -32,11 +35,11 @@
 #' @importFrom posterior as_draws_df mcse_mean mcse_median mcse_quantile
 #'   mcse_sd
 #' @importFrom purrr map_dbl map_df map2_df
-#' @importFrom rlang warn
+#' @importFrom rlang is_formula warn
 #' @importFrom stats as.formula median model.matrix rbinom rnorm runif sd
-#' @importFrom tibble tibble
+#' @importFrom tibble as_tibble tibble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider
-#' @importFrom tidyselect any_of everything
+#' @importFrom tidyselect any_of everything starts_with
 #' @importFrom trialr rlkjcorr
 #' @importFrom utils capture.output globalVariables head
 #' @importFrom zoo na.locf
@@ -46,6 +49,7 @@ globalVariables(
   c(
     ".",
     "b",
+    "correlations",
     "Intercept",
     "normal",
     "sigma",

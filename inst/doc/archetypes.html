@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Informative prior archetypes</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Informative prior archetypes</h1>
+
+
+
+<p>Informative prior archetypes allow users to conveniently set
+informative priors in <code>brms.mmrm</code> in a robust way, guarding
+against common pitfalls such as reference level issues, interpretation
+problems, and rank deficiency.</p>
+<div id="constructing-an-archetype" class="section level2">
+<h2>Constructing an archetype</h2>
+<p>We begin with a simulated dataset.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(brms.mmrm)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set.seed</span>(0L)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">brm_simulate_outline</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="at">n_group =</span> <span class="dv">2</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">n_patient =</span> <span class="dv">100</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">n_time =</span> <span class="dv">4</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">rate_dropout =</span> <span class="dv">0</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">rate_lapse =</span> <span class="dv">0</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">response =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> dplyr<span class="sc">::</span><span class="fu">n</span>())) <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="fu">brm_data_change</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">brm_simulate_continuous</span>(<span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;biomarker1&quot;</span>, <span class="st">&quot;biomarker2&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">brm_simulate_categorical</span>(</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;status1&quot;</span>, <span class="st">&quot;status2&quot;</span>),</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;present&quot;</span>, <span class="st">&quot;absent&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  )</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  data,</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  group,</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  time,</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  patient,</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="fu">starts_with</span>(<span class="st">&quot;biomarker&quot;</span>),</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="fu">starts_with</span>(<span class="st">&quot;status&quot;</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>)</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; # A tibble: 600 × 7</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt;    group   time   patient     biomarker1 biomarker2 status1 status2</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;            &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;  </span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt;  1 group_1 time_2 patient_001     -1.42      -0.287 absent  present</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt;  2 group_1 time_3 patient_001     -1.42      -0.287 absent  present</span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt;  3 group_1 time_4 patient_001     -1.42      -0.287 absent  present</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt;  4 group_1 time_2 patient_002     -1.67       1.84  absent  present</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt;  5 group_1 time_3 patient_002     -1.67       1.84  absent  present</span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt;  6 group_1 time_4 patient_002     -1.67       1.84  absent  present</span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt;  7 group_1 time_2 patient_003      1.38      -0.157 absent  absent </span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt;  8 group_1 time_3 patient_003      1.38      -0.157 absent  absent </span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt;  9 group_1 time_4 patient_003      1.38      -0.157 absent  absent </span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt; 10 group_1 time_2 patient_004     -0.920     -1.39  present present</span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt; # ℹ 590 more rows</span></span></code></pre></div>
+<p>The functions listed at <a href="https://openpharma.github.io/brms.mmrm/reference/index.html#informative-prior-archetypes" class="uri">https://openpharma.github.io/brms.mmrm/reference/index.html#informative-prior-archetypes</a>
+can create different kinds of informative prior archetypes from a
+dataset like the one above. For example, suppose we want to place
+informative priors on the successive differences between adjacent time
+points. This approach is appropriate and desirable in many situations
+because the structure naturally captures the prior correlations among
+adjacent visits of a clinical trial. To do this, we create an instance
+of the “successive cells” archetype.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>archetype <span class="ot">&lt;-</span> <span class="fu">brm_archetype_successive_cells</span>(data, <span class="at">baseline =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p>The instance of the archetype is an ordinary tibble, but it adds new
+columns.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>archetype</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 600 × 23</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;    x_group_1_time_2 x_group_1_time_3 x_group_1_time_4 x_group_2_time_2</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;  *            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;  1                1                0                0                0</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;  2                1                1                0                0</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;  3                1                1                1                0</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;  4                1                0                0                0</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;  5                1                1                0                0</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;  6                1                1                1                0</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;  7                1                0                0                0</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;  8                1                1                0                0</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;  9                1                1                1                0</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 10                1                0                0                0</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; # ℹ 590 more rows</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; # ℹ 19 more variables: x_group_2_time_3 &lt;dbl&gt;, x_group_2_time_4 &lt;dbl&gt;,</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; #   nuisance_biomarker1 &lt;dbl&gt;, nuisance_biomarker2 &lt;dbl&gt;,</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; #   nuisance_status1_absent &lt;dbl&gt;, nuisance_status2_present &lt;dbl&gt;,</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; #   nuisance_baseline.timetime_2 &lt;dbl&gt;, nuisance_baseline.timetime_3 &lt;dbl&gt;,</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; #   nuisance_baseline.timetime_4 &lt;dbl&gt;, patient &lt;chr&gt;, time &lt;chr&gt;,</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; #   change &lt;dbl&gt;, missing &lt;lgl&gt;, baseline &lt;dbl&gt;, group &lt;chr&gt;, …</span></span></code></pre></div>
+<p>Those new columns constitute a custom model matrix to describe the
+desired parameterization. We have effects of interest to express
+successive differences,</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">attr</span>(archetype, <span class="st">&quot;brm_archetype_interest&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;x_group_1_time_2&quot; &quot;x_group_1_time_3&quot; &quot;x_group_1_time_4&quot; &quot;x_group_2_time_2&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; [5] &quot;x_group_2_time_3&quot; &quot;x_group_2_time_4&quot;</span></span></code></pre></div>
+<p>and we have nuisance variables. Some nuisance variables are
+continuous covariates, while others are levels of one-hot-encoded
+concomitant factors or interactions of those concomitant factors with
+baseline and/or subgroup. All nuisance variables are centered at their
+means so the reference level of the model is at the “center” of the data
+and not implicitly conditional on a subset of the data.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> In addition, some
+nuisance variables are automatically dropped in order to ensure the
+model matrix is full-rank. This is critically important to preserve the
+interpretation of the columns of interest and make sure the informative
+priors behave as expected.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">attr</span>(archetype, <span class="st">&quot;brm_archetype_nuisance&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;nuisance_biomarker1&quot;          &quot;nuisance_biomarker2&quot;         </span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; [3] &quot;nuisance_status1_absent&quot;      &quot;nuisance_status2_present&quot;    </span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; [5] &quot;nuisance_baseline.timetime_2&quot; &quot;nuisance_baseline.timetime_3&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [7] &quot;nuisance_baseline.timetime_4&quot;</span></span></code></pre></div>
+<p>The factors of interest linearly map to marginal means. To see the
+mapping, call <code>summary()</code> on the archetype. The printed
+output helps build intuition on how the archetype is parameterized and
+what those parameters are doing.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">summary</span>(archetype)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_2 + x_group_1_time_3</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_2_time_2</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_2_time_2 + x_group_2_time_3</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4</span></span></code></pre></div>
+</div>
+<div id="informative-priors" class="section level2">
+<h2>Informative priors</h2>
+<p>Let’s assume you want to assign informative priors to the fixed
+effect parameters of interest declared in the archetype, such as
+<code>x_group_1_time_2</code> and <code>x_group_2_time_3</code>. Your
+priors may come from expert elicitation, historical data, or some other
+method, and you might consider <a href="https://github.com/stan-dev/stan/wiki/prior-choice-recommendations">distributional
+families recommended by the Stan team</a>. Either way,
+<code>brms.mmrm</code> helps you assign these priors to the model
+without having to guess at the automatically-generated names of model
+coefficients in R.</p>
+<p>In the printed output from <code>summary(archetype)</code>,
+parameters of interest such as <code>x_group_1_time_2</code> and
+<code>x_group_2_time_3</code> are always labeled using treatment groups
+and time points in the data (and subgroup levels, if applicable). Even
+though different archetypes have different parameterizations and thus
+different ways of expressing marginal means, this labeling scheme
+remains consistent across all archetypes. This is how
+<code>brms.mmrm</code> helps you assign priors. First, match your priors
+to levels in the data.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>label <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 0.98, 2.37)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_1&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_2&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 1.82, 3.32)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_1&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_3&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 2.35, 4.41)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_1&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_4&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 0.31, 2.22)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_2&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_2&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 1.94, 2.85)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_2&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_3&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 2.33, 3.41)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_2&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_4&quot;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>label</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 3</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;   code                     group   time  </span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                    &lt;chr&gt;   &lt;chr&gt; </span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 1 student_t(4, 0.98, 2.37) group_1 time_2</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 2 student_t(4, 1.82, 3.32) group_1 time_3</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 3 student_t(4, 2.35, 4.41) group_1 time_4</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; 4 student_t(4, 0.31, 2.22) group_2 time_2</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 5 student_t(4, 1.94, 2.85) group_2 time_3</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 6 student_t(4, 2.33, 3.41) group_2 time_4</span></span></code></pre></div>
+<p>Those <code>group</code> and <code>time</code> labels map your priors
+to the corresponding <code>x_*</code> parameters.
+<code>brm_prior_archetype()</code> accepts a collection of labeled
+priors and returns a <code>brms</code> prior object as documented in <a href="https://paul-buerkner.github.io/brms/reference/set_prior.html" class="uri">https://paul-buerkner.github.io/brms/reference/set_prior.html</a>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">brm_prior_archetype</span>(<span class="at">label =</span> label, <span class="at">archetype =</span> archetype)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>prior</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt;                     prior class             coef group resp dpar nlpar   lb</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.98, 2.37)     b x_group_1_time_2                       &lt;NA&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.82, 3.32)     b x_group_1_time_3                       &lt;NA&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.35, 4.41)     b x_group_1_time_4                       &lt;NA&gt;</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.31, 2.22)     b x_group_2_time_2                       &lt;NA&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.94, 2.85)     b x_group_2_time_3                       &lt;NA&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.33, 3.41)     b x_group_2_time_4                       &lt;NA&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;    ub source</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span></code></pre></div>
+<p>In less common situations, you may wish to assign priors to nuisance
+parameters. For example, our model accounts for interactions between
+baseline and discrete time, and it may be reasonable to assign priors to
+these slopes based on high-quality historical data. This requires a
+thorough understanding of the fixed effect structure of the model, but
+it can be done directly through <code>brms</code>. First, check the
+formula for the included nuisance parameters. <code>brm_formula()</code>
+automatically understands archetypes.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">brm_formula</span>(archetype)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; change ~ 0 + x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4 + x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4 + nuisance_biomarker1 + nuisance_biomarker2 + nuisance_status1_absent + nuisance_status2_present + nuisance_baseline.timetime_2 + nuisance_baseline.timetime_3 + nuisance_baseline.timetime_4 + unstr(time = time, gr = patient) </span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; sigma ~ 0 + time</span></span></code></pre></div>
+<p>The <code>&quot;nuisance_*&quot;</code> terms are the nuisance variables, and
+the ones involving baseline are
+<code>nuisance_baseline.timetime_2</code>,
+<code>nuisance_baseline.timetime_3</code>, and
+<code>nuisance_baseline.timetime_4</code>. Because there is no overall
+slope for baseline, we can interpret each term as the linear rate of
+change in the outcome variable per unit increase in baseline for a given
+discrete time point. Suppose we use this interpretation to construct
+informative priors <code>student_t(4, 2.1, 4.8)</code>,
+<code>student_t(4, 3.2, 5.2)</code>, and
+<code>student_t(4, 2.5, 5.7)</code>, respectively. Use
+<code>brms::set_prior()</code> and <code>c()</code> to append these
+priors to our existing <code>prior</code> object:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  prior,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, 2.17, 4.86)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_baseline.timetime_2&quot;</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, 3.22, 5.25)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_baseline.timetime_3&quot;</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, 2.53, 5.75)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_baseline.timetime_4&quot;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>prior</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;                     prior class                         coef group resp dpar</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.98, 2.37)     b             x_group_1_time_2                </span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.82, 3.32)     b             x_group_1_time_3                </span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.35, 4.41)     b             x_group_1_time_4                </span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.31, 2.22)     b             x_group_2_time_2                </span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.94, 2.85)     b             x_group_2_time_3                </span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.33, 3.41)     b             x_group_2_time_4                </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.17, 4.86)     b nuisance_baseline.timetime_2                </span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 3.22, 5.25)     b nuisance_baseline.timetime_3                </span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.53, 5.75)     b nuisance_baseline.timetime_4                </span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt;  nlpar   lb   ub source</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span></code></pre></div>
+<p>The model still has many parameters where we did not set priors, and
+<code>brms</code> sets automatic defaults. You can see these defaults
+with <code>brms::default_prior()</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>brms<span class="sc">::</span><span class="fu">default_prior</span>(<span class="at">object =</span> formula, <span class="at">data =</span> archetype)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; Error in x$formula: object of type &#39;closure&#39; is not subsettable</span></span></code></pre></div>
+<p><a href="https://paul-buerkner.github.io/brms/reference/set_prior.html" class="uri">https://paul-buerkner.github.io/brms/reference/set_prior.html</a>
+documents many of the default priors set by <code>brms</code>. In
+particular, <code>&quot;(flat)&quot;</code> denotes an improper uniform prior over
+all the real numbers.</p>
+</div>
+<div id="modeling-and-analysis" class="section level2">
+<h2>Modeling and analysis</h2>
+<p>The downstream methods in <code>brms.mmrm</code> automatically
+understand how to work with informative prior archetypes. Notably, the
+formula uses custom interest and nuisance variables instead of the
+original variables in the data.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">brm_formula</span>(archetype)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>formula</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; change ~ 0 + x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4 + x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4 + nuisance_biomarker1 + nuisance_biomarker2 + nuisance_status1_absent + nuisance_status2_present + nuisance_baseline.timetime_2 + nuisance_baseline.timetime_3 + nuisance_baseline.timetime_4 + unstr(time = time, gr = patient) </span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; sigma ~ 0 + time</span></span></code></pre></div>
+<p>The model can accept the archetype, formula, and prior. Usage is the
+same as in non-archetype workflows.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">brm_model</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">data =</span> archetype,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">formula =</span> formula,</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">prior =</span> prior,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; Compiling Stan program...</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; Start sampling</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>brms<span class="sc">::</span><span class="fu">prior_summary</span>(model)</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt;                     prior    class                         coef group resp</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                                        </span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.17, 4.86)        b nuisance_baseline.timetime_2           </span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 3.22, 5.25)        b nuisance_baseline.timetime_3           </span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.53, 5.75)        b nuisance_baseline.timetime_4           </span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b          nuisance_biomarker1           </span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b          nuisance_biomarker2           </span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b      nuisance_status1_absent           </span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b     nuisance_status2_present           </span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.98, 2.37)        b             x_group_1_time_2           </span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.82, 3.32)        b             x_group_1_time_3           </span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.35, 4.41)        b             x_group_1_time_4           </span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.31, 2.22)        b             x_group_2_time_2           </span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.94, 2.85)        b             x_group_2_time_3           </span></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.33, 3.41)        b             x_group_2_time_4           </span></span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                                        </span></span>
+<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                   timetime_2           </span></span>
+<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                   timetime_3           </span></span>
+<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                   timetime_4           </span></span>
+<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a><span class="co">#&gt;      lkj_corr_cholesky(1) Lcortime                                        </span></span>
+<span id="cb13-30"><a href="#cb13-30" tabindex="-1"></a><span class="co">#&gt;   dpar nlpar lb ub       source</span></span>
+<span id="cb13-31"><a href="#cb13-31" tabindex="-1"></a><span class="co">#&gt;                         default</span></span>
+<span id="cb13-32"><a href="#cb13-32" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-33"><a href="#cb13-33" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-34"><a href="#cb13-34" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-35"><a href="#cb13-35" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
+<span id="cb13-36"><a href="#cb13-36" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
+<span id="cb13-37"><a href="#cb13-37" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
+<span id="cb13-38"><a href="#cb13-38" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
+<span id="cb13-39"><a href="#cb13-39" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-40"><a href="#cb13-40" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-41"><a href="#cb13-41" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-42"><a href="#cb13-42" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-43"><a href="#cb13-43" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-44"><a href="#cb13-44" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
+<span id="cb13-45"><a href="#cb13-45" tabindex="-1"></a><span class="co">#&gt;  sigma                  default</span></span>
+<span id="cb13-46"><a href="#cb13-46" tabindex="-1"></a><span class="co">#&gt;  sigma             (vectorized)</span></span>
+<span id="cb13-47"><a href="#cb13-47" tabindex="-1"></a><span class="co">#&gt;  sigma             (vectorized)</span></span>
+<span id="cb13-48"><a href="#cb13-48" tabindex="-1"></a><span class="co">#&gt;  sigma             (vectorized)</span></span>
+<span id="cb13-49"><a href="#cb13-49" tabindex="-1"></a><span class="co">#&gt;                         default</span></span></code></pre></div>
+<p>Marginal mean estimation, post-processing, and visualization
+automatically understand the archetype without any user
+intervention.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>draws <span class="ot">&lt;-</span> <span class="fu">brm_marginal_draws</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">data =</span> archetype,</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">formula =</span> formula,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">model =</span> model</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>summaries_model <span class="ot">&lt;-</span> <span class="fu">brm_marginal_summaries</span>(draws)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>summaries_data <span class="ot">&lt;-</span> <span class="fu">brm_marginal_data</span>(data)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">brm_plot_compare</span>(<span class="at">model =</span> summaries_model, <span class="at">data =</span> summaries_data)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="data:image/png;base64,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NTU1kiQNHTp0/fr1HMeNHj36yy+/DBv0M2fOnDp1qtFolKdfu3Yty7I33nhjQUEBIWTcuHHff/+91WqdOnXqO++8E61qww9qduTIkUGDBgmCQAixWq0jR4785ZdfbrnllmgtFai3sOJ/4b66ynlvAgYmBKqcO3fO5XJdffXVPXr0GDBggCiKGzdu9Hq97733HiGkV69ef/7znwcOHFj3jR6PZ+HChUlJSRs2bHA4HN999x0hJC0trbS0VBCELVu2PP3004SQgQMHzps37+GHH45KteGP6Pv16/fFF1/U1NQQQgoLCz/66KOePXE6HTSBif3fpsXi7odAnfz8/FdeeWXatGnZ2dmfffYZx3FHjx7t1q2b/GpmZua5c+eCpxdFUX5gMpmSkpIIIUePHr388svlxlGjRg0YMODIkSNWq1Vuyc7Ofuqpp6JVbfgj+r59+w4bNmzGjBlVVVUajWb69OnXX399tBYJbcEjSQmBHptJSQkXnxgg5vz8888Wi+W7775zu91Dhw799ttvU1NTly9fLr968ODBTp06cRzn9/vllqKiopA5pKSknD59Wn78wQcfZGZmpqenV1dX33///QzD7NixY82aNdGqtt7x6B966KGHHnqovLzcbrczuCE1NFGmTlvcJS+v4OianMzOer3a5QBEmdVq/dOf/nT69GlRFIuKirp165aWlib3v+fl5b311ltvvvmm1WpNSUl5++23ExISPv3001tvvTV4DkOGDJk5c+ZTTz3Vvn37119/fdu2bampqbm5uffee2+/fv3efPPNf/zjH9Gqtt7TK/fv33/27Fmn0zlt2rQvvvgiWsuDtkPLMCzDGFlcqwEU6tChw/r16wVBkCRp3bp1mZmZGo1m8+bNV1xxhc/nW7p06Q033EAI2bBhgyAIbrd7+fLlQ4YMYVn2//7v/+Q5aLXa77//Pjc3l2XZrVu3pqamEkK++eabm266yeFwfPrpp9ddd120qg1/RP/LL7+MHDny3//+9/Tp0zt37vziiy+mpKT07ds3WksFAIh1nTp1euyxx4JbTCbTfffdF9ySkpLyyCOPBLcEgp4QYrVaH3jggeBXtVrtmDFjol5q+KBfu3btE088kZubu3fv3s8//zwnJ2fLli0IegCAWBT+z2qbzVZcXLxixYpevXqxLFtYWBgfj9PjAABiUvgj+jvvvHPEiBHz5s376quv3njjjVWrVm3atEnhygAAICrCB73ZbF63bp38uGvXrlOmTMGJNwAAMSp8143T6bzrrruys7PT09M7d+6ckZHx2muvKVwZAABERfgj+sWLF9vt9g0bNpjNZrnFZDIpWBUAQKsWGMisSeRrYpUXPuh5nr/pppsyMzMVrgYAAKIufNBff/31999/v9FolM/hJ4QkJycnJycrWBgAAERH+KDfuHGjx+MJPrH/wQcffPDBB5WqCgAAoiZ80Mux7na7S0pK0tLSdDqdwmUBAEC01DsOydSpU1NTUwcPHty+ffvnnntOyZoAANqUFStWbNmyJaSxvLy8sLAwKvMPH/Rr1qz5+eefz58/f/To0ZMnT27atEkeHR8AAOrDlZYY1n2j3/AtU+Vo0hvPnj1b9zSenTt3fvTRR1EpLHzXzcGDB2+99VaDwUAIiYuLGz169N69ezEkPQBAfZjqatPH8+THXGmJ+/a7Ccdd/C0+n2/GjBmnT582m83p6el+v/+vf/1rQUFBnz59pk+f/s9//vP48eMjR4785JNPAo3Nu3Y1fND36NHjhRdeGDt2rNVq9Xq9X3311UMPPdSMuQMAUMz8/j+I9N9bRzG/3WOEEMKdPml5/02J/W/Qi/ZEzx1hxqR89dVXk5OTn3vuOflGrd9//31mZuYLL7xw5513HjlyZPLkydu3by8pKQlu7Ny5czPqDB/011133ZYtWzIzM9u1a3f+/Plx48bhhrEAACG8fxgZeMyWlxtWff6/l4bdJv12GovEhU/a77//fv78+Xq9/g9/+AMhpGfPnhs3brz33nv37dvn8XjkacI2NlW9d5h65plnJkyYsHfv3ssvv7xDhw4XmcWCBQv2799vNpunTZtmsVgu0ggAQBOhXUqtxx6X4bs1hBDPraP5jIYvOI2LiyspKUlJSSkuLs7IyJg1a9aVV145a9as4EHtwzY2VfigFwRh3Lhxa9aske9qOGrUqPfee48Nd6ugoqKiwsLCOXPm/Oc//1m9evUdd9xRXyMAAN38Pa7297i68dNPmTLl4Ycf/t3vfrd58+bevXtnZmZ+/fXXBQUFBQUFP/zww9VXX/3tt99ee+21wY3du3dvRmHhg37JkiWJiYllZWUMw1RXV48cOfLzzz8Pm9cFBQXygrt16/b+++9fpBEAAIJdc801P/zwQ3DLo48+Sgh58cUX5afbtm0LvBRobIbwQX/u3LlRo0bJP+9ardZbbrnl1KlTYad0uVw2m40QYjKZAv1HYRtff/31lStXEkL+9a9/RX0UHV6nM1gsbGJiSDvDMIl1GvVlFSaTqW67wgSzWdLpTOFqlj+9YFbCaiocqtdMeN5HSEJCAqlzDR3DMPo6NwFnmGPx8fGJBkNL1xX1T0ZiiD/cxsMwjCRJRh7RF8QAAB87SURBVKMxuFEvCHINOlbl0bz9Go3eam3kjqA7d8Fisai+UQkmE9Hrw+4Ide93ZOFFndsb9ZoFQYjuDFub8EF/8803T58+3Wg0ZmRkHDp0aPHixW+99db58+ctFktIh3sgyj0ej9VqvUjjfffdJ/9NYDAYKisro7saer9fcLv52rPlOM5isTgcoSe0+nw+D8tEvYam4txujd/vrFOGzWZzu908zwc3ulwunudVr5nwvIkQh8MhabXBzQaDgWVZt9sdMrkkSVVVVZVeb3SrsNvtIS1R/2SYqiqDJNWdrclkEkXRW3uNXKIo16B60Ot53utyCbXL1mg0JpOpqqoqZGK/3+92u1XfqLReL+vz1dQpIy4uzul0hkSw2+32+/1Rr5ll2bi4uOjOs1UJH/Tr1q07ePDg6NGjAy133nknIWTKlClTpkwJnjI/P//jjz8eNmzY/v37u3TpcpHG+Ph4+f/nioqKqP//KUmSKIohs5X/Iqm7LEmSJElS/f9wtv4y6q6LKIqkFRx3ML+VIdX+weYiH2nddWkJUV8EW88HHnZNhd8mFiT1789T9wNnWTbstxN2r1EeJ4pMPRuPIAh1d4TWsPPGnPBBXzfQ69OhQ4e0tLTHH388Li7uySefJISMHz9+/vz5IY0AAKCWek+v3L9/f2JioiAIb775Zr9+/W677bb6ppwwYULw0/nz59dtBAAAtYQf6+aXX34ZOXJkdXX1o48+qtFoXnzxxZCfhgEAIFaEP6Jfu3btE088kZubu3fv3s8//zwnJ2fLli19+/ZVuDgAAIhc+CN6m81WXFy8YsWKXr16sSxbWFhY9zwnAACICeGP6O+8884RI0bMmzfvq6++euONN1atWrVp0yaFKwMAgKgIH/Rms3ndunXl5eVarbZLly5Tpkxp3tiYAAAQFTt37rTZbPn5+cGNu3bt0ul0l19++cXfG77rRhCE0aNHp6WlLVmy5IEHHnj++eejViwAdUSJEEIktcsA1Xkl6euq6g3VLrEFtoadO3ceOnQopHHXrl379+9v8L3hj+i/+eYbvV7/xhtvEELef//922+/fdWqVRipGKCuQ96a/scKCSF3niqak9ouR48bLLdRHlG65/TZ750uQsjwOOv7GakNdoNs377d5/MdPHjwyiuv9Pv9P/3005gxY5KSkjZv3rxz587Bgwd369aNELJ69erCwsLKysr09HRCyI8//rh169abbrrp0ksvbWRt4Y/ojxw5MmjQIHm4SqvVOnLkyF9++aWxqwvQlrxS+qv8YIvLPefCr+oWAwp7orjk8d/+3XfmvylPCPnKUf1g0bnAS4GNJMT27dufffbZ3r17jxs3btu2bWlpaX/+859Xrlz59ttvd+3a9ZFHHtm/f//SpUsXLlyYm5u7ePFiQsimTZueffbZSy+99JFHHjl8+HAj6wx/RN+vX78XX3xxyJAher2+sLDwo48+mjVrVtM/BAD6eSWJSIQwhBDiFEW1ywFFZWq10m+ddoIk1n5JY/ttpJBETb2Xpo4ZM6Znz56ZmZkTJ07UarX//Oc/Fy5c+Morr2RlZVVUVKxcufLHH398/fXXO3bsKF+FunDhwv79+3s8nq5du65cuTIwmNjFhV983759hw0bNmPGjKqqKo1GM336dNwwFiCs38dZv612yo9viwsddhTo9sglCYHHgiQ5RekrRzUh5E9JCX9td0lj5mAymeQHWq2WECJJks/nCzzW6XSBgX3kBzzPy6/27t27U6dOu3btasxSwnfd8Dz/xz/+8cKFC+fOnXM6nX/9618bMy+ANujOeNvyrHRCyKqOHW6Na9ThFVCJY5gPMlK3duq4p3POzPaNSvmwbrvtthkzZqxfv/6dd9657bbbbr/99hkzZqxevVruurn99tt3795tt9sXLFgQ9mZQYYU/op87dy4hZNq0aQkJCWEnAICAXiYjIeRKY4sPuw+tX15Tfo3v06ePPPD7uHHjdDodIeS+++679957k5OT9+7d+8477+Tm5ubm5iYkJJw6dertt9+22+35+fkWi2XHjh1z5szp0qWLKIq6OjeHqCt80A8fPnzs2LE5OTmBu8WmpqampqY2fgUAAODi+vTpIz8YN26c/EC+MezQoUOHDh0amEy+dXjAgAEDBgwYID/u1atXYxYUPui3bNmi0+lee+21QMuECRMwICUA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" alt="plot of chunk archetype_compare_data" />
+<p class="caption">
+plot of chunk archetype_compare_data
+</p>
+</div>
+</div>
+<div id="other-archetypes" class="section level2">
+<h2>Other archetypes</h2>
+<p>Other informative prior archetypes use different fixed effects. For
+example, <code>brms.mmrm</code> supports simple cell mean and treatment
+effect parameterizations.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_cells</span>(data))</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_2_time_2</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_2_time_3</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_2_time_4</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_effects</span>(data))</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_1_time_2 + x_group_2_time_2</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_1_time_3 + x_group_2_time_3</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_1_time_4 + x_group_2_time_4</span></span></code></pre></div>
+<p>There are archetypes to parameterize the average across all time
+points in the data. Below, <code>x_group_1_time_2</code> is the average
+across time points for group 1 because it is the algebraic result of
+simplifying
+<code>(group_1:time_2 + group_1:time_3 + group_1:time_3) / 3</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_average_cells</span>(data))</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = 3*x_group_1_time_2 - x_group_1_time_3 - x_group_1_time_4</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = 3*x_group_2_time_2 - x_group_2_time_3 - x_group_2_time_4</span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_2_time_3</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_2_time_4</span></span></code></pre></div>
+<p>There is also a treatment effect version where
+<code>x_group_2_time_2</code> becomes the time-averaged treatment effect
+of group 2 relative to group 1.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_average_effects</span>(data))</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = 3*x_group_1_time_2 - x_group_1_time_3 - x_group_1_time_4</span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = 3*x_group_1_time_2 - x_group_1_time_3 - x_group_1_time_4 + 3*x_group_2_time_2 - x_group_2_time_3 - x_group_2_time_4</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_1_time_3 + x_group_2_time_3</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_1_time_4 + x_group_2_time_4</span></span></code></pre></div>
+<p>In addition, there is a treatment effect version of the successive
+differences archetype from earlier in the vignette.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_successive_effects</span>(data))</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_2 + x_group_1_time_3</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4</span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_1_time_2 + x_group_2_time_2</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_1_time_2 + x_group_1_time_3 + x_group_2_time_2 + x_group_2_time_3</span></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4 + x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4</span></span></code></pre></div>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p><code>brm_recenter_nuisance()</code> can retroactively
+recenter a nuisance column to a fixed value other than its mean.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

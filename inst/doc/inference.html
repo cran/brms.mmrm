@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Inference</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Inference</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#example-data" id="toc-example-data"><span class="toc-section-number">1</span> Example data</a></li>
+<li><a href="#marginal-means-for-clinical-trials" id="toc-marginal-means-for-clinical-trials"><span class="toc-section-number">2</span> Marginal means for clinical
+trials</a></li>
+<li><a href="#existing-capabilities" id="toc-existing-capabilities"><span class="toc-section-number">3</span>
+Existing capabilities</a></li>
+<li><a href="#how-brms.mmrm-estimates-marginal-means" id="toc-how-brms.mmrm-estimates-marginal-means"><span class="toc-section-number">4</span> How <code>brms.mmrm</code> estimates
+marginal means</a></li>
+<li><a href="#subgroup-analysis" id="toc-subgroup-analysis"><span class="toc-section-number">5</span> Subgroup analysis</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+</ul>
+</div>
+
+<p>This vignette explains how <code>brms.mmrm</code> conducts posterior
+inference on a fitted <a href="https://openpharma.github.io/brms.mmrm/articles/model.html">MMRM
+model</a> using estimated marginal means.</p>
+<div id="example-data" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Example data</h1>
+<p>Throughout this vignette, we use the <code>mmrm</code> package’s
+<code>fev_data</code> dataset, a simulation of a clinical trial in which
+chronic obstructive pulmonary disease (COPD) patients (variable
+<code>USUBJID</code>) were randomized to different treatment groups
+(variable <code>ARMCD</code>) and measured across four discrete time
+points (variable <code>AVISIT</code>). The given response variable is
+forced expired volume in one second (<code>FEV1</code>), and we are
+interested in the <code>FEV1</code> change from baseline to each time
+point (derived variable <code>FEV_CHG</code>). For this vignette, we
+impute missing responses in order to simplify the discussion.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">data</span>(fev_data, <span class="at">package =</span> <span class="st">&quot;mmrm&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>data <span class="ot">&lt;-</span> fev_data <span class="sc">|&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="fu">complete</span>(AVISIT) <span class="sc">|&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">arrange</span>(AVISIT) <span class="sc">|&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="fu">fill</span>(</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    <span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">&quot;ARMCD&quot;</span>, <span class="st">&quot;FEV1_BL&quot;</span>, <span class="st">&quot;RACE&quot;</span>, <span class="st">&quot;SEX&quot;</span>, <span class="st">&quot;WEIGHT&quot;</span>)),</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="at">.direction =</span> <span class="st">&quot;downup&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FEV1 =</span> <span class="fu">na.locf</span>(FEV1, <span class="at">na.rm =</span> <span class="cn">FALSE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FEV1 =</span> <span class="fu">na.locf</span>(FEV1, <span class="at">na.rm =</span> <span class="cn">FALSE</span>, <span class="at">fromLast =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(FEV1)) <span class="sc">|&gt;</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FEV1_CHG =</span> FEV1 <span class="sc">-</span> FEV1_BL, <span class="at">USUBJID =</span> <span class="fu">as.character</span>(USUBJID)) <span class="sc">|&gt;</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>FEV1) <span class="sc">|&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, AVISIT)</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>data</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; # A tibble: 788 × 10</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt;    USUBJID AVISIT ARMCD RACE        SEX   FEV1_BL WEIGHT VISITN VISITN2 FEV1_CHG</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;   &lt;fct&gt;  &lt;fct&gt; &lt;fct&gt;       &lt;fct&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt;  1 PT1     VIS1   TRT   Black or A… Fema…    25.3  0.677      1 -0.626     14.7 </span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt;  2 PT1     VIS2   TRT   Black or A… Fema…    25.3  0.801      2  0.184     14.7 </span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt;  3 PT1     VIS3   TRT   Black or A… Fema…    25.3  0.709      3 -0.836     14.7 </span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt;  4 PT1     VIS4   TRT   Black or A… Fema…    25.3  0.809      4  1.60      -4.79</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt;  5 PT10    VIS1   PBO   Black or A… Fema…    57.7  0.795      1 -0.394    -12.7 </span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt;  6 PT10    VIS2   PBO   Black or A… Fema…    57.7  0.823      2 -0.0593   -12.7 </span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt;  7 PT10    VIS3   PBO   Black or A… Fema…    57.7  0.594      3  1.10     -12.7 </span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt;  8 PT10    VIS4   PBO   Black or A… Fema…    57.7  0.207      4  0.763    -12.7 </span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt;  9 PT100   VIS1   PBO   Black or A… Fema…    51.8  0.362      1  1.59     -17.2 </span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt; 10 PT100   VIS2   PBO   Black or A… Fema…    51.8  0.404      2  0.0450   -12.5 </span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt; # ℹ 778 more rows</span></span></code></pre></div>
+</div>
+<div id="marginal-means-for-clinical-trials" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Marginal means for
+clinical trials</h1>
+<p>According to <span class="citation">Lenth (2016)</span>, marginal
+means (formerly “least-squares means”) are predictions (usually averaged
+predictions) at each point in a reference grid. The reference grid
+declares combinations of levels of factors of interest. In a clinical
+trial with repeated measures, we are often interested in the mean
+response at each combination of treatment group and discrete time point.
+For our FEV1 dataset, we are interested in the mean of
+<code>FEV1_CHG</code> and its standard error for each combination of
+treatment group and time point.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> In other words, we want to estimate the
+mean <code>FEV1_CHG</code> for group <code>&quot;TRT&quot;</code> time
+<code>&quot;VIS1&quot;</code>, the mean <code>FEV1_CHG</code> for group
+<code>&quot;TRT&quot;</code> time <code>&quot;VIS2&quot;</code>, and so on.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> We represent our goals
+in a reference with one row per marginal mean of interest and columns
+with the levels of the factors of interest.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>reference_grid <span class="ot">&lt;-</span> <span class="fu">distinct</span>(data, ARMCD, AVISIT)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>reference_grid</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 2</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;   ARMCD AVISIT</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt; </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 1 TRT   VIS1  </span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; 2 TRT   VIS2  </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; 3 TRT   VIS3  </span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; 4 TRT   VIS4  </span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; 5 PBO   VIS1  </span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; 6 PBO   VIS2  </span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; 7 PBO   VIS3  </span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; 8 PBO   VIS4</span></span></code></pre></div>
+<p>It is seldom trivial to estimate marginal means. For example, the
+following parameterization includes an intercept term, additive terms
+for each level of each factor, interactions to capture non-additive
+relationships among factors, continuous covariates, and different
+<code>FEV1_BL</code> slopes for different time points. Here, there is no
+model coefficient that directly corresponds to a marginal mean of
+interest. Even terms like <code>AVISITVIS2:ARMCDTRT</code> implicitly
+condition on a subset of the data because of the other variables
+involved.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>formula <span class="ot">&lt;-</span> FEV1_CHG <span class="sc">~</span> FEV1_BL <span class="sc">*</span> AVISIT <span class="sc">+</span> ARMCD <span class="sc">*</span> AVISIT <span class="sc">+</span> RACE <span class="sc">+</span> SEX <span class="sc">+</span> WEIGHT</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>formula</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; FEV1_CHG ~ FEV1_BL * AVISIT + ARMCD * AVISIT + RACE + SEX + WEIGHT</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">colnames</span>(<span class="fu">model.matrix</span>(<span class="at">object =</span> formula, <span class="at">data =</span> data))</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;(Intercept)&quot;                   &quot;FEV1_BL&quot;                      </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;AVISITVIS2&quot;                    &quot;AVISITVIS3&quot;                   </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;AVISITVIS4&quot;                    &quot;ARMCDTRT&quot;                     </span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;RACEBlack or African American&quot; &quot;RACEWhite&quot;                    </span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;SEXFemale&quot;                     &quot;WEIGHT&quot;                       </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [11] &quot;FEV1_BL:AVISITVIS2&quot;            &quot;FEV1_BL:AVISITVIS3&quot;           </span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; [13] &quot;FEV1_BL:AVISITVIS4&quot;            &quot;AVISITVIS2:ARMCDTRT&quot;          </span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; [15] &quot;AVISITVIS3:ARMCDTRT&quot;           &quot;AVISITVIS4:ARMCDTRT&quot;</span></span></code></pre></div>
+<p>To accomplish our goals, we need to carefully construct a linear
+transformation that maps these model coefficients to the marginal means
+of interest. The transformation should evaluate contrasts on the
+interesting parameters and average out the uninteresting parameters.</p>
+</div>
+<div id="existing-capabilities" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Existing
+capabilities</h1>
+<p><code>brms.mmrm::brm_model()</code> returns a fitted <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a>
+model, and <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a>
+already has tools for posterior inference. Through a combination of
+native functions and S3 methods, <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a>
+integrates not only with <a href="https://mc-stan.org/posterior/"><code>posterior</code></a> and <a href="https://mc-stan.org/loo/"><code>loo</code></a>, but also <a href="https://cran.r-project.org/package=emmeans"><code>emmeans</code></a>
+for the estimation of marginal means and downstream contrasts.</p>
+<p>Despite the existing features in <code>brms</code>,
+<code>brms.mmrm</code> implements custom code to transform model
+coefficients into marginal means. This is because the reference grids in
+<code>emmeans</code> can only condition on factors explicitly declared
+in the model formula supplied to <code>brms</code>, whereas
+<code>brms.mmrm</code> needs more flexibility in order to support <a href="https://openpharma.github.io/brms.mmrm/articles/archetypes.html">informative
+prior archetypes</a> (<span class="citation">Bedrick et al.
+(1996)</span>, <span class="citation">Bedrick et al. (1997)</span>,
+<span class="citation">Christensen et al. (2010)</span>, <span class="citation">Rosner et al. (2021)</span>).</p>
+</div>
+<div id="how-brms.mmrm-estimates-marginal-means" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> How
+<code>brms.mmrm</code> estimates marginal means</h1>
+<p>To transform model coefficients into marginal means,
+<code>brms.mmrm</code> follows a technique similar to that of <a href="https://cran.r-project.org/package=emmeans/vignettes/"><code>emmeans</code></a>.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
+<p>To begin, let us fit a simple regression model using the complex
+formula from before.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>formula</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; FEV1_CHG ~ FEV1_BL * AVISIT + ARMCD * AVISIT + RACE + SEX + WEIGHT</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">formula =</span> formula, <span class="at">data =</span> data)</span></code></pre></div>
+<p>For the predictions that support marginal mean estimation, we
+condition on the means of continuous covariates such as
+<code>FEV1_BL</code> and <code>WEIGHT</code>, and we condition on
+proportional averages of levels of concomitant factors <code>RACE</code>
+and <code>SEX</code>. The following settings in <code>emmeans</code>
+accomplish this. Behind the scenes, <code>emmeans</code> creates the
+transformation from model coefficients to marginal means, and then
+returns estimates of those marginal means. For more information, please
+consult <span class="citation">Lenth (2016)</span>, <span class="citation">Searle et al. (1980)</span>, and the <a href="https://cran.r-project.org/package=emmeans/vignettes/"><code>emmeans</code>
+package vignettes</a>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>marginals_emmeans <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">object =</span> model,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">specs =</span> <span class="sc">~</span>ARMCD<span class="sc">:</span>AVISIT,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">wt.nuis =</span> <span class="st">&quot;proportional&quot;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">nuisance =</span> <span class="fu">c</span>(<span class="st">&quot;USUBJID&quot;</span>, <span class="st">&quot;RACE&quot;</span>, <span class="st">&quot;SEX&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">select</span>(ARMCD, AVISIT, emmean) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="fu">arrange</span>(ARMCD, AVISIT)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>marginals_emmeans</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 3</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt;   ARMCD AVISIT emmean</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt;   &lt;dbl&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 1 PBO   VIS1   -4.60 </span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 2 PBO   VIS2   -2.54 </span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 3 PBO   VIS3    0.984</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; 4 PBO   VIS4    5.60 </span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; 5 TRT   VIS1   -1.29 </span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; 6 TRT   VIS2    0.847</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; 7 TRT   VIS3    3.80 </span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; 8 TRT   VIS4   10.1</span></span></code></pre></div>
+<p>To replicate this same technique manually for <code>lm()</code>
+fitted models, we first create a reference grid to define the factor
+levels of interest and the means of continuous variables to condition
+on.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>grid <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FEV1_BL =</span> <span class="fu">mean</span>(FEV1_BL), <span class="at">WEIGHT =</span> <span class="fu">mean</span>(WEIGHT)) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">distinct</span>(ARMCD, AVISIT, FEV1_BL, WEIGHT) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">arrange</span>(ARMCD, AVISIT)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>grid</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 4</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;   ARMCD AVISIT FEV1_BL WEIGHT</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt;    &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; 1 PBO   VIS1      40.1  0.519</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; 2 PBO   VIS2      40.1  0.519</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 3 PBO   VIS3      40.1  0.519</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; 4 PBO   VIS4      40.1  0.519</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; 5 TRT   VIS1      40.1  0.519</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; 6 TRT   VIS2      40.1  0.519</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; 7 TRT   VIS3      40.1  0.519</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 8 TRT   VIS4      40.1  0.519</span></span></code></pre></div>
+<p>We use the grid to construct a model matrix with the desired
+interactions between continuous variables and factors of interest. Each
+column represents a model coefficient, and each row represents a
+marginal mean of interest.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>transform <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">object =</span> <span class="sc">~</span> FEV1_BL <span class="sc">*</span> AVISIT <span class="sc">+</span> ARMCD <span class="sc">*</span> AVISIT <span class="sc">+</span> WEIGHT,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">data =</span> grid</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">rownames</span>(transform) <span class="ot">&lt;-</span> <span class="fu">paste</span>(grid<span class="sc">$</span>ARMCD, grid<span class="sc">$</span>AVISIT)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>transform</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;          (Intercept)  FEV1_BL AVISITVIS2 AVISITVIS3 AVISITVIS4 ARMCDTRT</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; PBO VIS1           1 40.12532          0          0          0        0</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; PBO VIS2           1 40.12532          1          0          0        0</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; PBO VIS3           1 40.12532          0          1          0        0</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; PBO VIS4           1 40.12532          0          0          1        0</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; TRT VIS1           1 40.12532          0          0          0        1</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; TRT VIS2           1 40.12532          1          0          0        1</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; TRT VIS3           1 40.12532          0          1          0        1</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; TRT VIS4           1 40.12532          0          0          1        1</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;             WEIGHT FEV1_BL:AVISITVIS2 FEV1_BL:AVISITVIS3 FEV1_BL:AVISITVIS4</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; PBO VIS1 0.5185461            0.00000            0.00000            0.00000</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; PBO VIS2 0.5185461           40.12532            0.00000            0.00000</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; PBO VIS3 0.5185461            0.00000           40.12532            0.00000</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; PBO VIS4 0.5185461            0.00000            0.00000           40.12532</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; TRT VIS1 0.5185461            0.00000            0.00000            0.00000</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; TRT VIS2 0.5185461           40.12532            0.00000            0.00000</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; TRT VIS3 0.5185461            0.00000           40.12532            0.00000</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; TRT VIS4 0.5185461            0.00000            0.00000           40.12532</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;          AVISITVIS2:ARMCDTRT AVISITVIS3:ARMCDTRT AVISITVIS4:ARMCDTRT</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; PBO VIS1                   0                   0                   0</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; PBO VIS2                   0                   0                   0</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; PBO VIS3                   0                   0                   0</span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; PBO VIS4                   0                   0                   0</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; TRT VIS1                   0                   0                   0</span></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; TRT VIS2                   1                   0                   0</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; TRT VIS3                   0                   1                   0</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; TRT VIS4                   0                   0                   1</span></span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;assign&quot;)</span></span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt;  [1] 0 1 2 2 2 3 4 5 5 5 6 6 6</span></span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;contrasts&quot;)</span></span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;contrasts&quot;)$AVISIT</span></span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt; [1] &quot;contr.treatment&quot;</span></span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;contrasts&quot;)$ARMCD</span></span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt; [1] &quot;contr.treatment&quot;</span></span></code></pre></div>
+<p>We want to predict at the “average” of <code>SEX</code> and
+<code>RACE</code> across all the data. Since <code>SEX</code> and
+<code>RACE</code> are factors, we cannot simply take the means of the
+variables themselves. Rather, we construct a model matrix to turn each
+factor <em>level</em> into a dummy variable, and then average those
+dummy variables across the entire dataset. This process accounts for the
+observed frequencies of these levels in the data (ideal for passive
+variables that the experiment does not directly control), while guarding
+against hidden confounding with the factors of interest (which can lead
+to Simpson’s paradox).<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>proportional_factors <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">model.matrix</span>(<span class="at">object =</span> <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> SEX <span class="sc">+</span> RACE) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">colMeans</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">t</span>()</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>proportional_factors</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;        SEXMale SEXFemale RACEBlack or African American RACEWhite</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; [1,] 0.4670051 0.5329949                     0.3756345 0.2690355</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>transform <span class="ot">&lt;-</span> transform <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">bind_cols</span>(proportional_factors) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>transform <span class="ot">&lt;-</span> transform[, <span class="fu">names</span>(<span class="fu">coef</span>(model))]</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">rownames</span>(transform) <span class="ot">&lt;-</span> <span class="fu">paste</span>(grid<span class="sc">$</span>ARMCD, grid<span class="sc">$</span>AVISIT)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>transform</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;          (Intercept)  FEV1_BL AVISITVIS2 AVISITVIS3 AVISITVIS4 ARMCDTRT</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; PBO VIS1           1 40.12532          0          0          0        0</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; PBO VIS2           1 40.12532          1          0          0        0</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; PBO VIS3           1 40.12532          0          1          0        0</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; PBO VIS4           1 40.12532          0          0          1        0</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; TRT VIS1           1 40.12532          0          0          0        1</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; TRT VIS2           1 40.12532          1          0          0        1</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; TRT VIS3           1 40.12532          0          1          0        1</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; TRT VIS4           1 40.12532          0          0          1        1</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt;          RACEBlack or African American RACEWhite SEXFemale    WEIGHT</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; PBO VIS1                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; PBO VIS2                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; PBO VIS3                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; PBO VIS4                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; TRT VIS1                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; TRT VIS2                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; TRT VIS3                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a><span class="co">#&gt; TRT VIS4                     0.3756345 0.2690355 0.5329949 0.5185461</span></span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a><span class="co">#&gt;          FEV1_BL:AVISITVIS2 FEV1_BL:AVISITVIS3 FEV1_BL:AVISITVIS4</span></span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a><span class="co">#&gt; PBO VIS1            0.00000            0.00000            0.00000</span></span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a><span class="co">#&gt; PBO VIS2           40.12532            0.00000            0.00000</span></span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="co">#&gt; PBO VIS3            0.00000           40.12532            0.00000</span></span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a><span class="co">#&gt; PBO VIS4            0.00000            0.00000           40.12532</span></span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a><span class="co">#&gt; TRT VIS1            0.00000            0.00000            0.00000</span></span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a><span class="co">#&gt; TRT VIS2           40.12532            0.00000            0.00000</span></span>
+<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a><span class="co">#&gt; TRT VIS3            0.00000           40.12532            0.00000</span></span>
+<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a><span class="co">#&gt; TRT VIS4            0.00000            0.00000           40.12532</span></span>
+<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a><span class="co">#&gt;          AVISITVIS2:ARMCDTRT AVISITVIS3:ARMCDTRT AVISITVIS4:ARMCDTRT</span></span>
+<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a><span class="co">#&gt; PBO VIS1                   0                   0                   0</span></span>
+<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a><span class="co">#&gt; PBO VIS2                   0                   0                   0</span></span>
+<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a><span class="co">#&gt; PBO VIS3                   0                   0                   0</span></span>
+<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a><span class="co">#&gt; PBO VIS4                   0                   0                   0</span></span>
+<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a><span class="co">#&gt; TRT VIS1                   0                   0                   0</span></span>
+<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a><span class="co">#&gt; TRT VIS2                   1                   0                   0</span></span>
+<span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a><span class="co">#&gt; TRT VIS3                   0                   1                   0</span></span>
+<span id="cb11-42"><a href="#cb11-42" tabindex="-1"></a><span class="co">#&gt; TRT VIS4                   0                   0                   1</span></span></code></pre></div>
+<p>Finally, we use this transformation matrix to map estimated model
+coefficients to estimated marginal means.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>marginals_custom <span class="ot">&lt;-</span> transform <span class="sc">%*%</span> <span class="fu">coef</span>(model)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>marginals_custom</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;                [,1]</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; PBO VIS1 -4.5998295</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; PBO VIS2 -2.5445943</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; PBO VIS3  0.9841880</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; PBO VIS4  5.6013241</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; TRT VIS1 -1.2858526</span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; TRT VIS2  0.8466639</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; TRT VIS3  3.8011416</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt; TRT VIS4 10.0521521</span></span></code></pre></div>
+<p>These results are extremely close to the estimated marginal mean from
+<code>emmeans</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>marginals_emmeans <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="at">custom =</span> <span class="fu">as.numeric</span>(marginals_custom)) <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">difference =</span> custom <span class="sc">-</span> emmean)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 5</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt;   ARMCD AVISIT emmean custom difference</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt;   &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; 1 PBO   VIS1   -4.60  -4.60   -1.78e-15</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 2 PBO   VIS2   -2.54  -2.54   -1.78e-15</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; 3 PBO   VIS3    0.984  0.984  -1.78e-15</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; 4 PBO   VIS4    5.60   5.60   -1.78e-15</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; 5 TRT   VIS1   -1.29  -1.29   -1.55e-15</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; 6 TRT   VIS2    0.847  0.847  -1.78e-15</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; 7 TRT   VIS3    3.80   3.80   -8.88e-16</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; 8 TRT   VIS4   10.1   10.1    -1.78e-15</span></span></code></pre></div>
+<p><code>brms.mmrm</code> follows the procedure above, but in a Bayesian
+context. The <code>brm_transform_marginal()</code> creates the matrix
+above, and <code>brm_marginal_draws()</code> uses it to transform
+posterior draws of <code>brms</code> model coefficients into posterior
+draws of marginal means. These posterior draws of marginal means then
+support estimation of treatment effects (via
+<code>brm_marginal_draws()</code> and
+<code>brm_marginal_summaries()</code>) and posterior probabilities on
+those treatment effects (via <code>brm_marginal_probabilities()</code>).
+To fine-tune the marginal mean estimation procedure for niche use cases,
+you can modify the transformation returned from
+<code>brm_transform_marginal()</code> and then supply it to the
+<code>transform</code> argument of
+<code>brm_marginal_draws()</code>.</p>
+</div>
+<div id="subgroup-analysis" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Subgroup analysis</h1>
+<p>Subgroup analysis raises important questions about how nuisance
+variables are averaged, and you as the user are responsible for choosing
+the approach that best suits the situation. To illustrate, suppose
+<code>SEX</code> is a pre-specified subgroup. When estimating marginal
+means, we now wish to condition on <code>&quot;Female&quot;</code> vs
+<code>&quot;Male&quot;</code> while averaging over <code>RACE</code> across the
+whole dataset. In <code>emmeans</code>, this is similar to how we
+calculated <code>marginals_emmeans</code> above, but we now move
+<code>SEX</code> from <code>nuisance</code> to <code>specs</code>:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">emmeans</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">object =</span> model,</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">specs =</span> <span class="sc">~</span>SEX<span class="sc">:</span>ARMCD<span class="sc">:</span>AVISIT,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">wt.nuis =</span> <span class="st">&quot;proportional&quot;</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">nuisance =</span> <span class="fu">c</span>(<span class="st">&quot;USUBJID&quot;</span>, <span class="st">&quot;RACE&quot;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt;  SEX    ARMCD AVISIT emmean    SE  df lower.CL upper.CL</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt;  Male   PBO   VIS1   -5.014 0.752 772   -6.490   -3.538</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;  Female PBO   VIS1   -4.237 0.743 772   -5.696   -2.778</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt;  Male   TRT   VIS1   -1.700 0.800 772   -3.270   -0.130</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt;  Female TRT   VIS1   -0.923 0.786 772   -2.466    0.620</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt;  Male   PBO   VIS2   -2.959 0.752 772   -4.435   -1.482</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt;  Female PBO   VIS2   -2.182 0.743 772   -3.640   -0.723</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co">#&gt;  Male   TRT   VIS2    0.433 0.800 772   -1.137    2.003</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt;  Female TRT   VIS2    1.209 0.786 772   -0.333    2.752</span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co">#&gt;  Male   PBO   VIS3    0.570 0.752 772   -0.906    2.046</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt;  Female PBO   VIS3    1.347 0.743 772   -0.112    2.806</span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="co">#&gt;  Male   TRT   VIS3    3.387 0.800 772    1.816    4.958</span></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="co">#&gt;  Female TRT   VIS3    4.164 0.786 772    2.621    5.707</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt;  Male   PBO   VIS4    5.187 0.752 772    3.712    6.663</span></span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt;  Female PBO   VIS4    5.964 0.743 772    4.506    7.422</span></span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="co">#&gt;  Male   TRT   VIS4    9.638 0.800 772    8.067   11.209</span></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="co">#&gt;  Female TRT   VIS4   10.415 0.786 772    8.872   11.958</span></span>
+<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a><span class="co">#&gt; Results are averaged over the levels of: 1 nuisance factors </span></span>
+<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a><span class="co">#&gt; Confidence level used: 0.95</span></span></code></pre></div>
+<p>This may be reasonable in some cases, and it mitigates the kind of
+hidden confounding between the subgroup and other variables which may
+otherwise cause Simpson’s paradox. However, for subgroup-specific
+marginal means, it may not be realistic to condition on a single point
+estimate for all levels of the reference grid. For example, if the model
+were to regress on a <code>pregnancy</code> variable, then the marginal
+means for <code>SEX = &quot;Male&quot;</code> should always condition on
+<code>pregnancy = 0</code> instead of <code>mean(data$pregnancy)</code>.
+And in general, it may be more reasonable to condition on
+subgroup-specific averages of nuisance variables. However, if you do
+this, it is your responsibility to investigate and understand the hidden
+interactions and confounding in your dataset. <a href="https://cran.r-project.org/package=emmeans/vignettes/interactions.html" class="uri">https://cran.r-project.org/package=emmeans/vignettes/interactions.html</a>
+is an edifying vignette on this topic.</p>
+<p>To opt into subgroup-specific averages of nuisance variables in
+<code>brms.mmrm</code>, set <code>average_within_subgroup = TRUE</code>
+in <code>brm_transform_marginal()</code>, then supply the output to the
+<code>transform</code> argument of
+<code>brm_marginal_draws()</code>.</p>
+<p>To replicate
+<code>brm_transform_marginal(average_within_subgroup = TRUE)</code> from
+scratch, first create a reference grid which includes subgroup
+levels.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>grid <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">distinct</span>(ARMCD, SEX, AVISIT) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">arrange</span>(ARMCD, SEX, AVISIT)</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>grid</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; # A tibble: 16 × 3</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt;    ARMCD SEX    AVISIT</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;    &lt;fct&gt; &lt;fct&gt;  &lt;fct&gt; </span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt;  1 PBO   Male   VIS1  </span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  2 PBO   Male   VIS2  </span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;  3 PBO   Male   VIS3  </span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;  4 PBO   Male   VIS4  </span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  5 PBO   Female VIS1  </span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  6 PBO   Female VIS2  </span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  7 PBO   Female VIS3  </span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  8 PBO   Female VIS4  </span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt;  9 TRT   Male   VIS1  </span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; 10 TRT   Male   VIS2  </span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; 11 TRT   Male   VIS3  </span></span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt; 12 TRT   Male   VIS4  </span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt; 13 TRT   Female VIS1  </span></span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt; 14 TRT   Female VIS2  </span></span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a><span class="co">#&gt; 15 TRT   Female VIS3  </span></span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a><span class="co">#&gt; 16 TRT   Female VIS4</span></span></code></pre></div>
+<p>For each continuous variable, append the corresponding
+subgroup-specific averages to the grid.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>means <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="fu">group_by</span>(SEX) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">FEV1_BL =</span> <span class="fu">mean</span>(FEV1_BL), <span class="at">WEIGHT =</span> <span class="fu">mean</span>(WEIGHT), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">left_join</span>(<span class="at">x =</span> grid, <span class="at">y =</span> means, <span class="at">by =</span> <span class="st">&quot;SEX&quot;</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>grid</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 16 × 5</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt;    ARMCD SEX    AVISIT FEV1_BL WEIGHT</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt;    &lt;fct&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt;  1 PBO   Male   VIS1      40.3  0.516</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt;  2 PBO   Male   VIS2      40.3  0.516</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt;  3 PBO   Male   VIS3      40.3  0.516</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt;  4 PBO   Male   VIS4      40.3  0.516</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt;  5 PBO   Female VIS1      39.9  0.521</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt;  6 PBO   Female VIS2      39.9  0.521</span></span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt;  7 PBO   Female VIS3      39.9  0.521</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="co">#&gt;  8 PBO   Female VIS4      39.9  0.521</span></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="co">#&gt;  9 TRT   Male   VIS1      40.3  0.516</span></span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="co">#&gt; 10 TRT   Male   VIS2      40.3  0.516</span></span>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a><span class="co">#&gt; 11 TRT   Male   VIS3      40.3  0.516</span></span>
+<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a><span class="co">#&gt; 12 TRT   Male   VIS4      40.3  0.516</span></span>
+<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a><span class="co">#&gt; 13 TRT   Female VIS1      39.9  0.521</span></span>
+<span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a><span class="co">#&gt; 14 TRT   Female VIS2      39.9  0.521</span></span>
+<span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a><span class="co">#&gt; 15 TRT   Female VIS3      39.9  0.521</span></span>
+<span id="cb16-24"><a href="#cb16-24" tabindex="-1"></a><span class="co">#&gt; 16 TRT   Female VIS4      39.9  0.521</span></span></code></pre></div>
+<p>Begin creating the variable transformation matrix using this new
+grid. Be sure to include the subgroup in the formula below exactly as it
+appears in the formula used to fit the model.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>transform <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="at">object =</span> <span class="sc">~</span> FEV1_BL <span class="sc">*</span> AVISIT <span class="sc">+</span> ARMCD <span class="sc">*</span> AVISIT <span class="sc">+</span> SEX <span class="sc">+</span> WEIGHT,</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="at">data =</span> grid</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>)</span></code></pre></div>
+<p>Append subgroup-specific averages of the levels of nuisance factors
+(in this case, just <code>RACE</code>).</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>proportions <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="fu">model.matrix</span>(<span class="at">object =</span> <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> RACE) <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEX =</span> data<span class="sc">$</span>SEX) <span class="sc">|&gt;</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  <span class="fu">group_by</span>(SEX) <span class="sc">|&gt;</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), mean), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>transform <span class="ot">&lt;-</span> transform <span class="sc">|&gt;</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEX =</span> grid<span class="sc">$</span>SEX) <span class="sc">|&gt;</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="at">y =</span> proportions, <span class="at">by =</span> <span class="st">&quot;SEX&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>SEX) <span class="sc">|&gt;</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span></code></pre></div>
+<p>Complete the transformation matrix by assigning the correct row names
+and aligning the column order with that of the model coefficients.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">rownames</span>(transform) <span class="ot">&lt;-</span> <span class="fu">paste</span>(grid<span class="sc">$</span>ARMCD, grid<span class="sc">$</span>SEX, grid<span class="sc">$</span>AVISIT)</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>transform <span class="ot">&lt;-</span> transform[, <span class="fu">names</span>(<span class="fu">coef</span>(model))]</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>transform</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="co">#&gt;                 (Intercept)  FEV1_BL AVISITVIS2 AVISITVIS3 AVISITVIS4 ARMCDTRT</span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS1             1 40.34215          0          0          0        0</span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS2             1 40.34215          1          0          0        0</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS3             1 40.34215          0          1          0        0</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS4             1 40.34215          0          0          1        0</span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS1           1 39.93534          0          0          0        0</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS2           1 39.93534          1          0          0        0</span></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS3           1 39.93534          0          1          0        0</span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS4           1 39.93534          0          0          1        0</span></span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS1             1 40.34215          0          0          0        1</span></span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS2             1 40.34215          1          0          0        1</span></span>
+<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS3             1 40.34215          0          1          0        1</span></span>
+<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS4             1 40.34215          0          0          1        1</span></span>
+<span id="cb19-17"><a href="#cb19-17" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS1           1 39.93534          0          0          0        1</span></span>
+<span id="cb19-18"><a href="#cb19-18" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS2           1 39.93534          1          0          0        1</span></span>
+<span id="cb19-19"><a href="#cb19-19" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS3           1 39.93534          0          1          0        1</span></span>
+<span id="cb19-20"><a href="#cb19-20" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS4           1 39.93534          0          0          1        1</span></span>
+<span id="cb19-21"><a href="#cb19-21" tabindex="-1"></a><span class="co">#&gt;                 RACEBlack or African American RACEWhite SEXFemale    WEIGHT</span></span>
+<span id="cb19-22"><a href="#cb19-22" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS1                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-23"><a href="#cb19-23" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS2                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-24"><a href="#cb19-24" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS3                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-25"><a href="#cb19-25" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS4                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-26"><a href="#cb19-26" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS1                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-27"><a href="#cb19-27" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS2                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-28"><a href="#cb19-28" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS3                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-29"><a href="#cb19-29" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS4                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-30"><a href="#cb19-30" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS1                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-31"><a href="#cb19-31" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS2                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-32"><a href="#cb19-32" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS3                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-33"><a href="#cb19-33" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS4                       0.4239130 0.2826087         0 0.5161276</span></span>
+<span id="cb19-34"><a href="#cb19-34" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS1                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-35"><a href="#cb19-35" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS2                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-36"><a href="#cb19-36" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS3                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-37"><a href="#cb19-37" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS4                     0.3333333 0.2571429         1 0.5206653</span></span>
+<span id="cb19-38"><a href="#cb19-38" tabindex="-1"></a><span class="co">#&gt;                 FEV1_BL:AVISITVIS2 FEV1_BL:AVISITVIS3 FEV1_BL:AVISITVIS4</span></span>
+<span id="cb19-39"><a href="#cb19-39" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS1              0.00000            0.00000            0.00000</span></span>
+<span id="cb19-40"><a href="#cb19-40" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS2             40.34215            0.00000            0.00000</span></span>
+<span id="cb19-41"><a href="#cb19-41" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS3              0.00000           40.34215            0.00000</span></span>
+<span id="cb19-42"><a href="#cb19-42" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS4              0.00000            0.00000           40.34215</span></span>
+<span id="cb19-43"><a href="#cb19-43" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS1            0.00000            0.00000            0.00000</span></span>
+<span id="cb19-44"><a href="#cb19-44" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS2           39.93534            0.00000            0.00000</span></span>
+<span id="cb19-45"><a href="#cb19-45" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS3            0.00000           39.93534            0.00000</span></span>
+<span id="cb19-46"><a href="#cb19-46" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS4            0.00000            0.00000           39.93534</span></span>
+<span id="cb19-47"><a href="#cb19-47" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS1              0.00000            0.00000            0.00000</span></span>
+<span id="cb19-48"><a href="#cb19-48" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS2             40.34215            0.00000            0.00000</span></span>
+<span id="cb19-49"><a href="#cb19-49" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS3              0.00000           40.34215            0.00000</span></span>
+<span id="cb19-50"><a href="#cb19-50" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS4              0.00000            0.00000           40.34215</span></span>
+<span id="cb19-51"><a href="#cb19-51" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS1            0.00000            0.00000            0.00000</span></span>
+<span id="cb19-52"><a href="#cb19-52" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS2           39.93534            0.00000            0.00000</span></span>
+<span id="cb19-53"><a href="#cb19-53" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS3            0.00000           39.93534            0.00000</span></span>
+<span id="cb19-54"><a href="#cb19-54" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS4            0.00000            0.00000           39.93534</span></span>
+<span id="cb19-55"><a href="#cb19-55" tabindex="-1"></a><span class="co">#&gt;                 AVISITVIS2:ARMCDTRT AVISITVIS3:ARMCDTRT AVISITVIS4:ARMCDTRT</span></span>
+<span id="cb19-56"><a href="#cb19-56" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS1                     0                   0                   0</span></span>
+<span id="cb19-57"><a href="#cb19-57" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS2                     0                   0                   0</span></span>
+<span id="cb19-58"><a href="#cb19-58" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS3                     0                   0                   0</span></span>
+<span id="cb19-59"><a href="#cb19-59" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS4                     0                   0                   0</span></span>
+<span id="cb19-60"><a href="#cb19-60" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS1                   0                   0                   0</span></span>
+<span id="cb19-61"><a href="#cb19-61" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS2                   0                   0                   0</span></span>
+<span id="cb19-62"><a href="#cb19-62" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS3                   0                   0                   0</span></span>
+<span id="cb19-63"><a href="#cb19-63" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS4                   0                   0                   0</span></span>
+<span id="cb19-64"><a href="#cb19-64" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS1                     0                   0                   0</span></span>
+<span id="cb19-65"><a href="#cb19-65" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS2                     1                   0                   0</span></span>
+<span id="cb19-66"><a href="#cb19-66" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS3                     0                   1                   0</span></span>
+<span id="cb19-67"><a href="#cb19-67" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS4                     0                   0                   1</span></span>
+<span id="cb19-68"><a href="#cb19-68" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS1                   0                   0                   0</span></span>
+<span id="cb19-69"><a href="#cb19-69" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS2                   1                   0                   0</span></span>
+<span id="cb19-70"><a href="#cb19-70" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS3                   0                   1                   0</span></span>
+<span id="cb19-71"><a href="#cb19-71" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS4                   0                   0                   1</span></span></code></pre></div>
+<p>Finally, use the custom <code>transform</code> matrix to estimate
+subgroup-specific marginal means. Because we averaged
+<code>FEV1_BL</code>, <code>WEIGHT</code>, and <code>RACE</code> within
+subgroup levels, the results will differ from those of
+<code>emmeans</code>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>transform <span class="sc">%*%</span> <span class="fu">coef</span>(model)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt;                       [,1]</span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS1   -5.0812041</span></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS2   -3.0267423</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS3    0.5040980</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; PBO Male VIS4    5.1144252</span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS1 -4.1780538</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS2 -2.1221408</span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS3  1.4048382</span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt; PBO Female VIS4  6.0279403</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS1   -1.7672272</span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS2    0.3645159</span></span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS3    3.3210517</span></span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt; TRT Male VIS4    9.5652532</span></span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS1 -0.8640769</span></span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS2  1.2691174</span></span>
+<span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS3  4.2217919</span></span>
+<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a><span class="co">#&gt; TRT Female VIS4 10.4787682</span></span></code></pre></div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-bedrick1996" class="csl-entry">
+Bedrick, E. J., Christensen, R., and Johnson, W. (1996), <span>“A new
+perspective on priors for generalized linear models,”</span> <em>Journal
+of the American Statistical Association</em>, 91, 1450–1460. <a href="https://doi.org/10.2307/2291571">https://doi.org/10.2307/2291571</a>.
+</div>
+<div id="ref-bedrick1997" class="csl-entry">
+Bedrick, E. J., Christensen, R., and Johnson, W. (1997), <span>“Bayesian
+binomial regression: Predicting survival at a trauma center,”</span>
+<em>Journal of the American Statistical Association</em>, 51, 211–218.
+<a href="https://doi.org/10.2307/2684890">https://doi.org/10.2307/2684890</a>.
+</div>
+<div id="ref-christensen2010" class="csl-entry">
+Christensen, R., Johnson, W., Branscum, A., and Hanson, T. E. (2010),
+<em>Bayesian ideas and data analysis</em>, CRC Press, Taylor; Francis
+Group, p. 203. <a href="https://doi.org/10.1201/9781439894798">https://doi.org/10.1201/9781439894798</a>.
+</div>
+<div id="ref-lenth2016" class="csl-entry">
+Lenth, R. V. (2016), <span>“Least-squares means: The r package
+lsmeans,”</span> <em>Journal of Statistical Software</em>, 69, 1–33. <a href="https://doi.org/10.18637/jss.v069.i01">https://doi.org/10.18637/jss.v069.i01</a>.
+</div>
+<div id="ref-rosner2021" class="csl-entry">
+Rosner, G. L., Laud, P. W., and Johnson, W. O. (2021), <em>Bayesian
+thinking in biostatistics</em>, CRC Press, Taylor; Francis Group. <a href="https://doi.org/10.1201/9781439800102">https://doi.org/10.1201/9781439800102</a>.
+</div>
+<div id="ref-searle1979" class="csl-entry">
+Searle, S. R., Speed, F. M., and Milliken, G. A. (1980),
+<span>“Population marginal means in the linear model: An alternative to
+least squares means,”</span> <em>The American Statistician</em>, 34,
+216–221. <a href="https://doi.org/10.1080/00031305.1980.10483031">https://doi.org/10.1080/00031305.1980.10483031</a>.
+</div>
+</div>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>For a subgroup analysis where the subgroup factor is
+identified in advance, we would be interested in each combination of
+treatment group, subgroup level, and time point.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Other quantities of interest are downstream of these
+marginal means. For example, the difference between <code>TRT</code> and
+<code>PBO</code> at time point <code>VIS4</code>, and the difference
+between <code>VIS4</code> and <code>VIS4</code> for the <code>TRT</code>
+group, are simple contrasts of the upstream marginal means.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>But unlike <code>emmeans</code>, <code>brms.mmrm</code>
+completes the grid of patient visits to add rows for implicitly missing
+responses. Completing the grid of patient visits ensures all patients
+are represented equally when averaging over baseline covariates,
+regardless of patients who drop out early.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>For more context, please refer to the <a href="https://cran.r-project.org/package=emmeans/vignettes/basics.html"><code>emmeans</code>
+basics vignette</a>, as well as discussion forums <a href="https://stats.stackexchange.com/questions/332167/what-are-ls-means-useful-for">here</a>
+and <a href="https://stats.stackexchange.com/questions/510862/is-least-squares-means-lsmeans-statistical-nonsense/510923#510923">here</a>.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
