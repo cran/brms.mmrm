@@ -346,45 +346,54 @@ against common pitfalls such as reference level issues, interpretation
 problems, and rank deficiency.</p>
 <div id="constructing-an-archetype" class="section level2">
 <h2>Constructing an archetype</h2>
-<p>We begin with a simulated dataset.</p>
+<p>We begin with the FEV dataset from the <code>mmrm</code> package, an
+artificial (simulated) dataset of a clinical trial investigating the
+effect of an active treatment on FEV1 (forced expired volume in one
+second), compared to placebo. FEV1 is a measure of how quickly the lungs
+can be emptied and low levels may indicate chronic obstructive pulmonary
+disease (COPD).</p>
+<p>The dataset is a tibble with 800 rows and 7 variables:</p>
+<ul>
+<li><code>USUBJID</code> (subject ID),</li>
+<li><code>AVISIT</code> (visit number),</li>
+<li><code>ARMCD</code> (treatment, TRT or PBO),</li>
+<li><code>RACE</code> (3-category race),</li>
+<li><code>SEX</code> (sex),</li>
+<li><code>FEV1_BL</code> (FEV1 at baseline, %),</li>
+<li><code>FEV1</code> (FEV1 at study visits),</li>
+<li><code>WEIGHT</code> (weighting variable).</li>
+</ul>
+<p>We will derive <code>FEV1_CHG = FEV1 - FEV1_BL</code> and analyze
+<code>FEV1_CHG</code> as the outcome variable.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(brms.mmrm)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set.seed</span>(0L)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">brm_simulate_outline</span>(</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="at">n_group =</span> <span class="dv">2</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">n_patient =</span> <span class="dv">100</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">n_time =</span> <span class="dv">4</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">rate_dropout =</span> <span class="dv">0</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">rate_lapse =</span> <span class="dv">0</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">response =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> dplyr<span class="sc">::</span><span class="fu">n</span>())) <span class="sc">|&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="fu">brm_data_change</span>() <span class="sc">|&gt;</span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">brm_simulate_continuous</span>(<span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;biomarker1&quot;</span>, <span class="st">&quot;biomarker2&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">brm_simulate_categorical</span>(</span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;status1&quot;</span>, <span class="st">&quot;status2&quot;</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;present&quot;</span>, <span class="st">&quot;absent&quot;</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  )</span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  data,</span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  group,</span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  time,</span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  patient,</span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="fu">starts_with</span>(<span class="st">&quot;biomarker&quot;</span>),</span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="fu">starts_with</span>(<span class="st">&quot;status&quot;</span>)</span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>)</span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; # A tibble: 600 × 7</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt;    group   time   patient     biomarker1 biomarker2 status1 status2</span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;            &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;  </span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt;  1 group_1 time_2 patient_001     -1.42      -0.287 absent  present</span></span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt;  2 group_1 time_3 patient_001     -1.42      -0.287 absent  present</span></span>
-<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt;  3 group_1 time_4 patient_001     -1.42      -0.287 absent  present</span></span>
-<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt;  4 group_1 time_2 patient_002     -1.67       1.84  absent  present</span></span>
-<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt;  5 group_1 time_3 patient_002     -1.67       1.84  absent  present</span></span>
-<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt;  6 group_1 time_4 patient_002     -1.67       1.84  absent  present</span></span>
-<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt;  7 group_1 time_2 patient_003      1.38      -0.157 absent  absent </span></span>
-<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt;  8 group_1 time_3 patient_003      1.38      -0.157 absent  absent </span></span>
-<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt;  9 group_1 time_4 patient_003      1.38      -0.157 absent  absent </span></span>
-<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt; 10 group_1 time_2 patient_004     -0.920     -1.39  present present</span></span>
-<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt; # ℹ 590 more rows</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">data</span>(fev_data, <span class="at">package =</span> <span class="st">&quot;mmrm&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>data <span class="ot">&lt;-</span> fev_data <span class="sc">|&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">&quot;FEV1_CHG&quot;</span> <span class="ot">=</span> FEV1 <span class="sc">-</span> FEV1_BL) <span class="sc">|&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="fu">brm_data</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="at">outcome =</span> <span class="st">&quot;FEV1_CHG&quot;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>    <span class="at">role =</span> <span class="st">&quot;change&quot;</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    <span class="at">group =</span> <span class="st">&quot;ARMCD&quot;</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    <span class="at">time =</span> <span class="st">&quot;AVISIT&quot;</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="at">patient =</span> <span class="st">&quot;USUBJID&quot;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>    <span class="at">baseline =</span> <span class="st">&quot;FEV1_BL&quot;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>    <span class="at">reference_group =</span> <span class="st">&quot;PBO&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>    <span class="at">covariates =</span> <span class="fu">c</span>(<span class="st">&quot;WEIGHT&quot;</span>, <span class="st">&quot;SEX&quot;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  )</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>data</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co">#&gt; # A tibble: 800 × 7</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt;    FEV1_CHG FEV1_BL ARMCD AVISIT USUBJID WEIGHT SEX   </span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;fct&gt;    &lt;dbl&gt; &lt;fct&gt; </span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt;  1    NA       45.0 PBO   VIS1   PT2      0.465 Male  </span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt;  2   -13.6     45.0 PBO   VIS2   PT2      0.233 Male  </span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt;  3    -8.15    45.0 PBO   VIS3   PT2      0.360 Male  </span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt;  4     3.78    45.0 PBO   VIS4   PT2      0.507 Male  </span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt;  5    NA       43.5 PBO   VIS1   PT3      0.682 Female</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt;  6    -7.51    43.5 PBO   VIS2   PT3      0.892 Female</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt;  7    NA       43.5 PBO   VIS3   PT3      0.128 Female</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt;  8    -6.34    43.5 PBO   VIS4   PT3      0.222 Female</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt;  9   -11.3     43.6 PBO   VIS1   PT5      0.411 Male  </span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; 10    NA       43.6 PBO   VIS2   PT5      0.422 Male  </span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt; # ℹ 790 more rows</span></span></code></pre></div>
 <p>The functions listed at <a href="https://openpharma.github.io/brms.mmrm/reference/index.html#informative-prior-archetypes" class="uri">https://openpharma.github.io/brms.mmrm/reference/index.html#informative-prior-archetypes</a>
 can create different kinds of informative prior archetypes from a
 dataset like the one above. For example, suppose we want to place
@@ -397,33 +406,31 @@ of the “successive cells” archetype.</p>
 <p>The instance of the archetype is an ordinary tibble, but it adds new
 columns.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>archetype</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 600 × 23</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;    x_group_1_time_2 x_group_1_time_3 x_group_1_time_4 x_group_2_time_2</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;  *            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;  1                1                0                0                0</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;  2                1                1                0                0</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;  3                1                1                1                0</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;  4                1                0                0                0</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;  5                1                1                0                0</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;  6                1                1                1                0</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;  7                1                0                0                0</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;  8                1                1                0                0</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;  9                1                1                1                0</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 10                1                0                0                0</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; # ℹ 590 more rows</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; # ℹ 19 more variables: x_group_2_time_3 &lt;dbl&gt;, x_group_2_time_4 &lt;dbl&gt;,</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; #   nuisance_biomarker1 &lt;dbl&gt;, nuisance_biomarker2 &lt;dbl&gt;,</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; #   nuisance_status1_absent &lt;dbl&gt;, nuisance_status2_present &lt;dbl&gt;,</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; #   nuisance_baseline.timetime_2 &lt;dbl&gt;, nuisance_baseline.timetime_3 &lt;dbl&gt;,</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; #   nuisance_baseline.timetime_4 &lt;dbl&gt;, patient &lt;chr&gt;, time &lt;chr&gt;,</span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; #   change &lt;dbl&gt;, missing &lt;lgl&gt;, baseline &lt;dbl&gt;, group &lt;chr&gt;, …</span></span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 800 × 21</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;    x_PBO_VIS1 x_PBO_VIS2 x_PBO_VIS3 x_PBO_VIS4 x_TRT_VIS1 x_TRT_VIS2 x_TRT_VIS3 x_TRT_VIS4</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;  *      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;  1          1          0          0          0          0          0          0          0</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;  2          1          1          0          0          0          0          0          0</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;  3          1          1          1          0          0          0          0          0</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;  4          1          1          1          1          0          0          0          0</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;  5          1          0          0          0          0          0          0          0</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;  6          1          1          0          0          0          0          0          0</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;  7          1          1          1          0          0          0          0          0</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;  8          1          1          1          1          0          0          0          0</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;  9          1          0          0          0          0          0          0          0</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 10          1          1          0          0          0          0          0          0</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; # ℹ 790 more rows</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; # ℹ 13 more variables: nuisance_WEIGHT &lt;dbl&gt;, nuisance_SEX_Male &lt;dbl&gt;,</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; #   nuisance_FEV1_BL.AVISITVIS1 &lt;dbl&gt;, nuisance_FEV1_BL.AVISITVIS2 &lt;dbl&gt;,</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; #   nuisance_FEV1_BL.AVISITVIS3 &lt;dbl&gt;, nuisance_FEV1_BL.AVISITVIS4 &lt;dbl&gt;, USUBJID &lt;fct&gt;,</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; #   AVISIT &lt;chr&gt;, FEV1_CHG &lt;dbl&gt;, FEV1_BL &lt;dbl&gt;, ARMCD &lt;chr&gt;, WEIGHT &lt;dbl&gt;, SEX &lt;fct&gt;</span></span></code></pre></div>
 <p>Those new columns constitute a custom model matrix to describe the
 desired parameterization. We have effects of interest to express
-successive differences,</p>
+successive differences:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">attr</span>(archetype, <span class="st">&quot;brm_archetype_interest&quot;</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;x_group_1_time_2&quot; &quot;x_group_1_time_3&quot; &quot;x_group_1_time_4&quot; &quot;x_group_2_time_2&quot;</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; [5] &quot;x_group_2_time_3&quot; &quot;x_group_2_time_4&quot;</span></span></code></pre></div>
-<p>and we have nuisance variables. Some nuisance variables are
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;x_PBO_VIS1&quot; &quot;x_PBO_VIS2&quot; &quot;x_PBO_VIS3&quot; &quot;x_PBO_VIS4&quot; &quot;x_TRT_VIS1&quot; &quot;x_TRT_VIS2&quot; &quot;x_TRT_VIS3&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; [8] &quot;x_TRT_VIS4&quot;</span></span></code></pre></div>
+<p>In addition, we have nuisance variables. Some nuisance variables are
 continuous covariates, while others are levels of one-hot-encoded
 concomitant factors or interactions of those concomitant factors with
 baseline and/or subgroup. All nuisance variables are centered at their
@@ -434,25 +441,28 @@ model matrix is full-rank. This is critically important to preserve the
 interpretation of the columns of interest and make sure the informative
 priors behave as expected.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">attr</span>(archetype, <span class="st">&quot;brm_archetype_nuisance&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;nuisance_biomarker1&quot;          &quot;nuisance_biomarker2&quot;         </span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; [3] &quot;nuisance_status1_absent&quot;      &quot;nuisance_status2_present&quot;    </span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; [5] &quot;nuisance_baseline.timetime_2&quot; &quot;nuisance_baseline.timetime_3&quot;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [7] &quot;nuisance_baseline.timetime_4&quot;</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;nuisance_WEIGHT&quot;             &quot;nuisance_SEX_Male&quot;           &quot;nuisance_FEV1_BL.AVISITVIS1&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; [4] &quot;nuisance_FEV1_BL.AVISITVIS2&quot; &quot;nuisance_FEV1_BL.AVISITVIS3&quot; &quot;nuisance_FEV1_BL.AVISITVIS4&quot;</span></span></code></pre></div>
 <p>The factors of interest linearly map to marginal means. To see the
 mapping, call <code>summary()</code> on the archetype. The printed
 output helps build intuition on how the archetype is parameterized and
 what those parameters are doing.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">summary</span>(archetype)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_2 + x_group_1_time_3</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_2_time_2</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_2_time_2 + x_group_2_time_3</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4</span></span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; # This is the &quot;successive cells&quot; informative prior archetype in brms.mmrm.</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # The following equations show the relationships between the</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # marginal means (left-hand side) and fixed effect parameters</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; # (right-hand side). You can create informative priors for the</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; # fixed effect parameters using historical borrowing,</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; # expert elicitation, or other methods.</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS1 = x_PBO_VIS1</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS2 = x_PBO_VIS1 + x_PBO_VIS2</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS3 = x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS4 = x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3 + x_PBO_VIS4</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS1 = x_TRT_VIS1</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS2 = x_TRT_VIS1 + x_TRT_VIS2</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS3 = x_TRT_VIS1 + x_TRT_VIS2 + x_TRT_VIS3</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS4 = x_TRT_VIS1 + x_TRT_VIS2 + x_TRT_VIS3 + x_TRT_VIS4</span></span></code></pre></div>
 </div>
 <div id="informative-priors" class="section level2">
 <h2>Informative priors</h2>
@@ -461,56 +471,95 @@ effect parameters of interest declared in the archetype, such as
 <code>x_group_1_time_2</code> and <code>x_group_2_time_3</code>. Your
 priors may come from expert elicitation, historical data, or some other
 method, and you might consider <a href="https://github.com/stan-dev/stan/wiki/prior-choice-recommendations">distributional
-families recommended by the Stan team</a>. Either way,
-<code>brms.mmrm</code> helps you assign these priors to the model
+families recommended by the Stan team</a>. However you construct these
+priors, <code>brms.mmrm</code> helps you assign them to the model
 without having to guess at the automatically-generated names of model
 coefficients in R.</p>
 <p>In the printed output from <code>summary(archetype)</code>,
 parameters of interest such as <code>x_group_1_time_2</code> and
 <code>x_group_2_time_3</code> are always labeled using treatment groups
-and time points in the data (and subgroup levels, if applicable). Even
-though different archetypes have different parameterizations and thus
-different ways of expressing marginal means, this labeling scheme
-remains consistent across all archetypes. This is how
-<code>brms.mmrm</code> helps you assign priors. First, match your priors
-to levels in the data.</p>
+and time points in the data (and subgroup levels, if applicable). This
+labeling mechanism is the same regardless of which archetype you choose,
+and it the way <code>brms.mmrm</code> helps you assign priors.</p>
+<p><code>brm_prior_label()</code> is one way to create a labeling
+scheme. Each call to <code>brm_prior_label()</code> below assigns a
+univariate prior to a fixed effect parameter. Each univariate prior is a
+Stan code string. Possible choices are documented in the Stan function
+reference at <a href="https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html" class="uri">https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html</a>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>label <span class="ot">&lt;-</span> <span class="cn">NULL</span> <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 0.98, 2.37)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_1&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_2&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 1.82, 3.32)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_1&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_3&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 2.35, 4.41)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_1&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_4&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 0.31, 2.22)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_2&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_2&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 1.94, 2.85)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_2&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_3&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="st">&quot;student_t(4, 2.33, 3.41)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;group_2&quot;</span>, <span class="at">time =</span> <span class="st">&quot;time_4&quot;</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>label</span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 3</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;   code                     group   time  </span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                    &lt;chr&gt;   &lt;chr&gt; </span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 1 student_t(4, 0.98, 2.37) group_1 time_2</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 2 student_t(4, 1.82, 3.32) group_1 time_3</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 3 student_t(4, 2.35, 4.41) group_1 time_4</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; 4 student_t(4, 0.31, 2.22) group_2 time_2</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 5 student_t(4, 1.94, 2.85) group_2 time_3</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 6 student_t(4, 2.33, 3.41) group_2 time_4</span></span></code></pre></div>
-<p>Those <code>group</code> and <code>time</code> labels map your priors
-to the corresponding <code>x_*</code> parameters.
-<code>brm_prior_archetype()</code> accepts a collection of labeled
-priors and returns a <code>brms</code> prior object as documented in <a href="https://paul-buerkner.github.io/brms/reference/set_prior.html" class="uri">https://paul-buerkner.github.io/brms/reference/set_prior.html</a>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">brm_prior_archetype</span>(<span class="at">label =</span> label, <span class="at">archetype =</span> archetype)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>prior</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt;                     prior class             coef group resp dpar nlpar   lb</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.98, 2.37)     b x_group_1_time_2                       &lt;NA&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.82, 3.32)     b x_group_1_time_3                       &lt;NA&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.35, 4.41)     b x_group_1_time_4                       &lt;NA&gt;</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.31, 2.22)     b x_group_2_time_2                       &lt;NA&gt;</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.94, 2.85)     b x_group_2_time_3                       &lt;NA&gt;</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.33, 3.41)     b x_group_2_time_4                       &lt;NA&gt;</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;    ub source</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;  &lt;NA&gt;   user</span></span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4, -7.57, 4.96)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;PBO&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS1&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4,  3.14, 7.86)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;PBO&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS2&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4,  8.78, 8.18)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;PBO&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS3&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4,  3.36, 8.10)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;PBO&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS4&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4, -2.96, 4.78)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;TRT&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS1&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4,  3.13, 7.64)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;TRT&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS2&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4,  7.65, 8.24)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;TRT&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS3&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="fu">brm_prior_label</span>(<span class="at">code =</span> <span class="st">&quot;student_t(4,  4.64, 8.21)&quot;</span>, <span class="at">group =</span> <span class="st">&quot;TRT&quot;</span>, <span class="at">time =</span> <span class="st">&quot;VIS4&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>label</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 3</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt;   code                      group time </span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                     &lt;chr&gt; &lt;chr&gt;</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 1 student_t(4, -7.57, 4.96) PBO   VIS1 </span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; 2 student_t(4,  3.14, 7.86) PBO   VIS2 </span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 3 student_t(4,  8.78, 8.18) PBO   VIS3 </span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 4 student_t(4,  3.36, 8.10) PBO   VIS4 </span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 5 student_t(4, -2.96, 4.78) TRT   VIS1 </span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; 6 student_t(4,  3.13, 7.64) TRT   VIS2 </span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; 7 student_t(4,  7.65, 8.24) TRT   VIS3 </span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; 8 student_t(4,  4.64, 8.21) TRT   VIS4</span></span></code></pre></div>
+<p>As an alternative to <code>brm_prior_label()</code>, you can start
+with a template and manually fill in the Stan code.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>template <span class="ot">&lt;-</span> <span class="fu">brm_prior_template</span>(archetype)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>template</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 3</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;   code  group time </span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 1 &lt;NA&gt;  PBO   VIS1 </span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; 2 &lt;NA&gt;  PBO   VIS2 </span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; 3 &lt;NA&gt;  PBO   VIS3 </span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; 4 &lt;NA&gt;  PBO   VIS4 </span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; 5 &lt;NA&gt;  TRT   VIS1 </span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 6 &lt;NA&gt;  TRT   VIS2 </span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; 7 &lt;NA&gt;  TRT   VIS3 </span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; 8 &lt;NA&gt;  TRT   VIS4</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>label <span class="ot">&lt;-</span> template <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="at">code =</span> <span class="fu">c</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>      <span class="st">&quot;student_t(4, -7.57, 4.96)&quot;</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>      <span class="st">&quot;student_t(4,  3.14, 7.86)&quot;</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>      <span class="st">&quot;student_t(4,  8.78, 8.18)&quot;</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>      <span class="st">&quot;student_t(4,  3.36, 8.10)&quot;</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>      <span class="st">&quot;student_t(4, -2.96, 4.78)&quot;</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>      <span class="st">&quot;student_t(4,  3.13, 7.64)&quot;</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>      <span class="st">&quot;student_t(4,  7.65, 8.24)&quot;</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>      <span class="st">&quot;student_t(4,  4.64, 8.21)&quot;</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    )</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>  )</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>label</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 3</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;   code                      group time </span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                     &lt;chr&gt; &lt;chr&gt;</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; 1 student_t(4, -7.57, 4.96) PBO   VIS1 </span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; 2 student_t(4,  3.14, 7.86) PBO   VIS2 </span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; 3 student_t(4,  8.78, 8.18) PBO   VIS3 </span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; 4 student_t(4,  3.36, 8.10) PBO   VIS4 </span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; 5 student_t(4, -2.96, 4.78) TRT   VIS1 </span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; 6 student_t(4,  3.13, 7.64) TRT   VIS2 </span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; 7 student_t(4,  7.65, 8.24) TRT   VIS3 </span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; 8 student_t(4,  4.64, 8.21) TRT   VIS4</span></span></code></pre></div>
+<p>After you have a labeling scheme, <code>brm_prior_archetype()</code>
+can create a <code>brms</code> prior for the important fixed effects.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">brm_prior_archetype</span>(<span class="at">label =</span> label, <span class="at">archetype =</span> archetype)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>prior</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt;                      prior class       coef group resp dpar nlpar   lb   ub source</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;  student_t(4, -7.57, 4.96)     b x_PBO_VIS1                       &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.14, 7.86)     b x_PBO_VIS2                       &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  8.78, 8.18)     b x_PBO_VIS3                       &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.36, 8.10)     b x_PBO_VIS4                       &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;  student_t(4, -2.96, 4.78)     b x_TRT_VIS1                       &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.13, 7.64)     b x_TRT_VIS2                       &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  7.65, 8.24)     b x_TRT_VIS3                       &lt;NA&gt; &lt;NA&gt;   user</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  4.64, 8.21)     b x_TRT_VIS4                       &lt;NA&gt; &lt;NA&gt;   user</span></span></code></pre></div>
 <p>In less common situations, you may wish to assign priors to nuisance
 parameters. For example, our model accounts for interactions between
 baseline and discrete time, and it may be reasonable to assign priors to
@@ -519,54 +568,85 @@ thorough understanding of the fixed effect structure of the model, but
 it can be done directly through <code>brms</code>. First, check the
 formula for the included nuisance parameters. <code>brm_formula()</code>
 automatically understands archetypes.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">brm_formula</span>(archetype)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; change ~ 0 + x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4 + x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4 + nuisance_biomarker1 + nuisance_biomarker2 + nuisance_status1_absent + nuisance_status2_present + nuisance_baseline.timetime_2 + nuisance_baseline.timetime_3 + nuisance_baseline.timetime_4 + unstr(time = time, gr = patient) </span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; sigma ~ 0 + time</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">brm_formula</span>(archetype)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; FEV1_CHG ~ 0 + x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3 + x_PBO_VIS4 + x_TRT_VIS1 + x_TRT_VIS2 + x_TRT_VIS3 + x_TRT_VIS4 + nuisance_WEIGHT + nuisance_SEX_Male + nuisance_FEV1_BL.AVISITVIS1 + nuisance_FEV1_BL.AVISITVIS2 + nuisance_FEV1_BL.AVISITVIS3 + nuisance_FEV1_BL.AVISITVIS4 + unstr(time = AVISIT, gr = USUBJID) </span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; sigma ~ 0 + AVISIT</span></span></code></pre></div>
 <p>The <code>&quot;nuisance_*&quot;</code> terms are the nuisance variables, and
 the ones involving baseline are
-<code>nuisance_baseline.timetime_2</code>,
-<code>nuisance_baseline.timetime_3</code>, and
-<code>nuisance_baseline.timetime_4</code>. Because there is no overall
+<code>nuisance_FEV1_BL.AVISITVIS1</code>,
+<code>nuisance_FEV1_BL.AVISITVIS2</code>,
+<code>nuisance_FEV1_BL.AVISITVIS3</code>, and
+<code>nuisance_FEV1_BL.AVISITVIS4</code>. Because there is no overall
 slope for baseline, we can interpret each term as the linear rate of
 change in the outcome variable per unit increase in baseline for a given
 discrete time point. Suppose we use this interpretation to construct
-informative priors <code>student_t(4, 2.1, 4.8)</code>,
-<code>student_t(4, 3.2, 5.2)</code>, and
-<code>student_t(4, 2.5, 5.7)</code>, respectively. Use
+informative priors <code>student_t(4, -0.83, 1)</code>,
+<code>student_t(4, -0.78, 1)</code>,
+<code>student_t(4, -0.86, 1)</code>, and
+<code>student_t(4, -0.82, 1)</code>, respectively. Use
 <code>brms::set_prior()</code> and <code>c()</code> to append these
 priors to our existing <code>prior</code> object:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  prior,</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, 2.17, 4.86)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_baseline.timetime_2&quot;</span>),</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, 3.22, 5.25)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_baseline.timetime_3&quot;</span>),</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, 2.53, 5.75)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_baseline.timetime_4&quot;</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>)</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>prior</span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;                     prior class                         coef group resp dpar</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.98, 2.37)     b             x_group_1_time_2                </span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.82, 3.32)     b             x_group_1_time_3                </span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.35, 4.41)     b             x_group_1_time_4                </span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.31, 2.22)     b             x_group_2_time_2                </span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.94, 2.85)     b             x_group_2_time_3                </span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.33, 3.41)     b             x_group_2_time_4                </span></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.17, 4.86)     b nuisance_baseline.timetime_2                </span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 3.22, 5.25)     b nuisance_baseline.timetime_3                </span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.53, 5.75)     b nuisance_baseline.timetime_4                </span></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt;  nlpar   lb   ub source</span></span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt;        &lt;NA&gt; &lt;NA&gt;   user</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  prior,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, -0.83, 1)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_FEV1_BL.AVISITVIS1&quot;</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, -0.78, 1)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_FEV1_BL.AVISITVIS2&quot;</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, -0.86, 1)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_FEV1_BL.AVISITVIS3&quot;</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fu">set_prior</span>(<span class="st">&quot;student_t(4, -0.82, 1)&quot;</span>, <span class="at">coef =</span> <span class="st">&quot;nuisance_FEV1_BL.AVISITVIS4&quot;</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>)</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>prior</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt;                      prior class                        coef group resp dpar nlpar   lb   ub</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt;  student_t(4, -7.57, 4.96)     b                  x_PBO_VIS1                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.14, 7.86)     b                  x_PBO_VIS2                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  8.78, 8.18)     b                  x_PBO_VIS3                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.36, 8.10)     b                  x_PBO_VIS4                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt;  student_t(4, -2.96, 4.78)     b                  x_TRT_VIS1                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.13, 7.64)     b                  x_TRT_VIS2                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  7.65, 8.24)     b                  x_TRT_VIS3                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  4.64, 8.21)     b                  x_TRT_VIS4                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.83, 1)     b nuisance_FEV1_BL.AVISITVIS1                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.78, 1)     b nuisance_FEV1_BL.AVISITVIS2                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-20"><a href="#cb12-20" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.86, 1)     b nuisance_FEV1_BL.AVISITVIS3                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-21"><a href="#cb12-21" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.82, 1)     b nuisance_FEV1_BL.AVISITVIS4                       &lt;NA&gt; &lt;NA&gt;</span></span>
+<span id="cb12-22"><a href="#cb12-22" tabindex="-1"></a><span class="co">#&gt;  source</span></span>
+<span id="cb12-23"><a href="#cb12-23" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-24"><a href="#cb12-24" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-25"><a href="#cb12-25" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-26"><a href="#cb12-26" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-27"><a href="#cb12-27" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-28"><a href="#cb12-28" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-29"><a href="#cb12-29" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-30"><a href="#cb12-30" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-31"><a href="#cb12-31" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-32"><a href="#cb12-32" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-33"><a href="#cb12-33" tabindex="-1"></a><span class="co">#&gt;    user</span></span>
+<span id="cb12-34"><a href="#cb12-34" tabindex="-1"></a><span class="co">#&gt;    user</span></span></code></pre></div>
 <p>The model still has many parameters where we did not set priors, and
 <code>brms</code> sets automatic defaults. You can see these defaults
-with <code>brms::default_prior()</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>brms<span class="sc">::</span><span class="fu">default_prior</span>(<span class="at">object =</span> formula, <span class="at">data =</span> archetype)</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; Error in x$formula: object of type &#39;closure&#39; is not subsettable</span></span></code></pre></div>
+with <code>brms::get_prior()</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>brms<span class="sc">::</span><span class="fu">get_prior</span>(<span class="at">formula =</span> formula, <span class="at">data =</span> archetype)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt;   prior   class                        coef group resp  dpar nlpar lb ub       source</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                                                               default</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt;  (flat)       b nuisance_FEV1_BL.AVISITVIS1                              (vectorized)</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt;  (flat)       b nuisance_FEV1_BL.AVISITVIS2                              (vectorized)</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt;  (flat)       b nuisance_FEV1_BL.AVISITVIS3                              (vectorized)</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt;  (flat)       b nuisance_FEV1_BL.AVISITVIS4                              (vectorized)</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt;  (flat)       b           nuisance_SEX_Male                              (vectorized)</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt;  (flat)       b             nuisance_WEIGHT                              (vectorized)</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_PBO_VIS1                              (vectorized)</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_PBO_VIS2                              (vectorized)</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_PBO_VIS3                              (vectorized)</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_PBO_VIS4                              (vectorized)</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_TRT_VIS1                              (vectorized)</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_TRT_VIS2                              (vectorized)</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_TRT_VIS3                              (vectorized)</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  x_TRT_VIS4                              (vectorized)</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt;  lkj(1) cortime                                                               default</span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                                        sigma                  default</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  AVISITVIS1            sigma             (vectorized)</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  AVISITVIS2            sigma             (vectorized)</span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  AVISITVIS3            sigma             (vectorized)</span></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co">#&gt;  (flat)       b                  AVISITVIS4            sigma             (vectorized)</span></span></code></pre></div>
 <p><a href="https://paul-buerkner.github.io/brms/reference/set_prior.html" class="uri">https://paul-buerkner.github.io/brms/reference/set_prior.html</a>
 documents many of the default priors set by <code>brms</code>. In
 particular, <code>&quot;(flat)&quot;</code> denotes an improper uniform prior over
@@ -578,74 +658,78 @@ all the real numbers.</p>
 understand how to work with informative prior archetypes. Notably, the
 formula uses custom interest and nuisance variables instead of the
 original variables in the data.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">brm_formula</span>(archetype)</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>formula</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; change ~ 0 + x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4 + x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4 + nuisance_biomarker1 + nuisance_biomarker2 + nuisance_status1_absent + nuisance_status2_present + nuisance_baseline.timetime_2 + nuisance_baseline.timetime_3 + nuisance_baseline.timetime_4 + unstr(time = time, gr = patient) </span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; sigma ~ 0 + time</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">brm_formula</span>(archetype)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>formula</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; FEV1_CHG ~ 0 + x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3 + x_PBO_VIS4 + x_TRT_VIS1 + x_TRT_VIS2 + x_TRT_VIS3 + x_TRT_VIS4 + nuisance_WEIGHT + nuisance_SEX_Male + nuisance_FEV1_BL.AVISITVIS1 + nuisance_FEV1_BL.AVISITVIS2 + nuisance_FEV1_BL.AVISITVIS3 + nuisance_FEV1_BL.AVISITVIS4 + unstr(time = AVISIT, gr = USUBJID) </span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; sigma ~ 0 + AVISIT</span></span></code></pre></div>
 <p>The model can accept the archetype, formula, and prior. Usage is the
 same as in non-archetype workflows.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">brm_model</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">data =</span> archetype,</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">formula =</span> formula,</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">prior =</span> prior,</span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>)</span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; Compiling Stan program...</span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; Start sampling</span></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>brms<span class="sc">::</span><span class="fu">prior_summary</span>(model)</span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt;                     prior    class                         coef group resp</span></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                                        </span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.17, 4.86)        b nuisance_baseline.timetime_2           </span></span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 3.22, 5.25)        b nuisance_baseline.timetime_3           </span></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.53, 5.75)        b nuisance_baseline.timetime_4           </span></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b          nuisance_biomarker1           </span></span>
-<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b          nuisance_biomarker2           </span></span>
-<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b      nuisance_status1_absent           </span></span>
-<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b     nuisance_status2_present           </span></span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.98, 2.37)        b             x_group_1_time_2           </span></span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.82, 3.32)        b             x_group_1_time_3           </span></span>
-<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.35, 4.41)        b             x_group_1_time_4           </span></span>
-<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 0.31, 2.22)        b             x_group_2_time_2           </span></span>
-<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 1.94, 2.85)        b             x_group_2_time_3           </span></span>
-<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co">#&gt;  student_t(4, 2.33, 3.41)        b             x_group_2_time_4           </span></span>
-<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                                        </span></span>
-<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                   timetime_2           </span></span>
-<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                   timetime_3           </span></span>
-<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a><span class="co">#&gt;                    (flat)        b                   timetime_4           </span></span>
-<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a><span class="co">#&gt;      lkj_corr_cholesky(1) Lcortime                                        </span></span>
-<span id="cb13-30"><a href="#cb13-30" tabindex="-1"></a><span class="co">#&gt;   dpar nlpar lb ub       source</span></span>
-<span id="cb13-31"><a href="#cb13-31" tabindex="-1"></a><span class="co">#&gt;                         default</span></span>
-<span id="cb13-32"><a href="#cb13-32" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-33"><a href="#cb13-33" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-34"><a href="#cb13-34" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-35"><a href="#cb13-35" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
-<span id="cb13-36"><a href="#cb13-36" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
-<span id="cb13-37"><a href="#cb13-37" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
-<span id="cb13-38"><a href="#cb13-38" tabindex="-1"></a><span class="co">#&gt;                    (vectorized)</span></span>
-<span id="cb13-39"><a href="#cb13-39" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-40"><a href="#cb13-40" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-41"><a href="#cb13-41" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-42"><a href="#cb13-42" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-43"><a href="#cb13-43" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-44"><a href="#cb13-44" tabindex="-1"></a><span class="co">#&gt;                            user</span></span>
-<span id="cb13-45"><a href="#cb13-45" tabindex="-1"></a><span class="co">#&gt;  sigma                  default</span></span>
-<span id="cb13-46"><a href="#cb13-46" tabindex="-1"></a><span class="co">#&gt;  sigma             (vectorized)</span></span>
-<span id="cb13-47"><a href="#cb13-47" tabindex="-1"></a><span class="co">#&gt;  sigma             (vectorized)</span></span>
-<span id="cb13-48"><a href="#cb13-48" tabindex="-1"></a><span class="co">#&gt;  sigma             (vectorized)</span></span>
-<span id="cb13-49"><a href="#cb13-49" tabindex="-1"></a><span class="co">#&gt;                         default</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">brm_model</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="at">data =</span> archetype,</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="at">formula =</span> formula,</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  <span class="at">prior =</span> prior,</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>)</span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; Compiling Stan program...</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; Start sampling</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>brms<span class="sc">::</span><span class="fu">prior_summary</span>(model)</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;                      prior    class                        coef group resp  dpar nlpar lb ub</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b                                                         </span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.83, 1)        b nuisance_FEV1_BL.AVISITVIS1                             </span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.78, 1)        b nuisance_FEV1_BL.AVISITVIS2                             </span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.86, 1)        b nuisance_FEV1_BL.AVISITVIS3                             </span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;     student_t(4, -0.82, 1)        b nuisance_FEV1_BL.AVISITVIS4                             </span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b           nuisance_SEX_Male                             </span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b             nuisance_WEIGHT                             </span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt;  student_t(4, -7.57, 4.96)        b                  x_PBO_VIS1                             </span></span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.14, 7.86)        b                  x_PBO_VIS2                             </span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  8.78, 8.18)        b                  x_PBO_VIS3                             </span></span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.36, 8.10)        b                  x_PBO_VIS4                             </span></span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a><span class="co">#&gt;  student_t(4, -2.96, 4.78)        b                  x_TRT_VIS1                             </span></span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  3.13, 7.64)        b                  x_TRT_VIS2                             </span></span>
+<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  7.65, 8.24)        b                  x_TRT_VIS3                             </span></span>
+<span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a><span class="co">#&gt;  student_t(4,  4.64, 8.21)        b                  x_TRT_VIS4                             </span></span>
+<span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b                                        sigma            </span></span>
+<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b                  AVISITVIS1            sigma            </span></span>
+<span id="cb15-28"><a href="#cb15-28" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b                  AVISITVIS2            sigma            </span></span>
+<span id="cb15-29"><a href="#cb15-29" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b                  AVISITVIS3            sigma            </span></span>
+<span id="cb15-30"><a href="#cb15-30" tabindex="-1"></a><span class="co">#&gt;                     (flat)        b                  AVISITVIS4            sigma            </span></span>
+<span id="cb15-31"><a href="#cb15-31" tabindex="-1"></a><span class="co">#&gt;       lkj_corr_cholesky(1) Lcortime                                                         </span></span>
+<span id="cb15-32"><a href="#cb15-32" tabindex="-1"></a><span class="co">#&gt;        source</span></span>
+<span id="cb15-33"><a href="#cb15-33" tabindex="-1"></a><span class="co">#&gt;       default</span></span>
+<span id="cb15-34"><a href="#cb15-34" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-35"><a href="#cb15-35" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-36"><a href="#cb15-36" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-37"><a href="#cb15-37" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-38"><a href="#cb15-38" tabindex="-1"></a><span class="co">#&gt;  (vectorized)</span></span>
+<span id="cb15-39"><a href="#cb15-39" tabindex="-1"></a><span class="co">#&gt;  (vectorized)</span></span>
+<span id="cb15-40"><a href="#cb15-40" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-41"><a href="#cb15-41" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-42"><a href="#cb15-42" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-43"><a href="#cb15-43" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-44"><a href="#cb15-44" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-45"><a href="#cb15-45" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-46"><a href="#cb15-46" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-47"><a href="#cb15-47" tabindex="-1"></a><span class="co">#&gt;          user</span></span>
+<span id="cb15-48"><a href="#cb15-48" tabindex="-1"></a><span class="co">#&gt;       default</span></span>
+<span id="cb15-49"><a href="#cb15-49" tabindex="-1"></a><span class="co">#&gt;  (vectorized)</span></span>
+<span id="cb15-50"><a href="#cb15-50" tabindex="-1"></a><span class="co">#&gt;  (vectorized)</span></span>
+<span id="cb15-51"><a href="#cb15-51" tabindex="-1"></a><span class="co">#&gt;  (vectorized)</span></span>
+<span id="cb15-52"><a href="#cb15-52" tabindex="-1"></a><span class="co">#&gt;  (vectorized)</span></span>
+<span id="cb15-53"><a href="#cb15-53" tabindex="-1"></a><span class="co">#&gt;       default</span></span></code></pre></div>
 <p>Marginal mean estimation, post-processing, and visualization
 automatically understand the archetype without any user
 intervention.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>draws <span class="ot">&lt;-</span> <span class="fu">brm_marginal_draws</span>(</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">data =</span> archetype,</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">formula =</span> formula,</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">model =</span> model</span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>)</span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>summaries_model <span class="ot">&lt;-</span> <span class="fu">brm_marginal_summaries</span>(draws)</span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>summaries_data <span class="ot">&lt;-</span> <span class="fu">brm_marginal_data</span>(data)</span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">brm_plot_compare</span>(<span class="at">model =</span> summaries_model, <span class="at">data =</span> summaries_data)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>draws <span class="ot">&lt;-</span> <span class="fu">brm_marginal_draws</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="at">data =</span> archetype,</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="at">formula =</span> formula,</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="at">model =</span> model</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>)</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>summaries_model <span class="ot">&lt;-</span> <span class="fu">brm_marginal_summaries</span>(draws)</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>summaries_data <span class="ot">&lt;-</span> <span class="fu">brm_marginal_data</span>(archetype)</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="fu">brm_plot_compare</span>(<span class="at">model =</span> summaries_model, <span class="at">data =</span> summaries_data)</span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="data:image/png;base64,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NTU1kiQNHTp0/fr1HMeNHj36yy+/DBv0M2fOnDp1qtFolKdfu3Yty7I33nhjQUEBIWTcuHHff/+91WqdOnXqO++8E61qww9qduTIkUGDBgmCQAixWq0jR4785ZdfbrnllmgtFai3sOJ/4b66ynlvAgYmBKqcO3fO5XJdffXVPXr0GDBggCiKGzdu9Hq97733HiGkV69ef/7znwcOHFj3jR6PZ+HChUlJSRs2bHA4HN999x0hJC0trbS0VBCELVu2PP3004SQgQMHzps37+GHH45KteGP6Pv16/fFF1/U1NQQQgoLCz/66KOePXE6HTSBif3fpsXi7odAnfz8/FdeeWXatGnZ2dmfffYZx3FHjx7t1q2b/GpmZua5c+eCpxdFUX5gMpmSkpIIIUePHr388svlxlGjRg0YMODIkSNWq1Vuyc7Ofuqpp6JVbfgj+r59+w4bNmzGjBlVVVUajWb69OnXX399tBYJbcEjSQmBHptJSQkXnxgg5vz8888Wi+W7775zu91Dhw799ttvU1NTly9fLr968ODBTp06cRzn9/vllqKiopA5pKSknD59Wn78wQcfZGZmpqenV1dX33///QzD7NixY82aNdGqtt7x6B966KGHHnqovLzcbrczuCE1NFGmTlvcJS+v4OianMzOer3a5QBEmdVq/dOf/nT69GlRFIuKirp165aWlib3v+fl5b311ltvvvmm1WpNSUl5++23ExISPv3001tvvTV4DkOGDJk5c+ZTTz3Vvn37119/fdu2bampqbm5uffee2+/fv3efPPNf/zjH9Gqtt7TK/fv33/27Fmn0zlt2rQvvvgiWsuDtkPLMCzDGFlcqwEU6tChw/r16wVBkCRp3bp1mZmZGo1m8+bNV1xxhc/nW7p06Q033EAI2bBhgyAIbrd7+fLlQ4YMYVn2//7v/+Q5aLXa77//Pjc3l2XZrVu3pqamEkK++eabm266yeFwfPrpp9ddd120qg1/RP/LL7+MHDny3//+9/Tp0zt37vziiy+mpKT07ds3WksFAIh1nTp1euyxx4JbTCbTfffdF9ySkpLyyCOPBLcEgp4QYrVaH3jggeBXtVrtmDFjol5q+KBfu3btE088kZubu3fv3s8//zwnJ2fLli0IegCAWBT+z2qbzVZcXLxixYpevXqxLFtYWBgfj9PjAABiUvgj+jvvvHPEiBHz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dUSJEEIktcsA1Xkl6euq6g3VLrEFtoadO3ceOnQopHHXrl379+9v8L3hj+i/+eYbvV7/xhtvEELef//922+/fdWqVRipGKCuQ96a/scKCSF3niqak9ouR48bLLdRHlG65/TZ750uQsjwOOv7GakNdoNs377d5/MdPHjwyiuv9Pv9P/3005gxY5KSkjZv3rxz587Bgwd369aNELJ69erCwsLKysr09HRCyI8//rh169abbrrp0ksvbWRt4Y/ojxw5MmjQIHm4SqvVOnLkyF9++aWxqwvQlrxS+qv8YIvLPefCr+oWAwp7orjk8d/+3XfmvylPCPnKUf1g0bnAS4GNJMT27dufffbZ3r17jxs3btu2bWlpaX/+859Xrlz59ttvd+3a9ZFHHtm/f//SpUsXLlyYm5u7ePFiQsimTZueffbZSy+99JFHHjl8+HAj6wx/RN+vX78XX3xxyJAher2+sLDwo48+mjVrVtM/BAD6eSWJSIQwhBDiFEW1ywFFZWq10m+ddoIk1n5JY/ttpJBETb2Xpo4ZM6Znz56ZmZkTJ07UarX//Oc/Fy5c+Morr2RlZVVUVKxcufLHH398/fXXO3bsKF+FunDhwv79+3s8nq5du65cuTIwmNjFhV983759hw0bNmPGjKqqKo1GM336dNwwFiCs38dZv612yo9viwsddhTo9sglCYHHgiQ5RekrRzUh5E9JCX9td0lj5mAymeQHWq2WECJJks/nCzzW6XSBgX3kBzzPy6/27t27U6dOu3btasxSwnfd8Dz/xz/+8cKFC+fOnXM6nX/9618bMy+ANujOeNvyrHRCyKqOHW6Na9ThFVCJY5gPMlK3duq4p3POzPaNSvmwbrvtthkzZqxfv/6dd9657bbbbr/99hkzZqxevVruurn99tt3795tt9sXLFgQ9mZQYYU/op87dy4hZNq0aQkJCWEnAICAXiYjIeRKY4sPuw+tX15Tfo3v06ePPPD7uHHjdDodIeS+++679957k5OT9+7d+8477+Tm5ubm5iYkJJw6dertt9+22+35+fkWi2XHjh1z5szp0qWLKIq6OjeHqCt80A8fPnzs2LE5OTmBu8WmpqampqY2fgUAAODi+vTpIz8YN26c/EC+MezQoUOHDh0amEy+dXjAgAEDBgwYID/u1atXYxYUPui3bNmi0+lee+21QMuECRMwICUAQCwKH/SIdQAAajS2Lx8AAGIUgh4AgHL1nsYPAAD1SUpKUruEJsARPUA9JAxTBpRA0AOE4krOmd97k6mpMS7/lHG71C4HIFIIeoBQuq3fyw80J4/rdmxVtxiAyCHoAUJpjh8JPMYRPVAAQQ8QynftwMBj/tJu6hUCEB046wYgVE2f/qLJol+/xj36XjE1Te1yACKFI3qAOhhGyMomGg1SHuiAoAcAoByCHgCAcgh6AADK4cdYgLZok9N10Fvjk8TfWcwpWuQA5XBED9Dm/OKtGVlYVOz3b3S6p5w9r3Y50OIQ9ABtzjaXO/B4o9N1gRdULAYUgKAHaHM66/XBTxM45ADl8AUDtDn9LaaZ7S8hhHQ16L/JzuQYRu2KoGXhRxiAtuhPSQk/uDx/sFmuMhnUrgVaHI7oAQAoh6AHAKAcgh4AgHIIegAAyiHoAQAoh6AHAKAcgh4AgHI4jx6AEppfDrDlv2p/+lFIbieZLWqX0zSfVThmnL8Q3MIwjCRJIZPxkiRIpFPBsQZneJXJsCgzPZolxjIEPQANuJPHjV+vIIRojh8xrF3lue1OtStqmmE2a1+zKbglLi6uurpaFMXmzVCPy32DIOgBaMCdPR14rDl+hIgiYWOpY9bKsdbaQ+4kGA0OX40gYMC1KIilTQEA6iMltw885rNyYivloaVhawCggT/v0prfXSfp9Xx6h5rrh6hdDrQuCHoASvh6XysmJPn79BcTEtWuBVoXBD0AAOVU+DGWbYHeQ4ZhWJblOK7ugkIa5YkZhqnbrrCLlNH4dVGaJMllSLUradK6tISoL4JpysYjj+fOcRzHqn+mR9iNJ+y3E3avUV595REFN/iWCKVWRYWg12g0dU+PjRDLsoTjTolSBc8HNQp64vL4/CETV4rieUE8WKe9rhSdtr1WG91SA1iNhmEYbZ35Mwyj0WiY2ieHcRwXdmKlMQwhRKvVSrUruUh5Wq1WgbKjvghGqw07WzmVQtq1oihPrFU76OXEZBv37cgTq75RsSzLsmx9O4IyEczQfi6mCkHv8/mifsqUURB4v39u8fnvqp2BRvmApe6yfJJ0wO1ZWVHZ4GwnJdonJNqjW2qA1u/XiKLX6w1pNxqNPp/P76/1/5Df75ckqe7ECmMEQUuI1+uVan+q8r4atryamhpvc0+Fro/FEno1UNQ/GbamxhRuthqNRqzzrckr6PV6RbWD3iRJfr+fr12e/H9t3XURRdHv96u+Uel4nhOEumWYTKaaGoVOr+Q4zmw2K7AgtVB1Hv3slGSSkhx4qtFobDZbeXm5iiUBAKiO8p4pAACg6og+Fn3ndP2luCS4heM4URRDfsbwSZJblHodOdHgDHN1us+yMMQHAPwPgl5lPY2GDzNSg1tsNpvb7eaDflVuEgPtPysBQFMh6FUWz3HxxlrnkNktZieRQn6MBQBoNvTRAwBQDkEPAEA5BD0AAOUQ9AAAlEPQAwBQDkEPAEA5BD0AAOUQ9AAAlEPQAwBQDkEPAEA5BD0AAOUQ9AAAlEPQAwBQrrWPXsk4q5lG3EuM4XnG7WYdte4OyHCcxPtZhyO4UTKaJJ0uylUCALRirT3oDWv/zRWfbXg6UdCVntdt2xTSzDOMqfYdPLyDBvNdr4hihQAArVxrD3rPyLub/V7cMxYAgKCPHgCAegh6AADKIegBACjX2vvooXVK+fkIX/tX7vr0PHyiMZNtys261KCPrCgACA9BD81RkJ8T/NRkMrEs63Q6mz1DK4s/LgFaCoIemiOe44KfmjiOZVlN7UYAaCVwGAUAQDkEPQAA5dB1E31sZTlXcr7BybhzZxlntfbwLyHtktnMeb0kaOAH0WQWMjKjXCVAC2O8XqbG24jJPMTnCxm/hBAiEYmprmZF8X8tWq1kMke5yrYBQR99bNkF7f49DU8nCoTj6k4pajScILBB57QIye0R9BBztAd+0m3f0vB0kkgkybSgMKSZZxhD7TO7hNw8z9Dh0SuwDUHQRx+f25nP7dzst9vtdo/T6ff7o1gSgPJ8V/X1XdW32W9PSEhwOBxCI8Y0hAahjx4AgHIIegAAyiHoAQAoh6AHAKAcgh4AgHIIegAAyiHoAQAoh6AHAKAcgh4AgHIIegAAyiHoAQAoh6AHAKAcgh4AgHIIegAAyiHoAQAoh6AHAKBcFG48snPnzjVr1uTk5Nx1110s+9//OXbt2rVu3bqEhIR77rnHZDJFvhQAAGieSI/oHQ7HkiVLpk6dyvP8+vXr5caysrKlS5dOnjw5Kytr4cKFERcJAADNF2nQ79u3r0+fPlarddCgQXv2/Pf2p+Xl5UOGDLHZbN27dy8qKoq4SAAAaL5Iu27Ky8vtdjshJD4+3uFwyI15eXl5eXler/fDDz/s06eP3Pjuu++uXr2aEPLmm2+mp6dHuNzGYBiGZVm5vBjCsqzVapVq3xa5teB5npD4+Hii0wU3MwzDMIxWq1Wrrqh/y5IkCgxTd7Ysy0qSpNfrgxu1giDXoGOZ6JbRVDzHWSwWpnbZ8rdTd120xaVms7nV7iAsy8bFxSmzI4iiqMBSVNTMoN+3b9/q1aszMjLsdrt8915BEAwGQ2CCY8eOvfHGG0OGDBk2bJjcMmLEiAEDBhBCzGZzdXV1xJU3jOM4xZYVRVar1ePx8Dyv5EIZr1c//52Gp5MI0en8c18itQONYRhCSMg+6b1vIjG2yM8z8fHxIS1R/5YZl0svSXVnazQaJUnyer3BjS5RlGtQPej1oujzeITaZWs0GqPRWHddeJ73er2tdgex2Wwul0uZm4OzLKviYYoCmhn0nTp1SkxM1Ov1JSUlmzZtIoQUFhZmZ2fLrzocjrfeeuupp55KS0sLvKV9+/bt27cnhFRUVCiZYgonZlQIgqB02Qwj3jis2e82GAwMw3g8nuBGgeWIUmsR9Y+LFYSws5UkSRTFkHZeFOWJWbWDXidJdTcehmEkSQq7LipsaU3B87wyQc9xnAJLUVEzg95kMsnn0iQmJi5atGjevHmHDx+ePn06IWT27NlXXXWVxWLZsGEDIaRdu3Y33nhjFCuGFsFxQlZ2s98tmUwMywpOZxQrAoBoibSPnmXZWbNmHT9+fOzYsWazmRAyfPjwpKSkSy65RJ5AbgQAALVE4Tx6juPy8vICT/Pz8wkhSUlJkc8ZAAAihytjAQAoF4UjegBa1UjS2upaPzwYfH5RFH0+X3CjVxQJIauqqjWN+DF2iMWi+sk50NYg6AHq5RHFBeWO4BaOc8on3gQ3ShLpYTR+WlnVmPy+3mLWEQQ9KApBD1CveI5bnlXr4j6LxSKKotvtVqskgGZAHz0AAOUQ9AAAlEPQAwBQDkEPAEA5BD0AAOUQ9AAAlEPQAwBQDkEPAEA5BD0AAOUQ9AAAlEPQAwBQDkEPAEA5BD0AAOUQ9AAAlEPQAwBQDkEPAEA5BD0AAOUQ9AAAlEPQAwBQDkEPAEA5BD0AAOU0ahcAAFG2zeUuE4TAU47j9B6v2+0OmayE53/yeI1cw0d7lxsMWTptlKsEBSHoAWizttr1s7cm8JRhGI7jeJ4PmUzPMAU1vmM+f4Mz/GMig6CPaQh6ANo82/6S4KdardZsNldWVqpVD6gOffQAAJRD0AMAUA5BDwBAOQQ9AADlEPQAAJRD0AMAUA5BDwBAOQQ9AADlEPQAAJRD0AMAUA5BDwBAOQQ9AADlEPQAAJRD0AMAUA5BDwBAOQQ9AADlEPQAAJRD0AMAUA5BDwBAORXuGcuyCv3vIi+I4zhlFhdFLMvGVtkMw8h3oFargKgvmqln41F9TRtUd+NhWbaV11wfxWpWLJTUokLQazQaSZIUWJC8fWu1MXb3eoZhNBoNwzBqF9IEHMep+1FHfdGMVht2tq18o5IDna1dnurfTvPIO4IyERxbu1szqBD0Pp9PEAQFFqTRaAwGg9frVWBZUWQ0Gn0+n9/vV7uQJmBZlmVZxT5qi8US0hL1RbM1NaZws9VoNKIottqNyiRJfr+fr12eVqvVarWttub6mEymmpoaZbKC4ziz2azAgtRC+R8sAACAoAcAoByCHgCAcgh6AADKIegBACiHoAcAoByCHgCAcgh6AADKIegBACiHoAcAoByCHgCAcgh6AADKqTCoGYCK2LILpsUfNTydRAjPW956JcwcCKk1phrLOic/HqXqAFoEgh7aFtGe4B73x2a/3WQytebRKwHCQtBDG8NxYlx8899usRBRFN3u6BUE0OLQRw8AQDkEPQAA5RD0AACUQ9ADAFAOQQ8AQDkEPQAA5RD0AACUQ9ADAFAOQQ8AQDkEPQAA5RD0AACUQ9ADAFAOQQ8AQDkEPQAA5RD0AACUQ9ADAFAOQQ8AQDkEPQAA5RD0AACUQ9ADAFAOQQ8AQDmN2gUAQMOYmhoiiQ1PJ4rEV8N4PbXeK/CEZUIaJa2OcFx0i4RWC0EPEANMi+azZaUNTycR48rldZsFQiy1W7zD7/DnXRqd4qDVQ9ADxADX+Iea/V6tVms2mysrK6NYD8QW9NEDAFAOQQ8AQDkEPQAA5RD0AACUQ9ADAFAOQQ8AQDkEPQAA5RD0AACUQ9ADAFAuCkG/c+fO55577tNPPxXFWmNxiKL4xhtvRD5/AACIRKRB73A4lixZMnXqVJ7n169fH/zS2rVrd+7cGeH8AQAgQpEG/b59+/r06WO1WgcNGrRnz55Au8fj2bt3b0pKSoTzBwCACEU6qFl5ebndbieExMfHOxyOQPuyZctuvfXWDz74INDy7rvvrl69mhDy5ptvpqenR7jcxmAYhmVZubwYwrKs1WqVJEntQpqAYRiGYbRarVoFKPYtsywrSZJer1dmcVEhfzuxuCPExcUpsyOEdDvTp5lBv2/fvtWrV2dkZNjtdkEQCCGCIBgMBvnVCxcuXLhwIT8/P/gtI0aMGDBgACHEbDZXV1dHVnajcByn2LKiyGq1ejwenufVLqQJDAYDwzAej6fhSaMhPj4+pEWxb9loNEqS5PV6lVlcVGg0GqPRGHM7gs1mc7lccry0NJZlVTxMUUAzg75Tp06JiYl6vb6kpGTTpk2EkMLCwuzsbPnVdevWOZ3Ot99+u6SkZPHixXfddRchpH379u3btyeEVFRUKJlisZWYMkEQYqtsURRZllWxZsUWLUmSKIqx9e0wDCNJUmzVLON5Xpmg52i/B0szg95kMplMJkJIYmLiokWL5s2bd/jw4enTpxNCZs+e/eijj8oHdydOnBg2bFgUywUAgKaKtI+eZdlZs2YdP3587NixZrOZEDJ8+HCDwSB340yaNMlms0WhTAAAaK4o3GGK47i8vLzA0+Cu+UBnDgAAqIVR/uwOh8OhzG/coih6PB7574wY4vF49Ho9y8bSRct+v1+SJJ1Op8zi6p5AUlFRocyifT6fuucXNYMoijU1NUajUe1CmsbpdJpMJmV2BPkMHwUWpBqJXkePHh06dKjaVTTZHXfcsWfPHrWraJoPPvjgpZdeUrsKJfz973//8MMP1a6iaXbv3j169Gi1q2iyIUOGHDt2TO0qKBFLh40AANAMUeijb7VsNtuQIUPUrqLJbrjhhqSkJLWraJr8/PyYO027ebp37261WtWuommSkpKuv/56tatosqFDh+JUjmhRoY8eAACUhK4bAADKcX/729/UrqE5eJ7/8MMPMzIyNm3a1KlTp6a+XRCEmTNnHj16dOnSpXa7PTU1tSWKrGvt2rUsy27YsCE9Pb0Z46WsXr36k08+OXDgwNatW/v27dsSFdZ15MiRvXv3lpeXV1RUJCcnN28m33333eLFi3/3u99Ft7boinBNS0tLZ8yYUVRUtGDBgl69eslXFLa0CHcEr9f75JNPnj179uOPP87Ly1NsPJwIdwTZ66+/Xlpa2rlz5+jWRqVYPaI/ffr0wYMHvV7v5Zdf7vV6i4uLL1y4UF5ezvP8iRMnampqCCGiKJ48edLtdtd9+6FDh9LT0ydOnPjoo4+uWrVKsbIPHDjw888/9+zZ02AwnDp1yuv1njp1ShCEsrKyc+fOydNUVlaeOXMm7Ns3btz4zDPPTJkypbCwULE+t0OHDh04cCA5OTktLa2srMzhcJw5c8bj8bhcrpMnT8pleL3eEydO1He1ek1NzX/+8x9lqo1EhGu6YcOG22+//f777x86dOjGjRuVqTnCHWHv3r39+vWbMGHCHXfc8eOPPypTM4l4RyCEnDhxoqCgQKl6Y16sHtEfP358586dycnJW7ZsSUlJef755xmGWbx48f79+30+39KlSwcMGDBr1qzKysqvvvoqLS0t5OdNo9GYl5dnMpkKCgpKS0sVOzpes2aNRqP54YcfunbtOn/+/L1795aVlb333nsej2f9+vVWq/XMmTMLFiwoLS397rvvrrnmmpC39+jRQ6vVHjp06NChQzfccIMyNW/btq20tLSiosLr9R47duzTTz/VaDTvvPNOUVHR6dOnf/755/bt27/00ksej2fZsmVXXXVV3QO05cuX9+zZ89SpU638iD7CNU1KSsrKytJqtRs3bkxOTs7JyVGg5gh3hMTExLy8PIfD8e2333br1i0tLU2BmknEOwIh5N133x04cKAoijiib4xYPaK//PLLExMTc3Nz5afZ2dmjR4/u3bt3v379Ro4c6Xa7d+/e3aFDh1GjRo0fP/7f//53yNutVmtiYqLcE3L33XcrVnZOTk7v3r0DT0eOHHnPPfcwDDNu3LghQ4bIXUlTpky5++67RVEsKioKeXtiYmJhYeHKlSuNRqMygz0RQq644oq8vLyEhAT56YABA0aMGJGQkDB27NixY8ceOXJk1apVw4cPHzlyZJ8+fbZu3Rry9oqKijNnznTt2lWZaiMR4Zq2b9+eYZh33323qKho0KBBytQc4Y5gNBqNRuM333xz/PhxjUa5c/Ai3BF27tyZn59vsVgUKzjWUXJ6ZeA0LHmMHUmSKioqjh8/vmjRIkLIZZddVvctr7/+ukajefnll1W8YlAuWy6AYRhRFKuqqr744gtCSGJiYsiIepIkbd++vW/fvtOnT3/llVeOHTumyrGMXDPDMHLZoihWVlb+8MMPBw8eJIT07NkzZPpFixYNHjy4qqrK7/e73W5leq6joqlr6nK5nnnmmYEDB06cOJFhGOULJk3fEY4ePRofHz9u3Ljrr7/+/fff79Gjh8IFy5q6I6xYsWLq1Kl79uzxeDw+n0+xS7JjV6we0bMs6/f7LzKB/B/+hAkTunXrJvdUBjt48CDDMJMmTdLpdErec6DBsnNycgYMGHDPPfeUl5eHXJPNMMyyZcuKioocDsf58+fbtWvXwsX+F8uyPp/vIhPk5+dnZWU98MADBoOhbr9NSkrK1q1bV6xYUVRUpGQvcDNEuKYrV64cOnTozTffLIqiYr+gRLgjFBcXf/HFF36//8CBAxkZGS1ZaS2R7AiiKGZkZCxfvnzbtm27d+8+ffp0CxdLg1g9otdoNNnZ2Xv27ElLSzMajfJpM8nJyfLFLDk5OZmZmddee+3f//53+e/WkLdXV1fL50gQQjp27PjHP/5RmbKvuuqq5cuXyz25mZmZ8h/Lcmeu1WpNTk6++eabP/nkk6qqqltuuaXuwe+f/vSnRYsWCYIwbty4ujffaCE5OTmrVq0yGo0dOnTQarXyJ9yxY0d5EJKOHTsOGTJk2bJlzz///NVXX92lS5eQt992222EELfb/cUXX8h3nmm1IlxTURTXr18v3zn5+uuvV+YapQh3hP79+58/f15+dcyYMQoULItkR+A4btKkSYSQgwcPOhyOQLcVXERbuWBq8+bNZWVlgaeDBw9u/YOdlZWVbd68OfA0IyOjV69eKtbTSCtWrAg8NhqNsXhxciPF4ppiR2ib2krQAwC0WbHaRw8AAI2EoAcAoByCHmLDkSNHPvvsM7WrAIhJCHpo1c6fP5+VlUUI8Xq9v/76q9rlAMSkWD29EtqIDz74oLKy8r333hs4cGBiYqI87pjNZtu3b98tt9zCMMzatWu7d+8uX4laXV29fPlyr9d700034X7FAAE4oodW7dJLL9Xr9ZdddpncdXPkyJEHH3xwx44dcXFx11577cyZM9PS0iZPnrxlyxaXy3XjjTeWlZXxPH/DDTf89NNPatcO0Fog6KFVu+aaa4xG47XXXhtoycvLmzlz5kMPPUQImT179qhRo2688cZdu3bNnz8/Pj7ebrcbjcYrr7zy448/Vq9qgNYFXTcQYwJX6nMcJw9AxjCMPCpv4CZ/Q4cObcbg7AC0whE9xJj6xgtLT083m80PPPDAAw88IElSeXm5woUBtFo4oodWLS4urrKysjE3hxk/fnzPnj2fffZZg8HwwQcf1B1GGKDNitUbj0AbodVqO3XqVFlZ2b1798TExK5duyYmJgYGFLvmmmvk8bByc3Pz8/PHjh1bWFjIsuycOXPat2+vauEArQjGugEAoBz66AEAKIegBwCgHIIeAIByCHoAAMoh6AEAKIegBwCg3P8DbAQn0joMmM8AAAAASUVORK5CYII=" alt="plot of chunk archetype_compare_data" />
+<img src="data:image/png;base64,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ByGCIIiiGPynhfN6TYpy+Xrrj5EkqZXZOI6zWq0tvnvoo/wDCwAAoOgBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADKoegBIERxxUWWTz5gq6tMa75gfD6944QxFD0AhCjDji3qgJB9TDiwR9cs4Q1FDwAhis896R9max06Jgl3KHoACFG+fgMvDnftpmOScMfrHQAAoHHuUWMVs1k4sMc1+R4pOVXvOGEMW/QAEKpYVuzcVTGa0PKthC16AAhjb5ad+7Kq5suqmkSeuy3CrnecEIWiBy05ZfnDc5X+m1an2+l0KorSzLt3NBp/HWELTDSg0F6n65XScnX4N/lnTnfvYmGxl6IRKHrQkqSQ0z7Rf9Pk9ri9Fw9/LhfFvU73rU1XOd6lcE3yvN76N0tFqaMBL6FGoOhBS3aO/UdSvP9mbGzsuXPn/Fv0e52unKKS+jMAtMYwq8U/PMJmbS8IOoYJZfjfDwDCVbIgbOvSsYvRMMpmfS8lkWX0DhSqsEUPAGEsw2jobTb1t5jb8pzeWUIXtugBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADKoegBACiHogcAoByKHgCAcih6AADK4cIjcA3YsrNMXW3z55crz3E1Nf5LCXJtYgOTCwCuBEUP14A/fpjPPdnUVNZRo5jMSr3rdoo8bxAvXitcGD8psPkAoDEoergG3uE3e4ff3NRU69J/e4aOEDum+cfExsY66l0c3O10kWpnwFMCwKWwjx4AgHIoegAAymHXDQA07he3p+LCVywWWZEkyePxNP/uQ60WgWECEw2uDYoeABr3WWX1PqdLHeY4TlEUWZb9U/N9vniON7JNVvmqDqkCh6IPCSh6AGjcK4lx/mG73S6Kosvl8o8ZmH3q7eSEfhaTHtHg2mAfPQAA5VD0AACUQ9EDAFAORQ8AQDkUPQAA5bQp+oKCgry8PHW4tLR01apVmZmZmiwZAABaSYOiz8rKev/999Wi93q9r7zySmJi4po1a9D1AAChQIPj6OsXemZm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d9559tlnCSH79+8vLy8fO3bsm2++OXHixF27dj300ENer/eLL74oKSkZP358jx49CCGKoqxZsyY3N3fo0KGDBg3S6gE2XvTr1683Go1vv/02IeSDDz6YOnXqunXrJk6c2MqV+Xw+qd5Xc61nMBhEUfR4PBous2XUjZ1QSMLzvNForJ9EFEVJknTJZrfbPR6Pv+h9Pp+iKK1MYrfbG4zR9qExDGOz2ULhT0kIsVgsXq9XFMUgr1cQRe7S18zl7zVFUbxer4cP9rYwwzCCIGj7B2rBfxvV1dU333zzX/7yl4qKimHDhh06dMhgMEyYMKFTp049e/a86667XnnllZEjR7722mv+oj9+/Pgtt9wyf/7877///sEHH1QUZcKECcnJyX379h0zZsz333+fkZExY8aM2NjYHj16zJo164EHHvj973+vyQNsvOizs7NHjRqllrLdbp8yZcrRo0dbX/QAAHQoLi6uq6sbOHBgv379RowYIcvyli1b3G734sWLCSEDBgz485//PHLkyMvv6HK5lixZEhsbu3nz5urq6u+//54QkpycfPbsWUmStm/fPnfuXELIyJEjFy1apFXRN/6/8dChQ1etWqX+n5mXl/fRRx/1799fk/UBAFCgW7dur7/++jPPPNOpU6fPP/+c47gTJ07ccMMN6tT27dsXFxfXn1+WZXXAYrGo+3lOnDjRq9f5Y9imT58+YsSI7Oxs/wfWTp06zZ49W6u0jW/RDxky5Lbbbps3b15NTQ3P83PmzBk9erRWqwSAsFAqim75/G43q9sjiqLH6/NPFRWl2CeerjemgRSB5zT9Ti6kHDlyxGazff/9906nc8KECd9++21SUtKXX36pTj18+HCXLl04jvP5zj8/hYUNTyaRmJiYn5+vDn/44Yft27dPSUlxOBy//e1vGYbZs2fPxo0btUrb5DfXjz/++OOPP15RUREdHa3tN6gAEBZmnyndXnf+iFiGYfzftai8ijKzqJhtuhz2dukYzYfKd9qas9vtf/zjH/Pz82VZLiwsvOGGG5KTk+fPnz9r1qyuXbsuXLjwnXfesdvtiYmJ7777bps2bZYuXXrnnXfWX8L48ePnz58/e/bshISEt956a+fOnUlJSWlpaQ8++ODQoUPfeeedf/7zn1qlbbLoDx06FBMTI0nSggULhg4dOnnyZK1WCQBh4T/tLv5gym63i6LocuGXEOe1a9fuhx9++Prrrwkh3333Xfv27QkhP/7444oVK6qrq1esWNGzZ09CyObNm7/88kun0/nll1+eO3eOZdm//vWv6hIEQdi6devy5cudTueOHTuSkpIIIevXr1+xYkVhYeHSpUv79u2rVdqG/0urjh49evvtt3/11Vdz5sxJT0/ftGnTwoULhwwZ0sqVVVZWanvUjd1u9/l8brdbw2W2jNls5nne4XBcfdYA43nebrdXVlb6x7xXXnnU7V6Ykhj8MLGxsefOnfO/xvY6XbOKSnZ06Xjle111mQ3GlJeXt2aBDTAMExMTo+0yWyw6OtrhcOhw1M3P+7jCfPevp/jHhE7Rm0wmQRC0fa9xHBcdHa3hAkNN41v033zzzdNPP52Wlnbw4MGVK1d27tx5+/btrS96AAAIvsaLPiIiIj8/f/Xq1QMGDGBZNi8vr0OHDsENBhdZPv+Eqalqairj8ymCcPEmw0gsa73wyUkxmsht0wIeEQBCWONFf/fdd99xxx2LFi1as2bN22+/vW7dum3btgU5Gfi5R49n5CZ3eVk++cB91wzFaFRvchxntVrramrUm9vq3M+XnCWEZJiMf4htE4S0ABBqGi96q9X63XffqcM9e/acOXMmDrzRkdw27sozSG3jFbNZHWZ4ntjtkrmSEFItSXeU5ajj55eUDbNaeptNAY0KACGo8R9M1dbW3nPPPZ06dUpJSUlPT09NTX3zzTeDnAxar9h3yZd4uU0f8gwAFGt8i37ZsmXR0dGbN2+2Wq3qGIvFEsRUoI3ORsOvbJZttU715mCLWd88ANRo2XFZlx8zFhyNF70oiuPGjVOPDIXwJTDMP5MTnygsKRV9H6YmJQghcerd6xl/6sQVLtFFZJkwhDAXP2fLRqPB5+Mv/Hre1/dGqW18oEMCfRp/548ePfq3v/2t2WxWj+EnhMTFxcXFXWVPMYSgRIEfY7cedbszTEa9swBRjCY5ssnjtYWso4rNJia3uzjKbJY9Hv9pUuofXgXQfI0X/ZYtW1wul/8XXISQRx999NFHHw1WKgA6ScmpUnJqU1O5inKpbbx3wGD/GGt0tKjHD6aAMo0XvVrrTqeztLQ0OTnZYDAEORYAAGilyYsGzJo1KykpaezYsQkJCX/729+CmQkA4LqyevXq7du3NxhZUVGRl5enyfIbL/qNGzceOXKkpKTkxIkTubm527ZtU8+ODwAATeHOlpq+W2/c/C1TU31NdywqKrr8MJ69e/d+9NFHmgRrfNfN4cOH77zzTpPJRAiJjIy86667Dh48iFPSAwA0hXE4LB8vUoe5s6XOqfeSq12h0Ov1zps3Lz8/32q1pqSk+Hy+55577tixY4MHD54zZ86//vWvkydPTpky5dNPP/WPbNlvVxsv+n79+r388sv333+/3W53u91r1qx5/PHHW7B0ALhW62sc/u9erZLscrn8R91clZVlR9usAQoGl7N+8E+inP/rML6LP0jk8nNtH7yjsOeLXo6OcU277/K7/+Mf/4iLi/vb3/6mXqh169at7du3f/nll+++++7s7Ownnnhi9+7dpaWl9Uemp6e3IGfjRX/zzTdv3769ffv28fHxJSUlM2bMwAVjAYLj86oa54XrOvE1dZIk+c/zLCrkkMvVr+kfviUIPIo+mNyTLp7Jma2oMK1beXHSbZOVC4exKFzjTbt169b//Oc/RqNx0qRJhJD+/ftv2bLlwQcfzMzM9J8RutGR16rJX9A8//zzDz/88MGDB3v16tWuXbumZgMAbX1S73IfDc5HXyFK3Y7nfNkhRado0JAUn3jJsKvO9P1GQojrzrvE1Kv/4DQyMrK0tDQxMfHMmTOpqakvvfRS3759X3rppd/85jf+eRodea0aL3pJkmbMmLFx40b1qobTp09fvHgxyzZ5iA4AAPj6DfT1G9j8+WfOnPn73//+V7/61Y8//jho0KD27dt//fXXx44dO3bs2K5duwYOHPjtt9/edNNN9Uf26dOnBcEaL/rly5erF9lhGMbhcEyZMmXlypXTpuG05gAAmhk2bNiuXbvqj3nqqacIIQsWLFBv7ty50z/JP7IFGi/64uLi6dOnq1/v2u32iRMnnj59usXrAIBQwzhq+FM5TU3ligrYqkoh86eLo0wmRpKEC983yvEJUkJSoEOCVhov+ltvvXXOnDlmszk1NfX48ePLli1buHBhSUmJzWaz2WxBjggAmmPdLu70qaamMpIsW22XzCAIjCxz/ms+G40o+jDSeNF/9913hw8fvuuuu/xj7r77bkLIzJkzZ86cGaRoABAwUtt4adLU5s8v2O2yKLpD4OLg0AKNFz0KHQCAGk0eXnno0KGYmBhJkt55552hQ4dOnjw5mLEgTFWI0vTThf6b/Omi+mdedMtKuSTdcrLJ73sGW8z/k4izYQNorPGiP3r06JQpU7766qs5c+akp6cvWLAgMTFxyJAhQQ4HYcfGsvPiL15DJzIysqamxv97n6uK4XFpFADtNf6++uabb55++um0tLSDBw+uXLmyc+fO27dvR9HDVRlYZkS9X2bGRkedk6XmFz0ABELjv4GKiIg4c+bM6tWrBwwYwLJsXl5eVFRUkJMBAIAmGt+iv/vuu++4445FixatWbPm7bffXrdu3bZt24KcDAAANNF40Vut1u+++66iokIQhB49esycObNl58aEgGKrq0zffEUIsfx3hWvMBDkWX2MCUGvv3r0RERHdunWrP3L//v0Gg6FXr15Xvm/ju24kSbrrrruSk5OXL1/+yCOP/M///I9mYUE7xp1budO5hBC28LRhx1a94wBc79yK8nWNY7OjTg7A11J79+49fvx4g5H79+8/dOjQVe/b+Bb9+vXrjUbj22+/TQj54IMPpk6dum7dOpypOOR4PP5BBtePBtCVS1YeyC/aWltHCLk90v5BatJVd4Ps3r3b6/UePny4b9++Pp/v559/vu+++2JjY3/88ce9e/eOHTv2hhtuIIRs2LAhLy+vqqoqJSWFELJv374dO3aMGzcuIyOjmdka36LPzs4eNWqUerpKu90+ZcqUo0ePNvfhQrCI3XpcHE5ryeUIAKA1nj5T+pcL/35TcL7lCSFrqh2PFhb7J71+9lyjd9+9e/eLL744aNCgGTNm7Ny5Mzk5+c9//vPatWvffffdnj17Pvnkk4cOHVqxYsWSJUvS0tKWLVtGCNm2bduLL76YkZHx5JNPZmVlNTNn41v0Q4cOXbBgwfjx441GY15e3kcfffTSSy9d+5MAgeXr1kOOiLQs/T/XnXeLaV31jgNw3WkvCAo5v5tGUuRLJ/ERF07tfoUfiNx33339+/dv3779Y489JgjCv/71ryVLlrz++usdOnSorKxcu3btvn373nrrrY4dOz788MOEkCVLlgwfPtzlcvXs2XPt2rV2u705ORtf/ZAhQ2677bZ58+bV1NTwPD9nzhxcMDY0SUkphBApOVXvIADXoyfbtvEPS4pSKytrqh2EkD/Gtnkuvm1zlmCxWNQBQRAIIYqieL1e/7DBYJAunEhOHRBFUZ06aNCgLl267N+/vzlraXzXjSiKv/vd78rKyoqLi2tra5977rnmLAsA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Nb3C33jjjdOnT//www8+n099GvVKQgiRJOmZZ57p1avX5QdlAQmLffQWiyUlJeXkyZNpaWlHjhzp3r27wWBQJ61bt27BggUGg6GkpGTlypV9+vRZvnz59u3bu3btqm+SG264ITMz880331QU5fHHH7///vu1PcSQEDJ06NB9+/YlJyd7PJ6ioqKMjAx1C3TTpk0PPPBAnz59FEV54YUXpk2btmXLlgULFnAcN3PmTEVRApFk+fLl48aNI4Ts27fviSeeUMdnZmZ27979gQceIIQsXry4qKgoNTXV4/Fs2rQpFL7PaH5ss9n8+uuvFxcXByhJ3759Fy1aJEkSx3H79u0bNmyYOt7lcuXl5b366quEkK1bt/7000+JiYkpKSmPPfZYUVHRBx98MGDAAG2TNP8VnpaWVldX98wzz1RXV7/++uvq06hLkj59+hBC1q9fr+2h25QJg103hJBhw4bt3buXEFL/bUAISUpKev/993/66aeoqCj1jXrXXXc99dRToZDkT3/6EyGkqqqKYRjNu7V+kszMzP79+/tXkZqaunz58h9//LGmpubFF18khDz77LOSJB05ckTzQ9pVXbt2LS4u9ng8DofD5XKlpKSo4xMSEnbu3Ll+/fqioqJHH300NTWVELJ69epbb71V8wwt0PzYsbGxr776akZGRoCScBzXvXt3dY/NgQMH/J+6TCaTw+H4/PPPs7Ozhw8ffsstt7Rr127KlCmEkMLCQvXDnOaa+Qo3m82zZs2qq6vbuXNnx44ddUxCCKmtrT18+LDa+NCo8Cj6QYMGHThwgBDyyy+/9O/f3z9+5syZffv23blz55NPPrlu3brQScJxXLt27X755Zd58+Y98sgjgUgSHx+vltTevXtvuukm//gxY8bce++9J06ceO6559SPFDExMXl5eWvXrjWbzf5dvdrq37//wYMHDxw4MHjwYP/I1NTUuXPn1tbWvvvuu7Nmzaqurq6srCwoKOjZs2cgMrRAM2MHIcmwYcP27Nlz7tw5i8Xi/+UOwzB///vfIyIiVq1a9dhjjx07dsxut8fExGzYsOHTTz+99957A5Gk+a/wyMjIvXv3btmyJUCfz5r/rl+xYsXUqVMDkYEa4VH0drvdZrMdPHgwKSnJf2SVLMurVq0aPnz4H//4x4ULF27YsCGkknzzzTdLly6dO3eu5p+v/QYPHrxv376TJ092797dP3LVqlXp6ekPP/zwwoULKysrz5w5s2vXrq5du86ZM8dsNufk5AQiidpTDba8du/e7fP5pk+f/vLLLw8ePHj37t2fffbZ2LFja2pqfD5fg2/SdNHM2EFI0rdv38OHDzdIUlBQ8Msvv9x6662zZ8+eNWvW+vXrCSFvvfVWTk7Oa6+9pu6b1lwzX+Hnzp3LysoaNWrU3//+9++//17HJGfPni0uLo6NjfV6vQ6HA4cRNio8ip4QMnTo0EWLFtV/G7Asu3fv3v3797vd7sOHDwftS5jmJPF4PBs2bHjxxRfj4uICtBFNCBk2bNgXX3yRnp5ef4dMVVXVqlWr1IMWqqqqYmJivvjii8LCwurq6pKSkvj4+EAkSU9Pz83NLS8vV/fPqFiW/fTTT6uqqiorK7OyspKSkhITE3fs2LF69erCwsJ9+/YFIsk1aWbsICQRBCElJeWrr76q/225zWb7/PPP8/PznU5nZmZmUlLS4cOHGYb5wx/+YDAYArdLujmvcFmW//3vf9fV1eXm5kZFRemYxOPxREdHL1u2LCcnZ+PGjf4jqaC+MDjqRtW2bduff/757rvvVs9sU1BQ0LFjx5tvvnnTpk3qX/e3v/2t2WwmhLhcrpqamsDtUW1Oktra2p9++mnr1q2bN2/evHnz6NGjA5HEbrdnZWWNGzcuNjaWEFJZWSkIwsSJE48fP/7VV1/l5ubOmDEjLi6uS5cuy5cv37t379SpUzt06BCIJOpxKV26dOnSpQshxOv1lpaWTpw4UZbl1atXHzhwYNSoUQMGDMjIyLjxxht79erlcrkmTZoUiCSBiK3OfPr06e7duwfudEYWi8Xj8QwfPly9mZWVNXr06E6dOv33v//dunVrYmLilClTcnNzf/75Z/VFlZubW3+Hhoaa8wqPiYkxm82ff/55Xl7e7373uwDtvWlOkvj4+BtvvPHGG2+UJGnChAlt2rQJRJJwhx9MAQBQLmx23QAAQMug6AEAKIeiBwCgHIoewkB2dvbnn3+udwqAcIWih9BVUlKiHibkdrvPnTundxyAcBUG57qB69aHH35YVVW1ePHikSNHxsTEZGdnHzx4MCIiIjMzc+LEiQzDfPPNN3369Bk1ahQhxOFwfPnll263e9y4cZ06ddI7O0AIwRY9hK6MjAyj0di9e3d11012dvajjz66Z8+eyMjIm266af78+cnJyU888cT27dvr6urGjBlTXl4uiuItt9zy888/650dIISg6CF0DRs2zGw21z+TT9euXefPn//4448TQl599dXp06ePGTNm//79//nPf6KioqKjo81mc9++fT/++GP9UgOEHOy6gXDiP1cBx3HqbyAZhhFF8dSpU3a7XZ00YcIE9ZeuAKDCFj2Ek6ZOs5ySkmK1Wh955JFHHnlEUZT6V9cCAGzRQ+iKjIysqqpqzgmoH3roof79+7/44osmk+nDDz/csWNHEOIBhIuwOakZXIcEQejSpUtVVVWfPn1iYmJ69uwZExPTo0cPdeqwYcPUc12lpaV169bt/vvvz8vLY1n2jTfeCNApfAHCFE5qBgBAOeyjBwCgHIoeAIByKHoAAMqh6AEAKIeiBwCgHIoeAIBy/w9QoA6cRwn3zgAAAABJRU5ErkJggg==" alt="plot of chunk archetype_compare_data" />
 <p class="caption">
 plot of chunk archetype_compare_data
 </p>
@@ -656,77 +740,103 @@ plot of chunk archetype_compare_data
 <p>Other informative prior archetypes use different fixed effects. For
 example, <code>brms.mmrm</code> supports simple cell mean and treatment
 effect parameterizations.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_cells</span>(data))</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_2_time_2</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_2_time_3</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_2_time_4</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_effects</span>(data))</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_1_time_2 + x_group_2_time_2</span></span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_1_time_3 + x_group_2_time_3</span></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_1_time_4 + x_group_2_time_4</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_cells</span>(data))</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt; # This is the &quot;cells&quot; informative prior archetype in brms.mmrm.</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; # The following equations show the relationships between the</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; # marginal means (left-hand side) and fixed effect parameters</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; # (right-hand side). You can create informative priors for the</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; # fixed effect parameters using historical borrowing,</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; # expert elicitation, or other methods.</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS1 = x_PBO_VIS1</span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS2 = x_PBO_VIS2</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS3 = x_PBO_VIS3</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS4 = x_PBO_VIS4</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS1 = x_TRT_VIS1</span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS2 = x_TRT_VIS2</span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS3 = x_TRT_VIS3</span></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS4 = x_TRT_VIS4</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_effects</span>(data))</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co">#&gt; # This is the &quot;effects&quot; informative prior archetype in brms.mmrm.</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; # The following equations show the relationships between the</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt; # marginal means (left-hand side) and fixed effect parameters</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; # (right-hand side). You can create informative priors for the</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; # fixed effect parameters using historical borrowing,</span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt; # expert elicitation, or other methods.</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS1 = x_PBO_VIS1</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS2 = x_PBO_VIS2</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS3 = x_PBO_VIS3</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS4 = x_PBO_VIS4</span></span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS1 = x_PBO_VIS1 + x_TRT_VIS1</span></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS2 = x_PBO_VIS2 + x_TRT_VIS2</span></span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS3 = x_PBO_VIS3 + x_TRT_VIS3</span></span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS4 = x_PBO_VIS4 + x_TRT_VIS4</span></span></code></pre></div>
 <p>There are archetypes to parameterize the average across all time
 points in the data. Below, <code>x_group_1_time_2</code> is the average
 across time points for group 1 because it is the algebraic result of
 simplifying
 <code>(group_1:time_2 + group_1:time_3 + group_1:time_3) / 3</code>.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_average_cells</span>(data))</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = 3*x_group_1_time_2 - x_group_1_time_3 - x_group_1_time_4</span></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
-<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
-<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = 3*x_group_2_time_2 - x_group_2_time_3 - x_group_2_time_4</span></span>
-<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_2_time_3</span></span>
-<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_2_time_4</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_average_cells</span>(data))</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="co">#&gt; # This is the &quot;average cells&quot; informative prior archetype in brms.mmrm.</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="co">#&gt; # The following equations show the relationships between the</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="co">#&gt; # marginal means (left-hand side) and fixed effect parameters</span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="co">#&gt; # (right-hand side). You can create informative priors for the</span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; # fixed effect parameters using historical borrowing,</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="co">#&gt; # expert elicitation, or other methods.</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS1 = 4*x_PBO_VIS1 - x_PBO_VIS2 - x_PBO_VIS3 - x_PBO_VIS4</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS2 = x_PBO_VIS2</span></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS3 = x_PBO_VIS3</span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS4 = x_PBO_VIS4</span></span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS1 = 4*x_TRT_VIS1 - x_TRT_VIS2 - x_TRT_VIS3 - x_TRT_VIS4</span></span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS2 = x_TRT_VIS2</span></span>
+<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS3 = x_TRT_VIS3</span></span>
+<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS4 = x_TRT_VIS4</span></span></code></pre></div>
 <p>There is also a treatment effect version where
 <code>x_group_2_time_2</code> becomes the time-averaged treatment effect
 of group 2 relative to group 1.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_average_effects</span>(data))</span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
-<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = 3*x_group_1_time_2 - x_group_1_time_3 - x_group_1_time_4</span></span>
-<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_3</span></span>
-<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_4</span></span>
-<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = 3*x_group_1_time_2 - x_group_1_time_3 - x_group_1_time_4 + 3*x_group_2_time_2 - x_group_2_time_3 - x_group_2_time_4</span></span>
-<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_1_time_3 + x_group_2_time_3</span></span>
-<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_1_time_4 + x_group_2_time_4</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_average_effects</span>(data))</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt; # This is the &quot;average effects&quot; informative prior archetype in brms.mmrm.</span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt; # The following equations show the relationships between the</span></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; # marginal means (left-hand side) and fixed effect parameters</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; # (right-hand side). You can create informative priors for the</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; # fixed effect parameters using historical borrowing,</span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; # expert elicitation, or other methods.</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS1 = 4*x_PBO_VIS1 - x_PBO_VIS2 - x_PBO_VIS3 - x_PBO_VIS4</span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS2 = x_PBO_VIS2</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS3 = x_PBO_VIS3</span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS4 = x_PBO_VIS4</span></span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS1 = 4*x_PBO_VIS1 - x_PBO_VIS2 - x_PBO_VIS3 - x_PBO_VIS4 + 4*x_TRT_VIS1 - x_TRT_VIS2 - x_TRT_VIS3 - x_TRT_VIS4</span></span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS2 = x_PBO_VIS2 + x_TRT_VIS2</span></span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS3 = x_PBO_VIS3 + x_TRT_VIS3</span></span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS4 = x_PBO_VIS4 + x_TRT_VIS4</span></span></code></pre></div>
 <p>In addition, there is a treatment effect version of the successive
 differences archetype from earlier in the vignette.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_successive_effects</span>(data))</span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="co">#&gt; # This object is an informative prior archetype in brms.mmrm.</span></span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="co">#&gt; # The fixed effect parameters of interest express the</span></span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="co">#&gt; # marginal means as follows:</span></span>
-<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="co">#&gt; # </span></span>
-<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_2 = x_group_1_time_2</span></span>
-<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_3 = x_group_1_time_2 + x_group_1_time_3</span></span>
-<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; #    group_1:time_4 = x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4</span></span>
-<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_2 = x_group_1_time_2 + x_group_2_time_2</span></span>
-<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_3 = x_group_1_time_2 + x_group_1_time_3 + x_group_2_time_2 + x_group_2_time_3</span></span>
-<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt; #    group_2:time_4 = x_group_1_time_2 + x_group_1_time_3 + x_group_1_time_4 + x_group_2_time_2 + x_group_2_time_3 + x_group_2_time_4</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm_archetype_successive_effects</span>(data))</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="co">#&gt; # This is the &quot;successive effects&quot; informative prior archetype in brms.mmrm.</span></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co">#&gt; # The following equations show the relationships between the</span></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt; # marginal means (left-hand side) and fixed effect parameters</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; # (right-hand side). You can create informative priors for the</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; # fixed effect parameters using historical borrowing,</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; # expert elicitation, or other methods.</span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; # </span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS1 = x_PBO_VIS1</span></span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS2 = x_PBO_VIS1 + x_PBO_VIS2</span></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS3 = x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3</span></span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="co">#&gt; #    PBO:VIS4 = x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3 + x_PBO_VIS4</span></span>
+<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS1 = x_PBO_VIS1 + x_TRT_VIS1</span></span>
+<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS2 = x_PBO_VIS1 + x_PBO_VIS2 + x_TRT_VIS1 + x_TRT_VIS2</span></span>
+<span id="cb21-15"><a href="#cb21-15" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS3 = x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3 + x_TRT_VIS1 + x_TRT_VIS2 + x_TRT_VIS3</span></span>
+<span id="cb21-16"><a href="#cb21-16" tabindex="-1"></a><span class="co">#&gt; #    TRT:VIS4 = x_PBO_VIS1 + x_PBO_VIS2 + x_PBO_VIS3 + x_PBO_VIS4 + x_TRT_VIS1 + x_TRT_VIS2 + x_TRT_VIS3 + x_TRT_VIS4</span></span></code></pre></div>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p><code>brm_recenter_nuisance()</code> can retroactively
 recenter a nuisance column to a fixed value other than its mean.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><code>brms</code> priors are documented in <a href="https://paul-buerkner.github.io/brms/reference/set_prior.html" class="uri">https://paul-buerkner.github.io/brms/reference/set_prior.html</a>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

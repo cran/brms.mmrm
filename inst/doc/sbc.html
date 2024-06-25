@@ -459,28 +459,28 @@ analysis:</p>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">select</span>(prior, class, coef, dpar) <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;                      prior     class                                       coef</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 1  normal(-0.1975, 2.1614) Intercept                                           </span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; 3  normal(-0.2351, 0.7914)         b                             balancedlevel2</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; 4   normal(0.1529, 2.4389)         b                             balancedlevel3</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; 5   normal(-0.154, 1.1574)         b                                continuous1</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; 6    normal(0.0716, 1.141)         b                                continuous2</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; 7  normal(-0.1079, 2.0095)         b                               groupgroup_2</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 8  normal(-0.0741, 0.7293)         b            groupgroup_2:subgroupsubgroup_2</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; 9  normal(-0.1753, 2.3156)         b groupgroup_2:subgroupsubgroup_2:timetime_2</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; 10  normal(0.1037, 2.9871)         b groupgroup_2:subgroupsubgroup_2:timetime_3</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 11   normal(0.2096, 1.618)         b                    groupgroup_2:timetime_2</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; 12 normal(-0.2139, 1.1255)         b                    groupgroup_2:timetime_3</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; 13  normal(-0.1425, 0.951)         b                         subgroupsubgroup_2</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 14  normal(0.1951, 0.7995)         b              subgroupsubgroup_2:timetime_2</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; 15 normal(-0.1195, 1.1148)         b              subgroupsubgroup_2:timetime_3</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; 16  normal(0.1383, 0.4518)         b                                 timetime_2</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 17  normal(0.1807, 0.3512)         b                                 timetime_3</span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 18 normal(-0.1922, 1.2422)         b                           unbalancedlevel2</span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; 19   normal(0.122, 0.4765)         b                           unbalancedlevel3</span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; 20             lkj(1.0856)   cortime                                           </span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; 22  normal(0.2483, 2.2851)         b                                 timetime_1</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; 23  normal(0.1859, 1.8211)         b                                 timetime_2</span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; 24  normal(0.1446, 1.1248)         b                                 timetime_3</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 1  normal(-0.0207, 0.9234) Intercept                                           </span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; 3   normal(-0.002, 2.1161)         b                             balancedlevel2</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; 4   normal(0.1637, 2.2474)         b                             balancedlevel3</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; 5  normal(-0.1562, 2.4729)         b                                continuous1</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; 6  normal(-0.1744, 1.3541)         b                                continuous2</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; 7   normal(-0.1389, 0.414)         b                               groupgroup_2</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 8   normal(0.0803, 0.5401)         b            groupgroup_2:subgroupsubgroup_2</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; 9   normal(0.1424, 2.0209)         b groupgroup_2:subgroupsubgroup_2:timetime_2</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; 10 normal(-0.1669, 2.3479)         b groupgroup_2:subgroupsubgroup_2:timetime_3</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 11 normal(-0.1057, 1.7516)         b                    groupgroup_2:timetime_2</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; 12  normal(0.0289, 1.2026)         b                    groupgroup_2:timetime_3</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; 13 normal(-0.1906, 2.5067)         b                         subgroupsubgroup_2</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 14 normal(-0.1181, 1.2047)         b              subgroupsubgroup_2:timetime_2</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; 15  normal(0.0015, 2.4841)         b              subgroupsubgroup_2:timetime_3</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; 16 normal(-0.0691, 1.3587)         b                                 timetime_2</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 17 normal(-0.1078, 1.7427)         b                                 timetime_3</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 18 normal(-0.0725, 1.2948)         b                           unbalancedlevel2</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; 19 normal(-0.1834, 2.1229)         b                           unbalancedlevel3</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; 20             lkj(1.4617)   cortime                                           </span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; 22 normal(-0.1904, 0.3705)         b                                 timetime_1</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; 23 normal(-0.1767, 2.2489)         b                                 timetime_2</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; 24 normal(-0.1941, 2.0886)         b                                 timetime_3</span></span>
 <span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt;     dpar</span></span>
 <span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt; 1       </span></span>
 <span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; 3       </span></span>
@@ -548,17 +548,17 @@ analysis:</p>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">select</span>(prior, class, coef, dpar) <span class="sc">|&gt;</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;                      prior   class         coef  dpar</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 2   normal(0.0648, 1.5827)       b groupgroup_1      </span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 3   normal(0.1181, 1.2757)       b groupgroup_2      </span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.1858, 0.3737)       b groupgroup_3      </span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; 5   normal(0.0501, 1.2507)       b   timetime_2      </span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; 6  normal(-0.2253, 1.3044)       b   timetime_3      </span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 7   normal(0.1698, 0.7262)       b   timetime_4      </span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 8              lkj(1.4206) cortime                   </span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 10  normal(0.0736, 0.8509)       b   timetime_1 sigma</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; 11  normal(-0.247, 1.6962)       b   timetime_2 sigma</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; 12  normal(0.1487, 1.8811)       b   timetime_3 sigma</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; 13 normal(-0.1065, 0.7783)       b   timetime_4 sigma</span></span></code></pre></div>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 2   normal(0.0489, 2.6677)       b groupgroup_1      </span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 3     normal(-0.0837, 2.4)       b groupgroup_2      </span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 4   normal(0.1038, 2.2343)       b groupgroup_3      </span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; 5  normal(-0.1959, 2.8864)       b   timetime_2      </span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; 6  normal(-0.1008, 1.2176)       b   timetime_3      </span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 7   normal(-0.0756, 2.482)       b   timetime_4      </span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 8              lkj(1.0836) cortime                   </span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 10 normal(-0.0971, 0.9992)       b   timetime_1 sigma</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; 11 normal(-0.0898, 1.2701)       b   timetime_2 sigma</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; 12  normal(0.0192, 2.6677)       b   timetime_3 sigma</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; 13  normal(0.2169, 0.6113)       b   timetime_4 sigma</span></span></code></pre></div>
 <p>SBC checking rank statistics:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>ranks_unstructured <span class="ot">&lt;-</span> <span class="fu">read_ranks</span>(<span class="st">&quot;sbc/results/unstructured.fst&quot;</span>)</span></code></pre></div>
 <p>Fixed effect parameter ranks:</p>
@@ -601,14 +601,14 @@ analysis:</p>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt;                      prior class         coef  dpar</span></span>
 <span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; 1        uniform(0.1, 0.9)    ar                   </span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 3    normal(5e-04, 2.8963)     b groupgroup_1      </span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.1901, 2.9522)     b groupgroup_2      </span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; 5    normal(0.2355, 2.758)     b   timetime_2      </span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; 6  normal(-0.2381, 2.9875)     b   timetime_3      </span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 3  normal(-0.2128, 2.3409)     b groupgroup_1      </span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.1883, 0.4748)     b groupgroup_2      </span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; 5  normal(-0.0873, 2.4634)     b   timetime_2      </span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; 6   normal(0.1577, 2.3696)     b   timetime_3      </span></span>
 <span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; 7        uniform(0.1, 0.9)    ma                   </span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; 9    normal(0.1033, 2.307)     b   timetime_1 sigma</span></span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt; 10 normal(-0.1708, 2.9678)     b   timetime_2 sigma</span></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt; 11 normal(-0.1301, 2.2895)     b   timetime_3 sigma</span></span></code></pre></div>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; 9   normal(0.0789, 2.8885)     b   timetime_1 sigma</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt; 10   normal(0.1685, 1.302)     b   timetime_2 sigma</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt; 11 normal(-0.1405, 1.8894)     b   timetime_3 sigma</span></span></code></pre></div>
 <p>SBC checking rank statistics:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>ranks_autoregressive_moving_average <span class="ot">&lt;-</span> <span class="fu">read_ranks</span>(</span>
 <span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="st">&quot;sbc/results/autoregressive_moving_average.fst&quot;</span></span>
@@ -644,13 +644,13 @@ analysis:</p>
 <span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt;                      prior class         coef  dpar</span></span>
 <span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; 1        uniform(0.1, 0.9)    ar                   </span></span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; 3  normal(-0.0201, 0.7858)     b groupgroup_1      </span></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.1963, 2.4252)     b groupgroup_2      </span></span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; 5   normal(-0.212, 1.0224)     b   timetime_2      </span></span>
-<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt; 6   normal(-0.169, 2.9933)     b   timetime_3      </span></span>
-<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="co">#&gt; 8   normal(0.0387, 2.9823)     b   timetime_1 sigma</span></span>
-<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="co">#&gt; 9   normal(-0.174, 1.3437)     b   timetime_2 sigma</span></span>
-<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="co">#&gt; 10 normal(-0.1711, 1.9585)     b   timetime_3 sigma</span></span></code></pre></div>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; 3  normal(-0.1678, 1.3569)     b groupgroup_1      </span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.0192, 2.9567)     b groupgroup_2      </span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; 5   normal(0.1812, 2.5799)     b   timetime_2      </span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt; 6   normal(0.2136, 0.7001)     b   timetime_3      </span></span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="co">#&gt; 8  normal(-0.0783, 2.8874)     b   timetime_1 sigma</span></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="co">#&gt; 9  normal(-0.0933, 1.3803)     b   timetime_2 sigma</span></span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="co">#&gt; 10  normal(0.1787, 2.5487)     b   timetime_3 sigma</span></span></code></pre></div>
 <p>SBC checking rank statistics:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>ranks_autoregressive <span class="ot">&lt;-</span> <span class="fu">read_ranks</span>(<span class="st">&quot;sbc/results/autoregressive.fst&quot;</span>)</span></code></pre></div>
 <p>Fixed effect parameter ranks:</p>
@@ -683,14 +683,14 @@ analysis:</p>
 <span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>  <span class="fu">select</span>(prior, class, coef, dpar) <span class="sc">|&gt;</span></span>
 <span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt;                      prior class         coef  dpar</span></span>
-<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt; 2   normal(0.0633, 2.6664)     b groupgroup_1      </span></span>
-<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt; 3   normal(0.1451, 2.8391)     b groupgroup_2      </span></span>
-<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.1752, 0.9919)     b   timetime_2      </span></span>
-<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="co">#&gt; 5   normal(-0.0413, 1.079)     b   timetime_3      </span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt; 2  normal(-0.1645, 2.3549)     b groupgroup_1      </span></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt; 3  normal(-0.1645, 0.3519)     b groupgroup_2      </span></span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt; 4    normal(0.065, 1.3973)     b   timetime_2      </span></span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="co">#&gt; 5    normal(0.0397, 2.306)     b   timetime_3      </span></span>
 <span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt; 6        uniform(0.1, 0.9)    ma                   </span></span>
-<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt; 8  normal(-0.1921, 1.1782)     b   timetime_1 sigma</span></span>
-<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a><span class="co">#&gt; 9  normal(-0.1504, 1.2608)     b   timetime_2 sigma</span></span>
-<span id="cb27-12"><a href="#cb27-12" tabindex="-1"></a><span class="co">#&gt; 10  normal(-0.0244, 1.608)     b   timetime_3 sigma</span></span></code></pre></div>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt; 8      normal(0.177, 1.98)     b   timetime_1 sigma</span></span>
+<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a><span class="co">#&gt; 9   normal(-0.0519, 2.305)     b   timetime_2 sigma</span></span>
+<span id="cb27-12"><a href="#cb27-12" tabindex="-1"></a><span class="co">#&gt; 10 normal(-0.1268, 1.1307)     b   timetime_3 sigma</span></span></code></pre></div>
 <p>SBC checking rank statistics:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>ranks_moving_average <span class="ot">&lt;-</span> <span class="fu">read_ranks</span>(<span class="st">&quot;sbc/results/moving_average.fst&quot;</span>)</span></code></pre></div>
 <p>Fixed effect parameter ranks:</p>
@@ -723,14 +723,14 @@ analysis:</p>
 <span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  <span class="fu">select</span>(prior, class, coef, dpar) <span class="sc">|&gt;</span></span>
 <span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a><span class="co">#&gt;                      prior class         coef  dpar</span></span>
-<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a><span class="co">#&gt; 2  normal(-0.0116, 2.7318)     b groupgroup_1      </span></span>
-<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a><span class="co">#&gt; 3     normal(0.159, 0.608)     b groupgroup_2      </span></span>
-<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.1599, 0.9612)     b   timetime_2      </span></span>
-<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a><span class="co">#&gt; 5   normal(-0.248, 0.7898)     b   timetime_3      </span></span>
+<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a><span class="co">#&gt; 2   normal(0.1077, 1.4996)     b groupgroup_1      </span></span>
+<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a><span class="co">#&gt; 3  normal(-0.2221, 0.7675)     b groupgroup_2      </span></span>
+<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a><span class="co">#&gt; 4   normal(-0.0813, 2.024)     b   timetime_2      </span></span>
+<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a><span class="co">#&gt; 5  normal(-0.2293, 1.0752)     b   timetime_3      </span></span>
 <span id="cb33-9"><a href="#cb33-9" tabindex="-1"></a><span class="co">#&gt; 6        uniform(0.1, 0.9)  cosy                   </span></span>
-<span id="cb33-10"><a href="#cb33-10" tabindex="-1"></a><span class="co">#&gt; 8   normal(0.0669, 0.5404)     b   timetime_1 sigma</span></span>
-<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a><span class="co">#&gt; 9    normal(-0.22, 0.4948)     b   timetime_2 sigma</span></span>
-<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a><span class="co">#&gt; 10 normal(-0.1095, 2.0964)     b   timetime_3 sigma</span></span></code></pre></div>
+<span id="cb33-10"><a href="#cb33-10" tabindex="-1"></a><span class="co">#&gt; 8  normal(-0.0516, 1.0933)     b   timetime_1 sigma</span></span>
+<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a><span class="co">#&gt; 9  normal(-0.0263, 2.4534)     b   timetime_2 sigma</span></span>
+<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a><span class="co">#&gt; 10  normal(0.0269, 2.4033)     b   timetime_3 sigma</span></span></code></pre></div>
 <p>SBC checking rank statistics:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>ranks_compound_symmetry <span class="ot">&lt;-</span> <span class="fu">read_ranks</span>(<span class="st">&quot;sbc/results/compound_symmetry.fst&quot;</span>)</span></code></pre></div>
 <p>Fixed effect parameter ranks:</p>
@@ -763,16 +763,16 @@ analysis:</p>
 <span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a>  <span class="fu">select</span>(prior, class, coef, dpar) <span class="sc">|&gt;</span></span>
 <span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a><span class="co">#&gt;                      prior     class                    coef  dpar</span></span>
-<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="co">#&gt; 2   normal(0.0541, 0.7849)         b            groupgroup_1      </span></span>
-<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a><span class="co">#&gt; 3  normal(-0.1169, 2.6509)         b            groupgroup_2      </span></span>
-<span id="cb39-7"><a href="#cb39-7" tabindex="-1"></a><span class="co">#&gt; 4   normal(0.1356, 2.8488)         b              timetime_2      </span></span>
-<span id="cb39-8"><a href="#cb39-8" tabindex="-1"></a><span class="co">#&gt; 5    normal(0.174, 0.4224)         b              timetime_3      </span></span>
-<span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a><span class="co">#&gt; 6  normal(-0.0944, 0.6528) Intercept                         sigma</span></span>
-<span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a><span class="co">#&gt; 8   normal(0.2071, 0.8028)         b            groupgroup_2 sigma</span></span>
-<span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a><span class="co">#&gt; 9  normal(-0.1064, 1.1558)         b groupgroup_2:timetime_2 sigma</span></span>
-<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a><span class="co">#&gt; 10 normal(-0.0667, 0.3551)         b groupgroup_2:timetime_3 sigma</span></span>
-<span id="cb39-13"><a href="#cb39-13" tabindex="-1"></a><span class="co">#&gt; 11 normal(-0.0725, 0.6783)         b              timetime_2 sigma</span></span>
-<span id="cb39-14"><a href="#cb39-14" tabindex="-1"></a><span class="co">#&gt; 12 normal(-0.1543, 2.8636)         b              timetime_3 sigma</span></span></code></pre></div>
+<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="co">#&gt; 2  normal(-0.0929, 1.7457)         b            groupgroup_1      </span></span>
+<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a><span class="co">#&gt; 3   normal(0.0549, 2.4967)         b            groupgroup_2      </span></span>
+<span id="cb39-7"><a href="#cb39-7" tabindex="-1"></a><span class="co">#&gt; 4  normal(-0.1405, 2.0099)         b              timetime_2      </span></span>
+<span id="cb39-8"><a href="#cb39-8" tabindex="-1"></a><span class="co">#&gt; 5  normal(-0.0461, 2.5422)         b              timetime_3      </span></span>
+<span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a><span class="co">#&gt; 6   normal(0.0485, 2.7171) Intercept                         sigma</span></span>
+<span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a><span class="co">#&gt; 8  normal(-0.0127, 2.0333)         b            groupgroup_2 sigma</span></span>
+<span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a><span class="co">#&gt; 9   normal(0.0488, 0.2912)         b groupgroup_2:timetime_2 sigma</span></span>
+<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a><span class="co">#&gt; 10  normal(0.0909, 0.8515)         b groupgroup_2:timetime_3 sigma</span></span>
+<span id="cb39-13"><a href="#cb39-13" tabindex="-1"></a><span class="co">#&gt; 11  normal(0.1866, 1.4881)         b              timetime_2 sigma</span></span>
+<span id="cb39-14"><a href="#cb39-14" tabindex="-1"></a><span class="co">#&gt; 12  normal(0.0387, 1.3467)         b              timetime_3 sigma</span></span></code></pre></div>
 <p>SBC checking rank statistics:</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>ranks_diagonal <span class="ot">&lt;-</span> <span class="fu">read_ranks</span>(<span class="st">&quot;sbc/results/diagonal.fst&quot;</span>)</span></code></pre></div>
 <p>Fixed effect parameter ranks:</p>
