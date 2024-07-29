@@ -86,16 +86,17 @@ compared to placebo. `FEV1` is a measure of how quickly the lungs can be
 emptied and low levels may indicate chronic obstructive pulmonary disease 
 (COPD). 
 
-The dataset is a `tibble` with 800 rows and 7 variables:
+The dataset is a `tibble` with 800 rows and the following notable variables:
 
-* `USUBJID` (subject ID),
-* `AVISIT` (visit number),
-* `ARMCD` (treatment, `TRT` or `PBO`),
-* `RACE` (3-category race),
-* `SEX` (sex),
-* `FEV1_BL` (FEV1 at baseline, %),
-* `FEV1` (FEV1 at study visits),
-* `WEIGHT` (weighting variable).
+* `USUBJID` (subject ID)
+* `AVISIT` (visit number, factor)
+* `VISITN` (visit number, numeric)
+* `ARMCD` (treatment, `TRT` or `PBO`)
+* `RACE` (3-category race)
+* `SEX` (female or male)
+* `FEV1_BL` (FEV1 at baseline, %)
+* `FEV1` (FEV1 at study visits)
+* `WEIGHT` (weighting variable)
 
 The primary endpoint for the analysis is change from baseline in `FEV1`, which we derive below and denote `FEV1_CHG`.
 
@@ -110,7 +111,6 @@ The rest of the pre-processing steps create factors for the study arm and visit 
 fev_data <- brm_data(
   data = fev_data,
   outcome = "FEV1_CHG",
-  role = "change",
   group = "ARMCD",
   time = "AVISIT",
   patient = "USUBJID",
@@ -118,7 +118,7 @@ fev_data <- brm_data(
   reference_group = "PBO",
   covariates = c("RACE", "SEX")
 ) |>
-  mutate(ARMCD = factor(ARMCD), AVISIT = factor(AVISIT))
+  brm_data_chronologize(order = "VISITN")
 ```
 
 The following table shows the first rows of the dataset.
@@ -221,7 +221,8 @@ b_mmrm_fit <- brm_model(
   iter = 10000,
   warmup = 2000,
   chains = 4,
-  cores = 1 + (detectCores() > 1),
+  cores = 4,
+  seed = 1,
   refresh = 0
 )
 ```
@@ -240,7 +241,10 @@ The formula for the frequentist model is the same, except for the different synt
 f_mmrm_fit <- mmrm::mmrm(
   formula = FEV1_CHG ~ FEV1_BL + ARMCD:AVISIT + AVISIT + RACE + SEX +
     us(AVISIT | USUBJID),
-  data = fev_data
+  data = mutate(
+    fev_data,
+    AVISIT = factor(as.character(AVISIT), ordered = FALSE)
+  )
 )
 ```
 
@@ -277,7 +281,8 @@ b_mmrm_summary <- b_mmrm_draws |>
       gsub(pattern = "b_", replacement = "") |>
       gsub(pattern = "b_sigma_AVISIT", replacement = "sigma_") |>
       gsub(pattern = "cortime", replacement = "correlation") |>
-      gsub(pattern = "__", replacement = "_")
+      gsub(pattern = "__", replacement = "_") |>
+      gsub(pattern = "avisitvis", replacement = "avisit")
   )
 ```
 
@@ -291,13 +296,16 @@ f_mmrm_fixed <- summary(f_mmrm_fit)$coefficients |>
   mutate(variable = tolower(variable)) |>
   mutate(variable = gsub("(", "", variable, fixed = TRUE)) |>
   mutate(variable = gsub(")", "", variable, fixed = TRUE)) |>
+  mutate(variable = gsub("avisitvis", "avisit", variable)) |>
   rename(freq_estimate = Estimate, freq_se = `Std. Error`) |>
   select(variable, freq_estimate, freq_se)
 ```
 
 ```{r comparison_2b, eval=TRUE, echo=TRUE, class.source = 'fold-hide'}
 f_mmrm_variance <- tibble(
-  variable = paste0("sigma_AVISIT", visit_levels) |> tolower(),
+  variable = paste0("sigma_AVISIT", visit_levels) |>
+    tolower() |>
+    gsub(pattern = "avisitvis", replacement = "avisit"),
   freq_estimate = sqrt(diag(f_mmrm_fit$cov))
 )
 ```

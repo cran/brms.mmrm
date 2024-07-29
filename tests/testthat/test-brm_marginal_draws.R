@@ -4,7 +4,6 @@ test_that("brm_marginal_draws() on response, no subgroup", {
   data <- brm_data(
     data = brm_simulate_simple()$data,
     outcome = "response",
-    role = "response",
     group = "group",
     time = "time",
     patient = "patient",
@@ -40,7 +39,8 @@ test_that("brm_marginal_draws() on response, no subgroup", {
     excluded <- brm_marginal_draws(
       model = model,
       formula = formula_exclude,
-      data = data
+      data = data,
+      effect_size = TRUE
     ),
     class = "brm_warn"
   )
@@ -63,7 +63,13 @@ test_that("brm_marginal_draws() on response, no subgroup", {
     ),
     class = "brm_deprecate"
   )
-  fields <- c("response", "difference_time", "difference_group", "effect")
+  fields <- c(
+    "response",
+    "difference_time",
+    "difference_group",
+    "effect",
+    "sigma"
+  )
   columns_df <- expand.grid(
     group = sort(unique(data$group)),
     time = sort(unique(data$time)),
@@ -111,6 +117,7 @@ test_that("brm_marginal_draws() on response, no subgroup", {
         out$effect[[name2]],
         out$difference_group[[name2]] / sigma[[time]]
       )
+      expect_equal(out$sigma[[name2]], sigma[[time]])
     }
   }
   for (group in unique(data$group)) {
@@ -123,6 +130,49 @@ test_that("brm_marginal_draws() on response, no subgroup", {
       )
     }
   }
+})
+
+test_that("brm_marginal_draws() on response without baseline", {
+  skip_on_cran()
+  set.seed(0L)
+  data <- brm_data(
+    data = brm_simulate_simple()$data,
+    outcome = "response",
+    group = "group",
+    time = "time",
+    patient = "patient",
+    reference_group = "group_1"
+  )
+  formula <- brm_formula(
+    data = data,
+    baseline = FALSE,
+    baseline_time = FALSE
+  )
+  tmp <- utils::capture.output(
+    suppressMessages(
+      suppressWarnings(
+        model <- brm_model(
+          data = data,
+          formula = formula,
+          chains = 1,
+          iter = 100,
+          refresh = 0
+        )
+      )
+    )
+  )
+  out <- brm_marginal_draws(
+    model = model,
+    formula = formula,
+    data = data
+  )
+  fields <- c(
+    "response",
+    "difference_group",
+    "effect",
+    "sigma"
+  )
+  expect_equal(sort(names(out)), sort(fields))
 })
 
 test_that("brm_marginal_draws() on response, with subgroup", {
@@ -153,14 +203,16 @@ test_that("brm_marginal_draws() on response, with subgroup", {
       )
     )
   )
-  expect_warning(
-    brm_marginal_draws(
-      model = model,
-      formula = formula,
-      data = data,
-      use_subgroup = TRUE
-    ),
-    class = "brm_deprecate"
+  suppressMessages(
+    expect_warning(
+      brm_marginal_draws(
+        model = model,
+        formula = formula,
+        data = data,
+        use_subgroup = TRUE
+      ),
+      class = "brm_deprecate"
+    )
   )
   out <- brm_marginal_draws(
     model = model,
@@ -172,7 +224,8 @@ test_that("brm_marginal_draws() on response, with subgroup", {
     "difference_time",
     "difference_group",
     "difference_subgroup",
-    "effect"
+    "effect",
+    "sigma"
   )
   columns_df <- expand.grid(
     group = sort(unique(data$group)),
@@ -261,6 +314,7 @@ test_that("brm_marginal_draws() on response, with subgroup", {
           out$effect[[name2]],
           out$difference_group[[name2]] / sigma[[time]]
         )
+        expect_equal(out$sigma[[name2]], sigma[[time]])
       }
     }
   }
@@ -284,7 +338,6 @@ test_that("brm_marginal_draws() on change, homogeneous var, no subgroup", {
   data <- brm_data(
     data = tibble::as_tibble(brm_simulate_simple()$data),
     outcome = "response",
-    role = "change",
     group = "group",
     time = "time",
     patient = "patient",
@@ -319,7 +372,7 @@ test_that("brm_marginal_draws() on change, homogeneous var, no subgroup", {
       average_within_subgroup = FALSE
     )
   )
-  fields <- c("response", "difference_group", "effect")
+  fields <- c("response", "difference_group", "effect", "sigma")
   columns_df <- expand.grid(
     group = sort(unique(data$group)),
     time = sort(unique(data$time)),
@@ -361,6 +414,7 @@ test_that("brm_marginal_draws() on change, homogeneous var, no subgroup", {
         out$effect[[name2]],
         out$difference_group[[name2]] / sigma[[1L]]
       )
+      expect_equal(out$sigma[[name2]], sigma[[1L]])
     }
   }
 })
@@ -407,7 +461,13 @@ test_that("brm_marginal_draws() on change, homogeneous var, with subgroup", {
       average_within_subgroup = FALSE
     )
   )
-  fields <- c("response", "difference_group", "difference_subgroup", "effect")
+  fields <- c(
+    "response",
+    "difference_group",
+    "difference_subgroup",
+    "effect",
+    "sigma"
+  )
   expect_equal(sort(names(out)), sort(fields))
   columns_df <- expand.grid(
     group = sort(unique(data$group)),
@@ -484,6 +544,7 @@ test_that("brm_marginal_draws() on change, homogeneous var, with subgroup", {
           out$effect[[name2]],
           out$difference_group[[name2]] / sigma[[1L]]
         )
+        expect_equal(out$sigma[[name2]], sigma[[1L]])
       }
     }
   }

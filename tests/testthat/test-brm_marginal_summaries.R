@@ -4,7 +4,6 @@ test_that("brm_marginal_summaries() on response", {
   data <- brm_data(
     data = tibble::as_tibble(brm_simulate_simple()$data),
     outcome = "response",
-    role = "response",
     group = "group",
     time = "time",
     patient = "patient",
@@ -44,7 +43,13 @@ test_that("brm_marginal_summaries() on response", {
     sort(colnames(x)),
     sort(c("marginal", "group", "time", "statistic", "value", "mcse"))
   )
-  tibbles <- c("response", "difference_time", "difference_group", "effect")
+  tibbles <- c(
+    "response",
+    "difference_time",
+    "difference_group",
+    "effect",
+    "sigma"
+  )
   expect_equal(
     sort(unique(x$marginal)),
     sort(tibbles)
@@ -170,7 +175,8 @@ test_that("brm_marginal_summaries() on response with subgroup", {
     "difference_time",
     "difference_group",
     "difference_subgroup",
-    "effect"
+    "effect",
+    "sigma"
   )
   expect_equal(
     sort(unique(x$marginal)),
@@ -262,7 +268,6 @@ test_that("brm_marginal_summaries() on change", {
   data <- brm_data(
     data = tibble::as_tibble(brm_simulate_simple()$data),
     outcome = "response",
-    role = "change",
     group = "group",
     time = "time",
     patient = "patient",
@@ -303,7 +308,7 @@ test_that("brm_marginal_summaries() on change", {
   )
   expect_equal(
     sort(unique(x$marginal)),
-    sort(c("response", "difference_group", "effect"))
+    sort(c("response", "difference_group", "effect", "sigma"))
   )
   for (marginal in c("response", "difference_group", "effect")) {
     groups <- unique(data$group)

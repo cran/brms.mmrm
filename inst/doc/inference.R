@@ -4,11 +4,13 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = rlang::is_installed("emmeans")
 )
+library(brms.mmrm)
 library(dplyr)
 library(tidyr)
 library(zoo)
 
 ## -----------------------------------------------------------------------------
+library(brms.mmrm)
 library(dplyr)
 library(tidyr)
 data(fev_data, package = "mmrm")
@@ -27,7 +29,19 @@ data <- fev_data |>
   mutate(FEV1_CHG = FEV1 - FEV1_BL, USUBJID = as.character(USUBJID)) |>
   select(-FEV1) |>
   as_tibble() |>
-  arrange(USUBJID, AVISIT)
+  arrange(USUBJID, AVISIT) |>
+  brm_data(
+    outcome = "FEV1_CHG",
+    baseline = "FEV1_BL",
+    group = "ARMCD",
+    patient = "USUBJID",
+    time = "AVISIT",
+    covariates = c("RACE", "SEX", "WEIGHT"),
+    reference_group = "PBO",
+    reference_time = "VIS1"
+  )
+
+## -----------------------------------------------------------------------------
 data
 
 ## -----------------------------------------------------------------------------
@@ -35,31 +49,53 @@ reference_grid <- distinct(data, ARMCD, AVISIT)
 reference_grid
 
 ## -----------------------------------------------------------------------------
-formula <- FEV1_CHG ~ FEV1_BL * AVISIT + ARMCD * AVISIT + RACE + SEX + WEIGHT
-formula
+brms_mmrm_formula <- brm_formula(data, correlation = "diagonal")
+base_formula <- as.formula(brms_mmrm_formula[[1]])
+attr(base_formula, "nl") <- NULL
+attr(base_formula, "loop") <- NULL
 
 ## -----------------------------------------------------------------------------
-colnames(model.matrix(object = formula, data = data))
+base_formula
 
 ## -----------------------------------------------------------------------------
-formula
+colnames(model.matrix(object = base_formula, data = data))
 
 ## -----------------------------------------------------------------------------
-model <- lm(formula = formula, data = data)
+transform <- brm_transform_marginal(data = data, formula = brms_mmrm_formula)
+
+## -----------------------------------------------------------------------------
+dim(transform)
+transform[, 1:4]
+
+## -----------------------------------------------------------------------------
+summary(transform)
+
+## -----------------------------------------------------------------------------
+model <- lm(formula = base_formula, data = data)
+marginals_custom <- transform %*% coef(model)
+marginals_custom
 
 ## -----------------------------------------------------------------------------
 library(emmeans)
 marginals_emmeans <- emmeans(
   object = model,
   specs = ~ARMCD:AVISIT,
-  wt.nuis = "proportional",
+  weights = "proportional",
   nuisance = c("USUBJID", "RACE", "SEX")
 ) |>
   as.data.frame() |>
   as_tibble() |>
   select(ARMCD, AVISIT, emmean) |>
   arrange(ARMCD, AVISIT)
+
+## -----------------------------------------------------------------------------
 marginals_emmeans
+
+## -----------------------------------------------------------------------------
+marginals_custom - marginals_emmeans$emmean
+
+## -----------------------------------------------------------------------------
+summary(transform)
 
 ## -----------------------------------------------------------------------------
 grid <- data |>
@@ -104,7 +140,7 @@ marginals_emmeans |>
 emmeans(
   object = model,
   specs = ~SEX:ARMCD:AVISIT,
-  wt.nuis = "proportional",
+  weights = "proportional",
   nuisance = c("USUBJID", "RACE")
 )
 

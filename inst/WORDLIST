@@ -35,6 +35,7 @@ Vehtari
 WAIC
 al
 brm
+cLDA
 brms
 cdot
 cmdstanr
@@ -42,6 +43,7 @@ diag
 differencecustom
 doi
 drawscustom
+estimand
 et
 github
 https
@@ -49,8 +51,10 @@ intercurrent
 io
 jss
 ldots
+mids
 mmrm
 ne
+nolint
 openpharma
 overplot
 overplotting
@@ -63,3 +67,6 @@ rstan
 stackrel
 tibble
 un
+CDISC
+chronologize
+counterintuitive

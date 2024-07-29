@@ -1,3 +1,22 @@
+# brms.mmrm 1.1.0
+
+* Add `brm_marginal_grid()`.
+* Show posterior samples of `sigma` in `brm_marginal_draws()` and `brm_marginal_summaries()`.
+* Allow `outcome = "response"` with `reference_time = NULL`. Sometimes raw response is analyzed but the data has no baseline time point.
+* Preserve factors in `brm_data()` and encourage ordered factors for the time variable (#113).
+* Add `brm_data_chronologize()` to ensure the correctness of the time variable.
+* Do not drop columns in `brm_data()`. This helps `brm_data_chronologize()` operate correctly after calls to `brm_data()`.
+* Add new elements `brms.mmrm_data` and `brms.mmrm_formula` to the `brms` fitted model object returned by `brm_model()`.
+* Take defaults `data` and `formula` from the above in `brm_marginal_draws()`.
+* Set the default value of `effect_size` to `attr(formula, "brm_allow_effect_size")`.
+* Remove defaults from some arguments to `brm_data()` and document examples.
+* Deprecate the `role` argument of `brm_data()` in favor of `reference_time` (#119).
+* Add a new `model_missing_outcomes` in `brm_formula()` to optionally impute missing values during model fitting as described at <https://paul-buerkner.github.io/brms/articles/brms_missings.html> (#121).
+* Add a new `imputed` argument to accept a `mice` multiply imputed dataset ("mids") in `brm_model()` (#121).
+* Add a `summary()` method for `brm_transform_marginal()` objects.
+* Do not recheck the rank of the formula in `brm_transform_marginal()`.
+* Support constrained longitudinal data analysis (cLDA) for informative prior archetypes `brm_archetype_cells()`, `brm_archetype_effects()`,  `brm_archetype_successive_cells()`, and  `brm_archetype_successive_effects()` (#125). We cannot support cLDA for `brm_archetype_average_cells()` or  `brm_archetype_average_effects()` because then some parameters would no longer be averages of others.
+
 # brms.mmrm 1.0.1
 
 * Handle outcome `NA`s in `get_draws_sigma()`.

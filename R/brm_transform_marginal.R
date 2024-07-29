@@ -52,12 +52,10 @@
 #'   reconstruct the `brms` model parameter names. This argument should
 #'   only be modified for testing purposes.
 #' @examples
-#' if (identical(Sys.getenv("BRM_EXAMPLES", unset = ""), "true")) {
 #' set.seed(0L)
 #' data <- brm_data(
 #'   data = brm_simulate_simple()$data,
 #'   outcome = "response",
-#'   role = "response",
 #'   group = "group",
 #'   time = "time",
 #'   patient = "patient",
@@ -70,8 +68,11 @@
 #'   baseline_time = FALSE
 #' )
 #' transform <- brm_transform_marginal(data = data, formula = formula)
+#' equations <- summary(transform)
+#' print(equations)
+#' summary(transform, message = FALSE)
+#' class(transform)
 #' print(transform)
-#' }
 brm_transform_marginal <- function(
   data,
   formula,
@@ -115,9 +116,9 @@ brm_transform_marginal <- function(
     average_within_subgroup <- FALSE
   }
   time <- attr(data, "brm_time")
-  levels_time <- attr(data, "brm_levels_time")
+  levels_time <- brm_levels(data[[time]])
   assert(
-    data[[time]] == rep(levels_time, times = nrow(data) / length(levels_time)),
+    length(unique(table(data[[time]]))) == 1L,
     message = paste(
       "data in brm_transform_marginal() must be filled. If needed,",
       "please rerun your data through brm_data() and convert to an",
@@ -148,6 +149,7 @@ brm_transform_marginal <- function(
     formula = formula,
     grid = grid
   )
+  class(transform) <- c("brms_mmrm_transform_marginal", class(transform))
   transform
 }
 
@@ -234,6 +236,7 @@ transform_marginal_formula <- function(data, formula) {
   names(args) <- gsub(pattern = "^brm_", replacement = "", x = names(args))
   args$data <- data
   args$correlation <- "diagonal"
+  args$check_rank <- FALSE
   do.call(what = brm_formula, args = args)
 }
 
@@ -285,4 +288,88 @@ brm_transform_marginal_names_rows <- function(data, formula, grid) {
     name_marginal_subgroup(group = group, subgroup = subgroup, time = time),
     name_marginal(group = group, time = time)
   )
+}
+
+#' @title Summarize marginal transform.
+#' @export
+#' @keywords internal
+#' @description Summarize a transformation from model parameters to
+#'   marginal means.
+#' @return Return a character vector with linear equations
+#'   that map model parameters to marginal means. If the `message`
+#'   argument is `TRUE` (default) then this character vector is returned
+#'   invisibly and a verbose description of the equations is printed.
+#' @param object The [brm_transform_marginal()] matrix to summarize.
+#' @param message TRUE to print an informative message about the archetype
+#'   and invisibly return a character vector of equations. `FALSE`
+#'   to forgo verbose messages and non-invisibly return the equations.
+#' @param ... Not used, but required for S3 methods that inherit from
+#'   the base generic [summary()].
+#' @examples
+#' set.seed(0L)
+#' data <- brm_data(
+#'   data = brm_simulate_simple()$data,
+#'   outcome = "response",
+#'   group = "group",
+#'   time = "time",
+#'   patient = "patient",
+#'   reference_group = "group_1",
+#'   reference_time = "time_1"
+#' )
+#' formula <- brm_formula(
+#'   data = data,
+#'   baseline = FALSE,
+#'   baseline_time = FALSE
+#' )
+#' transform <- brm_transform_marginal(data = data, formula = formula)
+#' equations <- summary(transform)
+#' print(equations)
+#' summary(transform, message = FALSE)
+#' class(transform)
+#' print(transform)
+summary.brms_mmrm_transform_marginal <- function(
+  object,
+  message = TRUE,
+  ...
+) {
+  lines <- c(
+    "This is a matrix to transform model parameters to marginal means.",
+    "The following equations show the relationships between the",
+    "marginal means (left-hand side) and fixed effect parameters",
+    "(right-hand side).",
+    ""
+  )
+  out <- brm_transform_marginal_lines(object)
+  lines_transform <- paste(" ", out)
+  lines <- paste("#", c(lines, lines_transform), sep = " ")
+  if (message) {
+    message(paste(lines, collapse = "\n"))
+    return(invisible(out))
+  } else {
+    out
+  }
+}
+
+#' @export
+print.brms_mmrm_transform_marginal <- function(x, ...) {
+  class(x) <- c("matrix", "array")
+  NextMethod()
+}
+
+brm_transform_marginal_lines <- function(transform) {
+  lines <- character(0L)
+  marginals <- gsub(brm_sep(), ":", rownames(transform), fixed = TRUE)
+  for (index in seq_along(marginals)) {
+    coef <- transform[index, ]
+    terms <- colnames(transform)[coef != 0]
+    coef <- unname(round(coef[coef != 0], digits = 2))
+    sign <- ifelse(coef < 0, "- ", "+ ")
+    sign[1L] <- ""
+    coef[seq_along(coef) > 1L] <- abs(coef[seq_along(coef) > 1L])
+    prefix <- ifelse(coef == 1, "", paste0(coef, "*"))
+    terms <- paste0(sign, prefix, terms)
+    line <- paste(marginals[index], "=", paste(terms, collapse = " "))
+    lines <- c(lines, line)
+  }
+  lines
 }

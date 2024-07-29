@@ -10,6 +10,7 @@
 
 
 
+<meta name="date" content="2024-09-07" />
 
 <title>FEV1 data comparison between Bayesian and frequentist MMRMs</title>
 
@@ -1503,7 +1504,7 @@ border-radius: 0px;
 
 <h1 class="title toc-ignore">FEV1 data comparison between Bayesian and
 frequentist MMRMs</h1>
-<h4 class="date">2024-31-05</h4>
+<h4 class="date">2024-09-07</h4>
 
 </div>
 
@@ -1548,18 +1549,19 @@ investigating the effect of an active treatment on <code>FEV1</code>
 <code>FEV1</code> is a measure of how quickly the lungs can be emptied
 and low levels may indicate chronic obstructive pulmonary disease
 (COPD).</p>
-<p>The dataset is a <code>tibble</code> with 800 rows and 7
-variables:</p>
+<p>The dataset is a <code>tibble</code> with 800 rows and the following
+notable variables:</p>
 <ul>
-<li><code>USUBJID</code> (subject ID),</li>
-<li><code>AVISIT</code> (visit number),</li>
+<li><code>USUBJID</code> (subject ID)</li>
+<li><code>AVISIT</code> (visit number, factor)</li>
+<li><code>VISITN</code> (visit number, numeric)</li>
 <li><code>ARMCD</code> (treatment, <code>TRT</code> or
-<code>PBO</code>),</li>
-<li><code>RACE</code> (3-category race),</li>
-<li><code>SEX</code> (sex),</li>
-<li><code>FEV1_BL</code> (FEV1 at baseline, %),</li>
-<li><code>FEV1</code> (FEV1 at study visits),</li>
-<li><code>WEIGHT</code> (weighting variable).</li>
+<code>PBO</code>)</li>
+<li><code>RACE</code> (3-category race)</li>
+<li><code>SEX</code> (female or male)</li>
+<li><code>FEV1_BL</code> (FEV1 at baseline, %)</li>
+<li><code>FEV1</code> (FEV1 at study visits)</li>
+<li><code>WEIGHT</code> (weighting variable)</li>
 </ul>
 <p>The primary endpoint for the analysis is change from baseline in
 <code>FEV1</code>, which we derive below and denote
@@ -1572,7 +1574,6 @@ and visit and apply the usual checking and standardization steps of
 <pre class="r"><code>&gt; fev_data &lt;- brm_data(
 +   data = fev_data,
 +   outcome = &quot;FEV1_CHG&quot;,
-+   role = &quot;change&quot;,
 +   group = &quot;ARMCD&quot;,
 +   time = &quot;AVISIT&quot;,
 +   patient = &quot;USUBJID&quot;,
@@ -1580,7 +1581,7 @@ and visit and apply the usual checking and standardization steps of
 +   reference_group = &quot;PBO&quot;,
 +   covariates = c(&quot;RACE&quot;, &quot;SEX&quot;)
 + ) |&gt;
-+   mutate(ARMCD = factor(ARMCD), AVISIT = factor(AVISIT))</code></pre>
++   brm_data_chronologize(order = &quot;VISITN&quot;)</code></pre>
 <p>The following table shows the first rows of the dataset.</p>
 <pre class="r"><code>&gt; head(fev_data) |&gt;
 +   gt() |&gt;
@@ -2033,58 +2034,86 @@ Table 1. First rows of the pre-processed <code>fev_dat</code> dataset.
 
   <thead>
     <tr class="gt_col_headings">
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="FEV1_CHG">FEV1_CHG</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="FEV1_BL">FEV1_BL</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="ARMCD">ARMCD</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="AVISIT">AVISIT</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="USUBJID">USUBJID</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="AVISIT">AVISIT</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="ARMCD">ARMCD</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="RACE">RACE</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="SEX">SEX</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="FEV1_BL">FEV1_BL</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="FEV1">FEV1</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="WEIGHT">WEIGHT</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="VISITN">VISITN</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="VISITN2">VISITN2</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="FEV1_CHG">FEV1_CHG</th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
-    <tr><td headers="FEV1_CHG" class="gt_row gt_right">NA</td>
-<td headers="FEV1_BL" class="gt_row gt_right">45.02477</td>
-<td headers="ARMCD" class="gt_row gt_center">PBO</td>
+    <tr><td headers="USUBJID" class="gt_row gt_center">PT2</td>
 <td headers="AVISIT" class="gt_row gt_center">VIS1</td>
-<td headers="USUBJID" class="gt_row gt_center">PT2</td>
-<td headers="RACE" class="gt_row gt_center">Asian</td>
-<td headers="SEX" class="gt_row gt_center">Male</td></tr>
-    <tr><td headers="FEV1_CHG" class="gt_row gt_right">-13.569552</td>
-<td headers="FEV1_BL" class="gt_row gt_right">45.02477</td>
 <td headers="ARMCD" class="gt_row gt_center">PBO</td>
+<td headers="RACE" class="gt_row gt_center">Asian</td>
+<td headers="SEX" class="gt_row gt_center">Male</td>
+<td headers="FEV1_BL" class="gt_row gt_right">45.02477</td>
+<td headers="FEV1" class="gt_row gt_right">NA</td>
+<td headers="WEIGHT" class="gt_row gt_right">0.4651848</td>
+<td headers="VISITN" class="gt_row gt_right">1</td>
+<td headers="VISITN2" class="gt_row gt_right">0.3295078</td>
+<td headers="FEV1_CHG" class="gt_row gt_right">NA</td></tr>
+    <tr><td headers="USUBJID" class="gt_row gt_center">PT2</td>
 <td headers="AVISIT" class="gt_row gt_center">VIS2</td>
-<td headers="USUBJID" class="gt_row gt_center">PT2</td>
-<td headers="RACE" class="gt_row gt_center">Asian</td>
-<td headers="SEX" class="gt_row gt_center">Male</td></tr>
-    <tr><td headers="FEV1_CHG" class="gt_row gt_right">-8.145878</td>
-<td headers="FEV1_BL" class="gt_row gt_right">45.02477</td>
 <td headers="ARMCD" class="gt_row gt_center">PBO</td>
+<td headers="RACE" class="gt_row gt_center">Asian</td>
+<td headers="SEX" class="gt_row gt_center">Male</td>
+<td headers="FEV1_BL" class="gt_row gt_right">45.02477</td>
+<td headers="FEV1" class="gt_row gt_right">31.45522</td>
+<td headers="WEIGHT" class="gt_row gt_right">0.2330974</td>
+<td headers="VISITN" class="gt_row gt_right">2</td>
+<td headers="VISITN2" class="gt_row gt_right">-0.8204684</td>
+<td headers="FEV1_CHG" class="gt_row gt_right">-13.569552</td></tr>
+    <tr><td headers="USUBJID" class="gt_row gt_center">PT2</td>
 <td headers="AVISIT" class="gt_row gt_center">VIS3</td>
-<td headers="USUBJID" class="gt_row gt_center">PT2</td>
+<td headers="ARMCD" class="gt_row gt_center">PBO</td>
 <td headers="RACE" class="gt_row gt_center">Asian</td>
-<td headers="SEX" class="gt_row gt_center">Male</td></tr>
-    <tr><td headers="FEV1_CHG" class="gt_row gt_right">3.783324</td>
+<td headers="SEX" class="gt_row gt_center">Male</td>
 <td headers="FEV1_BL" class="gt_row gt_right">45.02477</td>
-<td headers="ARMCD" class="gt_row gt_center">PBO</td>
+<td headers="FEV1" class="gt_row gt_right">36.87889</td>
+<td headers="WEIGHT" class="gt_row gt_right">0.3600763</td>
+<td headers="VISITN" class="gt_row gt_right">3</td>
+<td headers="VISITN2" class="gt_row gt_right">0.4874291</td>
+<td headers="FEV1_CHG" class="gt_row gt_right">-8.145878</td></tr>
+    <tr><td headers="USUBJID" class="gt_row gt_center">PT2</td>
 <td headers="AVISIT" class="gt_row gt_center">VIS4</td>
-<td headers="USUBJID" class="gt_row gt_center">PT2</td>
+<td headers="ARMCD" class="gt_row gt_center">PBO</td>
 <td headers="RACE" class="gt_row gt_center">Asian</td>
-<td headers="SEX" class="gt_row gt_center">Male</td></tr>
-    <tr><td headers="FEV1_CHG" class="gt_row gt_right">NA</td>
-<td headers="FEV1_BL" class="gt_row gt_right">43.50070</td>
-<td headers="ARMCD" class="gt_row gt_center">PBO</td>
+<td headers="SEX" class="gt_row gt_center">Male</td>
+<td headers="FEV1_BL" class="gt_row gt_right">45.02477</td>
+<td headers="FEV1" class="gt_row gt_right">48.80809</td>
+<td headers="WEIGHT" class="gt_row gt_right">0.5073795</td>
+<td headers="VISITN" class="gt_row gt_right">4</td>
+<td headers="VISITN2" class="gt_row gt_right">0.7383247</td>
+<td headers="FEV1_CHG" class="gt_row gt_right">3.783324</td></tr>
+    <tr><td headers="USUBJID" class="gt_row gt_center">PT3</td>
 <td headers="AVISIT" class="gt_row gt_center">VIS1</td>
-<td headers="USUBJID" class="gt_row gt_center">PT3</td>
-<td headers="RACE" class="gt_row gt_center">Black or African American</td>
-<td headers="SEX" class="gt_row gt_center">Female</td></tr>
-    <tr><td headers="FEV1_CHG" class="gt_row gt_right">-7.513705</td>
-<td headers="FEV1_BL" class="gt_row gt_right">43.50070</td>
 <td headers="ARMCD" class="gt_row gt_center">PBO</td>
-<td headers="AVISIT" class="gt_row gt_center">VIS2</td>
-<td headers="USUBJID" class="gt_row gt_center">PT3</td>
 <td headers="RACE" class="gt_row gt_center">Black or African American</td>
-<td headers="SEX" class="gt_row gt_center">Female</td></tr>
+<td headers="SEX" class="gt_row gt_center">Female</td>
+<td headers="FEV1_BL" class="gt_row gt_right">43.50070</td>
+<td headers="FEV1" class="gt_row gt_right">NA</td>
+<td headers="WEIGHT" class="gt_row gt_right">0.6821642</td>
+<td headers="VISITN" class="gt_row gt_right">1</td>
+<td headers="VISITN2" class="gt_row gt_right">0.5757814</td>
+<td headers="FEV1_CHG" class="gt_row gt_right">NA</td></tr>
+    <tr><td headers="USUBJID" class="gt_row gt_center">PT3</td>
+<td headers="AVISIT" class="gt_row gt_center">VIS2</td>
+<td headers="ARMCD" class="gt_row gt_center">PBO</td>
+<td headers="RACE" class="gt_row gt_center">Black or African American</td>
+<td headers="SEX" class="gt_row gt_center">Female</td>
+<td headers="FEV1_BL" class="gt_row gt_right">43.50070</td>
+<td headers="FEV1" class="gt_row gt_right">35.98699</td>
+<td headers="WEIGHT" class="gt_row gt_right">0.8917896</td>
+<td headers="VISITN" class="gt_row gt_right">2</td>
+<td headers="VISITN2" class="gt_row gt_right">-0.3053884</td>
+<td headers="FEV1_CHG" class="gt_row gt_right">-7.513705</td></tr>
   </tbody>
   
   
@@ -2556,8 +2585,10 @@ Table 2. Baseline characteristics.
   <thead>
     <tr class="gt_col_headings">
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;Characteristic&lt;/strong&gt;"><strong>Characteristic</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;PBO&lt;/strong&gt;, N = 105&lt;span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt;"><strong>PBO</strong>, N = 105<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;TRT&lt;/strong&gt;, N = 95&lt;span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt;"><strong>TRT</strong>, N = 95<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;PBO&lt;/strong&gt;&lt;br /&gt;&#10;N = 105&lt;span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt;"><strong>PBO</strong><br />
+N = 105<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;TRT&lt;/strong&gt;&lt;br /&gt;&#10;N = 95&lt;span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt;"><strong>TRT</strong><br />
+N = 95<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
@@ -3065,8 +3096,10 @@ Table 3. Change from baseline.
   <thead>
     <tr class="gt_col_headings">
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;Characteristic&lt;/strong&gt;"><strong>Characteristic</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;PBO&lt;/strong&gt;, N = 105"><strong>PBO</strong>, N = 105</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;TRT&lt;/strong&gt;, N = 95"><strong>TRT</strong>, N = 95</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;PBO&lt;/strong&gt;&lt;br /&gt;&#10;N = 105"><strong>PBO</strong><br />
+N = 105</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;TRT&lt;/strong&gt;&lt;br /&gt;&#10;N = 95"><strong>TRT</strong><br />
+N = 95</th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
@@ -3076,10 +3109,10 @@ Table 3. Change from baseline.
     <tr><td headers="label" class="gt_row gt_left">    Mean (SD)</td>
 <td headers="stat_1" class="gt_row gt_center">-8 (9)</td>
 <td headers="stat_2" class="gt_row gt_center">-2 (10)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Median (IQR)</td>
+    <tr><td headers="label" class="gt_row gt_left">    Median (Q1, Q3)</td>
 <td headers="stat_1" class="gt_row gt_center">-9 (-16, 0)</td>
 <td headers="stat_2" class="gt_row gt_center">-4 (-9, 7)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Range</td>
+    <tr><td headers="label" class="gt_row gt_left">    Min, Max</td>
 <td headers="stat_1" class="gt_row gt_center">-26, 12</td>
 <td headers="stat_2" class="gt_row gt_center">-24, 20</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
@@ -3091,10 +3124,10 @@ Table 3. Change from baseline.
     <tr><td headers="label" class="gt_row gt_left">    Mean (SD)</td>
 <td headers="stat_1" class="gt_row gt_center">-3 (8)</td>
 <td headers="stat_2" class="gt_row gt_center">2 (9)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Median (IQR)</td>
+    <tr><td headers="label" class="gt_row gt_left">    Median (Q1, Q3)</td>
 <td headers="stat_1" class="gt_row gt_center">-3 (-10, 1)</td>
-<td headers="stat_2" class="gt_row gt_center">2 (-3, 8)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Range</td>
+<td headers="stat_2" class="gt_row gt_center">2 (-4, 8)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Min, Max</td>
 <td headers="stat_1" class="gt_row gt_center">-20, 15</td>
 <td headers="stat_2" class="gt_row gt_center">-22, 23</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
@@ -3106,10 +3139,10 @@ Table 3. Change from baseline.
     <tr><td headers="label" class="gt_row gt_left">    Mean (SD)</td>
 <td headers="stat_1" class="gt_row gt_center">2 (8)</td>
 <td headers="stat_2" class="gt_row gt_center">5 (9)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Median (IQR)</td>
+    <tr><td headers="label" class="gt_row gt_left">    Median (Q1, Q3)</td>
 <td headers="stat_1" class="gt_row gt_center">2 (-2, 8)</td>
 <td headers="stat_2" class="gt_row gt_center">6 (0, 11)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Range</td>
+    <tr><td headers="label" class="gt_row gt_left">    Min, Max</td>
 <td headers="stat_1" class="gt_row gt_center">-15, 20</td>
 <td headers="stat_2" class="gt_row gt_center">-19, 30</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
@@ -3121,10 +3154,10 @@ Table 3. Change from baseline.
     <tr><td headers="label" class="gt_row gt_left">    Mean (SD)</td>
 <td headers="stat_1" class="gt_row gt_center">8 (12)</td>
 <td headers="stat_2" class="gt_row gt_center">13 (13)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Median (IQR)</td>
-<td headers="stat_1" class="gt_row gt_center">6 (1, 18)</td>
-<td headers="stat_2" class="gt_row gt_center">12 (5, 22)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Range</td>
+    <tr><td headers="label" class="gt_row gt_left">    Median (Q1, Q3)</td>
+<td headers="stat_1" class="gt_row gt_center">6 (1, 20)</td>
+<td headers="stat_2" class="gt_row gt_center">12 (5, 23)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Min, Max</td>
 <td headers="stat_1" class="gt_row gt_center">-20, 39</td>
 <td headers="stat_2" class="gt_row gt_center">-14, 47</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
@@ -3188,7 +3221,8 @@ diffuse flexible priors by default.</p>
 +   iter = 10000,
 +   warmup = 2000,
 +   chains = 4,
-+   cores = 1 + (detectCores() &gt; 1),
++   cores = 4,
++   seed = 1,
 +   refresh = 0
 + )</code></pre>
 <p>Here is a posterior summary of model parameters, including fixed
@@ -3204,48 +3238,48 @@ effects and pairwise correlation among visits within patients.</p>
 #&gt; 
 #&gt; Correlation Structures:
 #&gt;                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#&gt; cortime(VIS1,VIS2)     0.36      0.08     0.19     0.51 1.00    59681    25267
-#&gt; cortime(VIS1,VIS3)     0.14      0.10    -0.06     0.33 1.00    60878    24816
-#&gt; cortime(VIS2,VIS3)     0.04      0.10    -0.16     0.23 1.00    59208    23789
-#&gt; cortime(VIS1,VIS4)     0.17      0.11    -0.06     0.38 1.00    57295    25702
-#&gt; cortime(VIS2,VIS4)     0.11      0.09    -0.06     0.28 1.00    58914    25513
-#&gt; cortime(VIS3,VIS4)     0.01      0.10    -0.19     0.21 1.00    52906    23211
+#&gt; cortime(VIS1,VIS2)     0.36      0.08     0.18     0.52 1.00    48758    26086
+#&gt; cortime(VIS1,VIS3)     0.14      0.10    -0.05     0.33 1.00    49018    26172
+#&gt; cortime(VIS2,VIS3)     0.04      0.10    -0.16     0.23 1.00    49178    25472
+#&gt; cortime(VIS1,VIS4)     0.17      0.11    -0.06     0.38 1.00    49528    25555
+#&gt; cortime(VIS2,VIS4)     0.11      0.09    -0.07     0.28 1.00    49509    24007
+#&gt; cortime(VIS3,VIS4)     0.01      0.10    -0.18     0.21 1.00    45294    24353
 #&gt; 
 #&gt; Regression Coefficients:
 #&gt;                            Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-#&gt; Intercept                     24.35      1.42    21.58    27.14 1.00    49544
-#&gt; FEV1_BL                       -0.84      0.03    -0.90    -0.79 1.00    66114
-#&gt; AVISITVIS2                     4.79      0.82     3.18     6.39 1.00    35068
-#&gt; AVISITVIS3                    10.37      0.83     8.75    12.00 1.00    31977
-#&gt; AVISITVIS4                    15.20      1.34    12.59    17.83 1.00    35841
-#&gt; RACEBlackorAfricanAmerican     1.41      0.58     0.26     2.56 1.00    51999
-#&gt; RACEWhite                      5.45      0.62     4.23     6.68 1.00    53854
-#&gt; SEXFemale                      0.34      0.51    -0.66     1.34 1.00    60991
-#&gt; AVISITVIS1:ARMCDTRT            3.99      1.07     1.89     6.09 1.00    32773
-#&gt; AVISITVIS2:ARMCDTRT            3.93      0.83     2.29     5.56 1.00    54328
-#&gt; AVISITVIS3:ARMCDTRT            2.98      0.68     1.64     4.32 1.00    60635
-#&gt; AVISITVIS4:ARMCDTRT            4.39      1.68     1.06     7.68 1.00    47093
-#&gt; sigma_AVISITVIS1               1.83      0.06     1.71     1.95 1.00    59887
-#&gt; sigma_AVISITVIS2               1.59      0.06     1.47     1.71 1.00    56189
-#&gt; sigma_AVISITVIS3               1.33      0.06     1.21     1.46 1.00    64405
-#&gt; sigma_AVISITVIS4               2.28      0.06     2.16     2.41 1.00    64076
+#&gt; Intercept                     24.34      1.41    21.60    27.09 1.00    43678
+#&gt; FEV1_BL                       -0.84      0.03    -0.89    -0.78 1.00    56286
+#&gt; AVISIT2                        4.80      0.82     3.20     6.40 1.00    31792
+#&gt; AVISIT3                       10.37      0.83     8.73    12.01 1.00    29808
+#&gt; AVISIT4                       15.20      1.33    12.60    17.83 1.00    35293
+#&gt; RACEBlackorAfricanAmerican     1.41      0.59     0.27     2.55 1.00    46945
+#&gt; RACEWhite                      5.46      0.63     4.23     6.69 1.00    47801
+#&gt; SEXFemale                      0.35      0.51    -0.64     1.36 1.00    49193
+#&gt; AVISITVIS1:ARMCDTRT            3.98      1.07     1.89     6.06 1.00    31646
+#&gt; AVISITVIS2:ARMCDTRT            3.93      0.83     2.31     5.55 1.00    46665
+#&gt; AVISITVIS3:ARMCDTRT            2.98      0.68     1.65     4.31 1.00    52457
+#&gt; AVISITVIS4:ARMCDTRT            4.41      1.68     1.06     7.71 1.00    45307
+#&gt; sigma_AVISITVIS1               1.83      0.06     1.71     1.95 1.00    50344
+#&gt; sigma_AVISITVIS2               1.59      0.06     1.47     1.71 1.00    48248
+#&gt; sigma_AVISITVIS3               1.33      0.06     1.21     1.46 1.00    48058
+#&gt; sigma_AVISITVIS4               2.28      0.06     2.16     2.41 1.00    51078
 #&gt;                            Tail_ESS
-#&gt; Intercept                     25214
-#&gt; FEV1_BL                       22810
-#&gt; AVISITVIS2                    26636
-#&gt; AVISITVIS3                    24889
-#&gt; AVISITVIS4                    25332
-#&gt; RACEBlackorAfricanAmerican    25640
-#&gt; RACEWhite                     27046
-#&gt; SEXFemale                     24915
-#&gt; AVISITVIS1:ARMCDTRT           26664
-#&gt; AVISITVIS2:ARMCDTRT           23415
-#&gt; AVISITVIS3:ARMCDTRT           22427
-#&gt; AVISITVIS4:ARMCDTRT           25813
-#&gt; sigma_AVISITVIS1              25393
-#&gt; sigma_AVISITVIS2              24131
-#&gt; sigma_AVISITVIS3              24263
-#&gt; sigma_AVISITVIS4              23997
+#&gt; Intercept                     25394
+#&gt; FEV1_BL                       24494
+#&gt; AVISIT2                       24396
+#&gt; AVISIT3                       24188
+#&gt; AVISIT4                       24810
+#&gt; RACEBlackorAfricanAmerican    25405
+#&gt; RACEWhite                     23816
+#&gt; SEXFemale                     24919
+#&gt; AVISITVIS1:ARMCDTRT           26255
+#&gt; AVISITVIS2:ARMCDTRT           23809
+#&gt; AVISITVIS3:ARMCDTRT           24705
+#&gt; AVISITVIS4:ARMCDTRT           25026
+#&gt; sigma_AVISITVIS1              26156
+#&gt; sigma_AVISITVIS2              24526
+#&gt; sigma_AVISITVIS3              24328
+#&gt; sigma_AVISITVIS4              23975
 #&gt; 
 #&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 #&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -3260,7 +3294,10 @@ fit the model below.</p>
 <pre class="r fold-hide"><code>&gt; f_mmrm_fit &lt;- mmrm::mmrm(
 +   formula = FEV1_CHG ~ FEV1_BL + ARMCD:AVISIT + AVISIT + RACE + SEX +
 +     us(AVISIT | USUBJID),
-+   data = fev_data
++   data = mutate(
++     fev_data,
++     AVISIT = factor(as.character(AVISIT), ordered = FALSE)
++   )
 + )</code></pre>
 <p>The parameter summaries of the frequentist model are below.</p>
 <pre class="r fold-hide"><code>&gt; summary(f_mmrm_fit)
@@ -3269,8 +3306,9 @@ fit the model below.</p>
 #&gt; Formula:     
 #&gt; FEV1_CHG ~ FEV1_BL + ARMCD:AVISIT + AVISIT + RACE + SEX + us(AVISIT |  
 #&gt;     USUBJID)
-#&gt; Data:        fev_data (used 537 observations from 197 subjects with maximum 4 
-#&gt; timepoints)
+#&gt; Data:        
+#&gt; mutate(fev_data, AVISIT = factor(as.character(AVISIT), ordered = FALSE)) (used 
+#&gt; 537 observations from 197 subjects with maximum 4 timepoints)
 #&gt; Covariance:  unstructured (10 variance parameters)
 #&gt; Method:      Satterthwaite
 #&gt; Vcov Method: Asymptotic
@@ -3345,7 +3383,8 @@ from Bayesian model</h2>
 +       gsub(pattern = &quot;b_&quot;, replacement = &quot;&quot;) |&gt;
 +       gsub(pattern = &quot;b_sigma_AVISIT&quot;, replacement = &quot;sigma_&quot;) |&gt;
 +       gsub(pattern = &quot;cortime&quot;, replacement = &quot;correlation&quot;) |&gt;
-+       gsub(pattern = &quot;__&quot;, replacement = &quot;_&quot;)
++       gsub(pattern = &quot;__&quot;, replacement = &quot;_&quot;) |&gt;
++       gsub(pattern = &quot;avisitvis&quot;, replacement = &quot;avisit&quot;)
 +   )</code></pre>
 </div>
 <div id="extract-estimates-from-frequentist-model" class="section level2" number="4.2">
@@ -3357,10 +3396,13 @@ from frequentist model</h2>
 +   mutate(variable = tolower(variable)) |&gt;
 +   mutate(variable = gsub(&quot;(&quot;, &quot;&quot;, variable, fixed = TRUE)) |&gt;
 +   mutate(variable = gsub(&quot;)&quot;, &quot;&quot;, variable, fixed = TRUE)) |&gt;
++   mutate(variable = gsub(&quot;avisitvis&quot;, &quot;avisit&quot;, variable)) |&gt;
 +   rename(freq_estimate = Estimate, freq_se = `Std. Error`) |&gt;
 +   select(variable, freq_estimate, freq_se)</code></pre>
 <pre class="r fold-hide"><code>&gt; f_mmrm_variance &lt;- tibble(
-+   variable = paste0(&quot;sigma_AVISIT&quot;, visit_levels) |&gt; tolower(),
++   variable = paste0(&quot;sigma_AVISIT&quot;, visit_levels) |&gt;
++     tolower() |&gt;
++     gsub(pattern = &quot;avisitvis&quot;, replacement = &quot;avisit&quot;),
 +   freq_estimate = sqrt(diag(f_mmrm_fit$cov))
 + )</code></pre>
 <pre class="r fold-hide"><code>&gt; f_diagonal_factor &lt;- diag(1 / sqrt(diag(f_mmrm_fit$cov)))
@@ -3432,23 +3474,23 @@ differences in the table below show strong agreement between
 +     diff_estimate = &quot;Difference&quot;,
 +     diff_relative_estimate = &quot;Relative&quot;
 +   )</code></pre>
-<div id="wvzouehsjr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wvzouehsjr table {
+<div id="hplyncngcw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hplyncngcw table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wvzouehsjr thead, #wvzouehsjr tbody, #wvzouehsjr tfoot, #wvzouehsjr tr, #wvzouehsjr td, #wvzouehsjr th {
+#hplyncngcw thead, #hplyncngcw tbody, #hplyncngcw tfoot, #hplyncngcw tr, #hplyncngcw td, #hplyncngcw th {
   border-style: none;
 }
 
-#wvzouehsjr p {
+#hplyncngcw p {
   margin: 0;
   padding: 0;
 }
 
-#wvzouehsjr .gt_table {
+#hplyncngcw .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3474,12 +3516,12 @@ differences in the table below show strong agreement between
   border-left-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_caption {
+#hplyncngcw .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wvzouehsjr .gt_title {
+#hplyncngcw .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3491,7 +3533,7 @@ differences in the table below show strong agreement between
   border-bottom-width: 0;
 }
 
-#wvzouehsjr .gt_subtitle {
+#hplyncngcw .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3503,7 +3545,7 @@ differences in the table below show strong agreement between
   border-top-width: 0;
 }
 
-#wvzouehsjr .gt_heading {
+#hplyncngcw .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3515,13 +3557,13 @@ differences in the table below show strong agreement between
   border-right-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_bottom_border {
+#hplyncngcw .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_col_headings {
+#hplyncngcw .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3536,7 +3578,7 @@ differences in the table below show strong agreement between
   border-right-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_col_heading {
+#hplyncngcw .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3556,7 +3598,7 @@ differences in the table below show strong agreement between
   overflow-x: hidden;
 }
 
-#wvzouehsjr .gt_column_spanner_outer {
+#hplyncngcw .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3568,15 +3610,15 @@ differences in the table below show strong agreement between
   padding-right: 4px;
 }
 
-#wvzouehsjr .gt_column_spanner_outer:first-child {
+#hplyncngcw .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wvzouehsjr .gt_column_spanner_outer:last-child {
+#hplyncngcw .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wvzouehsjr .gt_column_spanner {
+#hplyncngcw .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3588,11 +3630,11 @@ differences in the table below show strong agreement between
   width: 100%;
 }
 
-#wvzouehsjr .gt_spanner_row {
+#hplyncngcw .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wvzouehsjr .gt_group_heading {
+#hplyncngcw .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3618,7 +3660,7 @@ differences in the table below show strong agreement between
   text-align: left;
 }
 
-#wvzouehsjr .gt_empty_group_heading {
+#hplyncngcw .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3633,15 +3675,15 @@ differences in the table below show strong agreement between
   vertical-align: middle;
 }
 
-#wvzouehsjr .gt_from_md > :first-child {
+#hplyncngcw .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wvzouehsjr .gt_from_md > :last-child {
+#hplyncngcw .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wvzouehsjr .gt_row {
+#hplyncngcw .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3660,7 +3702,7 @@ differences in the table below show strong agreement between
   overflow-x: hidden;
 }
 
-#wvzouehsjr .gt_stub {
+#hplyncngcw .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3673,7 +3715,7 @@ differences in the table below show strong agreement between
   padding-right: 5px;
 }
 
-#wvzouehsjr .gt_stub_row_group {
+#hplyncngcw .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3687,15 +3729,15 @@ differences in the table below show strong agreement between
   vertical-align: top;
 }
 
-#wvzouehsjr .gt_row_group_first td {
+#hplyncngcw .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wvzouehsjr .gt_row_group_first th {
+#hplyncngcw .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wvzouehsjr .gt_summary_row {
+#hplyncngcw .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3705,16 +3747,16 @@ differences in the table below show strong agreement between
   padding-right: 5px;
 }
 
-#wvzouehsjr .gt_first_summary_row {
+#hplyncngcw .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_first_summary_row.thick {
+#hplyncngcw .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wvzouehsjr .gt_last_summary_row {
+#hplyncngcw .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3724,7 +3766,7 @@ differences in the table below show strong agreement between
   border-bottom-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_grand_summary_row {
+#hplyncngcw .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3734,7 +3776,7 @@ differences in the table below show strong agreement between
   padding-right: 5px;
 }
 
-#wvzouehsjr .gt_first_grand_summary_row {
+#hplyncngcw .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3744,7 +3786,7 @@ differences in the table below show strong agreement between
   border-top-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_last_grand_summary_row_top {
+#hplyncngcw .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3754,11 +3796,11 @@ differences in the table below show strong agreement between
   border-bottom-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_striped {
+#hplyncngcw .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wvzouehsjr .gt_table_body {
+#hplyncngcw .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3767,7 +3809,7 @@ differences in the table below show strong agreement between
   border-bottom-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_footnotes {
+#hplyncngcw .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3781,7 +3823,7 @@ differences in the table below show strong agreement between
   border-right-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_footnote {
+#hplyncngcw .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3790,7 +3832,7 @@ differences in the table below show strong agreement between
   padding-right: 5px;
 }
 
-#wvzouehsjr .gt_sourcenotes {
+#hplyncngcw .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3804,7 +3846,7 @@ differences in the table below show strong agreement between
   border-right-color: #D3D3D3;
 }
 
-#wvzouehsjr .gt_sourcenote {
+#hplyncngcw .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3812,63 +3854,63 @@ differences in the table below show strong agreement between
   padding-right: 5px;
 }
 
-#wvzouehsjr .gt_left {
+#hplyncngcw .gt_left {
   text-align: left;
 }
 
-#wvzouehsjr .gt_center {
+#hplyncngcw .gt_center {
   text-align: center;
 }
 
-#wvzouehsjr .gt_right {
+#hplyncngcw .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wvzouehsjr .gt_font_normal {
+#hplyncngcw .gt_font_normal {
   font-weight: normal;
 }
 
-#wvzouehsjr .gt_font_bold {
+#hplyncngcw .gt_font_bold {
   font-weight: bold;
 }
 
-#wvzouehsjr .gt_font_italic {
+#hplyncngcw .gt_font_italic {
   font-style: italic;
 }
 
-#wvzouehsjr .gt_super {
+#hplyncngcw .gt_super {
   font-size: 65%;
 }
 
-#wvzouehsjr .gt_footnote_marks {
+#hplyncngcw .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wvzouehsjr .gt_asterisk {
+#hplyncngcw .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wvzouehsjr .gt_indent_1 {
+#hplyncngcw .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wvzouehsjr .gt_indent_2 {
+#hplyncngcw .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wvzouehsjr .gt_indent_3 {
+#hplyncngcw .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wvzouehsjr .gt_indent_4 {
+#hplyncngcw .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wvzouehsjr .gt_indent_5 {
+#hplyncngcw .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -3890,115 +3932,115 @@ frequentist MMRMs.
   </thead>
   <tbody class="gt_table_body">
     <tr><td headers="variable" class="gt_row gt_left">intercept</td>
-<td headers="bayes_estimate" class="gt_row gt_right">24.3549</td>
+<td headers="bayes_estimate" class="gt_row gt_right">24.3351</td>
 <td headers="freq_estimate" class="gt_row gt_right">24.3537</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0011</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0000</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">fev1_bl</td>
-<td headers="bayes_estimate" class="gt_row gt_right">−0.8402</td>
-<td headers="freq_estimate" class="gt_row gt_right">−0.8402</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0000</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0000</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis2</td>
-<td headers="bayes_estimate" class="gt_row gt_right">4.7902</td>
-<td headers="freq_estimate" class="gt_row gt_right">4.7904</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0002</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0000</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis3</td>
-<td headers="bayes_estimate" class="gt_row gt_right">10.3674</td>
-<td headers="freq_estimate" class="gt_row gt_right">10.3660</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0014</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0001</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis4</td>
-<td headers="bayes_estimate" class="gt_row gt_right">15.1971</td>
-<td headers="freq_estimate" class="gt_row gt_right">15.1923</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0048</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0003</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">raceblackorafricanamerican</td>
-<td headers="bayes_estimate" class="gt_row gt_right">1.4139</td>
-<td headers="freq_estimate" class="gt_row gt_right">1.4192</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0054</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0038</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">racewhite</td>
-<td headers="bayes_estimate" class="gt_row gt_right">5.4527</td>
-<td headers="freq_estimate" class="gt_row gt_right">5.4568</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0041</td>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0186</td>
 <td headers="diff_relative_estimate" class="gt_row gt_right">−0.0008</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">fev1_bl</td>
+<td headers="bayes_estimate" class="gt_row gt_right">−0.8399</td>
+<td headers="freq_estimate" class="gt_row gt_right">−0.8402</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0003</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0004</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit2</td>
+<td headers="bayes_estimate" class="gt_row gt_right">4.7996</td>
+<td headers="freq_estimate" class="gt_row gt_right">4.7904</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0093</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0019</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit3</td>
+<td headers="bayes_estimate" class="gt_row gt_right">10.3730</td>
+<td headers="freq_estimate" class="gt_row gt_right">10.3660</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0070</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0007</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit4</td>
+<td headers="bayes_estimate" class="gt_row gt_right">15.1989</td>
+<td headers="freq_estimate" class="gt_row gt_right">15.1923</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0066</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0004</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">raceblackorafricanamerican</td>
+<td headers="bayes_estimate" class="gt_row gt_right">1.4131</td>
+<td headers="freq_estimate" class="gt_row gt_right">1.4192</td>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0061</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0043</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">racewhite</td>
+<td headers="bayes_estimate" class="gt_row gt_right">5.4556</td>
+<td headers="freq_estimate" class="gt_row gt_right">5.4568</td>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0012</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0002</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">sexfemale</td>
-<td headers="bayes_estimate" class="gt_row gt_right">0.3441</td>
+<td headers="bayes_estimate" class="gt_row gt_right">0.3456</td>
 <td headers="freq_estimate" class="gt_row gt_right">0.3381</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0060</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0178</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis1:armcdtrt</td>
-<td headers="bayes_estimate" class="gt_row gt_right">3.9865</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0075</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0221</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit1:armcdtrt</td>
+<td headers="bayes_estimate" class="gt_row gt_right">3.9842</td>
 <td headers="freq_estimate" class="gt_row gt_right">3.9833</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0033</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0008</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis2:armcdtrt</td>
-<td headers="bayes_estimate" class="gt_row gt_right">3.9341</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0009</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0002</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit2:armcdtrt</td>
+<td headers="bayes_estimate" class="gt_row gt_right">3.9330</td>
 <td headers="freq_estimate" class="gt_row gt_right">3.9308</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0033</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0008</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis3:armcdtrt</td>
-<td headers="bayes_estimate" class="gt_row gt_right">2.9802</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0023</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0006</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit3:armcdtrt</td>
+<td headers="bayes_estimate" class="gt_row gt_right">2.9795</td>
 <td headers="freq_estimate" class="gt_row gt_right">2.9837</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0035</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0012</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis4:armcdtrt</td>
-<td headers="bayes_estimate" class="gt_row gt_right">4.3916</td>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0042</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0014</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit4:armcdtrt</td>
+<td headers="bayes_estimate" class="gt_row gt_right">4.4066</td>
 <td headers="freq_estimate" class="gt_row gt_right">4.4040</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0124</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0028</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">sigma_avisitvis1</td>
-<td headers="bayes_estimate" class="gt_row gt_right">6.2348</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0026</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0006</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">sigma_avisit1</td>
+<td headers="bayes_estimate" class="gt_row gt_right">6.2317</td>
 <td headers="freq_estimate" class="gt_row gt_right">6.1506</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0842</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0137</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">sigma_avisitvis2</td>
-<td headers="bayes_estimate" class="gt_row gt_right">4.9138</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0811</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0132</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">sigma_avisit2</td>
+<td headers="bayes_estimate" class="gt_row gt_right">4.9146</td>
 <td headers="freq_estimate" class="gt_row gt_right">4.8526</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0613</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0126</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">sigma_avisitvis3</td>
-<td headers="bayes_estimate" class="gt_row gt_right">3.7760</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0620</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0128</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">sigma_avisit3</td>
+<td headers="bayes_estimate" class="gt_row gt_right">3.7775</td>
 <td headers="freq_estimate" class="gt_row gt_right">3.7153</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.0607</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0163</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">sigma_avisitvis4</td>
-<td headers="bayes_estimate" class="gt_row gt_right">9.7958</td>
+<td headers="diff_estimate" class="gt_row gt_right">0.0622</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0167</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">sigma_avisit4</td>
+<td headers="bayes_estimate" class="gt_row gt_right">9.7953</td>
 <td headers="freq_estimate" class="gt_row gt_right">9.6417</td>
-<td headers="diff_estimate" class="gt_row gt_right">0.1541</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">0.0160</td></tr>
+<td headers="diff_estimate" class="gt_row gt_right">0.1536</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">0.0159</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">correlation_vis1_vis2</td>
-<td headers="bayes_estimate" class="gt_row gt_right">0.3609</td>
+<td headers="bayes_estimate" class="gt_row gt_right">0.3607</td>
 <td headers="freq_estimate" class="gt_row gt_right">0.3795</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0185</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0488</td></tr>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0187</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0493</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">correlation_vis1_vis3</td>
-<td headers="bayes_estimate" class="gt_row gt_right">0.1410</td>
+<td headers="bayes_estimate" class="gt_row gt_right">0.1419</td>
 <td headers="freq_estimate" class="gt_row gt_right">0.1523</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0112</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0737</td></tr>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0104</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0683</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">correlation_vis2_vis3</td>
-<td headers="bayes_estimate" class="gt_row gt_right">0.0384</td>
+<td headers="bayes_estimate" class="gt_row gt_right">0.0396</td>
 <td headers="freq_estimate" class="gt_row gt_right">0.0430</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0047</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.1081</td></tr>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0034</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0791</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">correlation_vis1_vis4</td>
-<td headers="bayes_estimate" class="gt_row gt_right">0.1678</td>
+<td headers="bayes_estimate" class="gt_row gt_right">0.1680</td>
 <td headers="freq_estimate" class="gt_row gt_right">0.1802</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0124</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0687</td></tr>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0121</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0674</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">correlation_vis2_vis4</td>
-<td headers="bayes_estimate" class="gt_row gt_right">0.1109</td>
+<td headers="bayes_estimate" class="gt_row gt_right">0.1110</td>
 <td headers="freq_estimate" class="gt_row gt_right">0.1178</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0069</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0584</td></tr>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0067</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0571</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">correlation_vis3_vis4</td>
-<td headers="bayes_estimate" class="gt_row gt_right">0.0130</td>
+<td headers="bayes_estimate" class="gt_row gt_right">0.0144</td>
 <td headers="freq_estimate" class="gt_row gt_right">0.0159</td>
-<td headers="diff_estimate" class="gt_row gt_right">−0.0029</td>
-<td headers="diff_relative_estimate" class="gt_row gt_right">−0.1809</td></tr>
+<td headers="diff_estimate" class="gt_row gt_right">−0.0015</td>
+<td headers="diff_relative_estimate" class="gt_row gt_right">−0.0929</td></tr>
   </tbody>
   
   
@@ -4024,23 +4066,23 @@ frequentist MMRMs.
 +     diff_se = &quot;Difference&quot;,
 +     diff_relative_se = &quot;Relative&quot;
 +   )</code></pre>
-<div id="nvchnsoxqw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#nvchnsoxqw table {
+<div id="sjrjlbjvlt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#sjrjlbjvlt table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#nvchnsoxqw thead, #nvchnsoxqw tbody, #nvchnsoxqw tfoot, #nvchnsoxqw tr, #nvchnsoxqw td, #nvchnsoxqw th {
+#sjrjlbjvlt thead, #sjrjlbjvlt tbody, #sjrjlbjvlt tfoot, #sjrjlbjvlt tr, #sjrjlbjvlt td, #sjrjlbjvlt th {
   border-style: none;
 }
 
-#nvchnsoxqw p {
+#sjrjlbjvlt p {
   margin: 0;
   padding: 0;
 }
 
-#nvchnsoxqw .gt_table {
+#sjrjlbjvlt .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -4066,12 +4108,12 @@ frequentist MMRMs.
   border-left-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_caption {
+#sjrjlbjvlt .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#nvchnsoxqw .gt_title {
+#sjrjlbjvlt .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -4083,7 +4125,7 @@ frequentist MMRMs.
   border-bottom-width: 0;
 }
 
-#nvchnsoxqw .gt_subtitle {
+#sjrjlbjvlt .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4095,7 +4137,7 @@ frequentist MMRMs.
   border-top-width: 0;
 }
 
-#nvchnsoxqw .gt_heading {
+#sjrjlbjvlt .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4107,13 +4149,13 @@ frequentist MMRMs.
   border-right-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_bottom_border {
+#sjrjlbjvlt .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_col_headings {
+#sjrjlbjvlt .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4128,7 +4170,7 @@ frequentist MMRMs.
   border-right-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_col_heading {
+#sjrjlbjvlt .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4148,7 +4190,7 @@ frequentist MMRMs.
   overflow-x: hidden;
 }
 
-#nvchnsoxqw .gt_column_spanner_outer {
+#sjrjlbjvlt .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4160,15 +4202,15 @@ frequentist MMRMs.
   padding-right: 4px;
 }
 
-#nvchnsoxqw .gt_column_spanner_outer:first-child {
+#sjrjlbjvlt .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#nvchnsoxqw .gt_column_spanner_outer:last-child {
+#sjrjlbjvlt .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#nvchnsoxqw .gt_column_spanner {
+#sjrjlbjvlt .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4180,11 +4222,11 @@ frequentist MMRMs.
   width: 100%;
 }
 
-#nvchnsoxqw .gt_spanner_row {
+#sjrjlbjvlt .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#nvchnsoxqw .gt_group_heading {
+#sjrjlbjvlt .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4210,7 +4252,7 @@ frequentist MMRMs.
   text-align: left;
 }
 
-#nvchnsoxqw .gt_empty_group_heading {
+#sjrjlbjvlt .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4225,15 +4267,15 @@ frequentist MMRMs.
   vertical-align: middle;
 }
 
-#nvchnsoxqw .gt_from_md > :first-child {
+#sjrjlbjvlt .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#nvchnsoxqw .gt_from_md > :last-child {
+#sjrjlbjvlt .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#nvchnsoxqw .gt_row {
+#sjrjlbjvlt .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4252,7 +4294,7 @@ frequentist MMRMs.
   overflow-x: hidden;
 }
 
-#nvchnsoxqw .gt_stub {
+#sjrjlbjvlt .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4265,7 +4307,7 @@ frequentist MMRMs.
   padding-right: 5px;
 }
 
-#nvchnsoxqw .gt_stub_row_group {
+#sjrjlbjvlt .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4279,15 +4321,15 @@ frequentist MMRMs.
   vertical-align: top;
 }
 
-#nvchnsoxqw .gt_row_group_first td {
+#sjrjlbjvlt .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#nvchnsoxqw .gt_row_group_first th {
+#sjrjlbjvlt .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#nvchnsoxqw .gt_summary_row {
+#sjrjlbjvlt .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4297,16 +4339,16 @@ frequentist MMRMs.
   padding-right: 5px;
 }
 
-#nvchnsoxqw .gt_first_summary_row {
+#sjrjlbjvlt .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_first_summary_row.thick {
+#sjrjlbjvlt .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#nvchnsoxqw .gt_last_summary_row {
+#sjrjlbjvlt .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4316,7 +4358,7 @@ frequentist MMRMs.
   border-bottom-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_grand_summary_row {
+#sjrjlbjvlt .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4326,7 +4368,7 @@ frequentist MMRMs.
   padding-right: 5px;
 }
 
-#nvchnsoxqw .gt_first_grand_summary_row {
+#sjrjlbjvlt .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4336,7 +4378,7 @@ frequentist MMRMs.
   border-top-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_last_grand_summary_row_top {
+#sjrjlbjvlt .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4346,11 +4388,11 @@ frequentist MMRMs.
   border-bottom-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_striped {
+#sjrjlbjvlt .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#nvchnsoxqw .gt_table_body {
+#sjrjlbjvlt .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4359,7 +4401,7 @@ frequentist MMRMs.
   border-bottom-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_footnotes {
+#sjrjlbjvlt .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4373,7 +4415,7 @@ frequentist MMRMs.
   border-right-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_footnote {
+#sjrjlbjvlt .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -4382,7 +4424,7 @@ frequentist MMRMs.
   padding-right: 5px;
 }
 
-#nvchnsoxqw .gt_sourcenotes {
+#sjrjlbjvlt .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4396,7 +4438,7 @@ frequentist MMRMs.
   border-right-color: #D3D3D3;
 }
 
-#nvchnsoxqw .gt_sourcenote {
+#sjrjlbjvlt .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4404,63 +4446,63 @@ frequentist MMRMs.
   padding-right: 5px;
 }
 
-#nvchnsoxqw .gt_left {
+#sjrjlbjvlt .gt_left {
   text-align: left;
 }
 
-#nvchnsoxqw .gt_center {
+#sjrjlbjvlt .gt_center {
   text-align: center;
 }
 
-#nvchnsoxqw .gt_right {
+#sjrjlbjvlt .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#nvchnsoxqw .gt_font_normal {
+#sjrjlbjvlt .gt_font_normal {
   font-weight: normal;
 }
 
-#nvchnsoxqw .gt_font_bold {
+#sjrjlbjvlt .gt_font_bold {
   font-weight: bold;
 }
 
-#nvchnsoxqw .gt_font_italic {
+#sjrjlbjvlt .gt_font_italic {
   font-style: italic;
 }
 
-#nvchnsoxqw .gt_super {
+#sjrjlbjvlt .gt_super {
   font-size: 65%;
 }
 
-#nvchnsoxqw .gt_footnote_marks {
+#sjrjlbjvlt .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#nvchnsoxqw .gt_asterisk {
+#sjrjlbjvlt .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#nvchnsoxqw .gt_indent_1 {
+#sjrjlbjvlt .gt_indent_1 {
   text-indent: 5px;
 }
 
-#nvchnsoxqw .gt_indent_2 {
+#sjrjlbjvlt .gt_indent_2 {
   text-indent: 10px;
 }
 
-#nvchnsoxqw .gt_indent_3 {
+#sjrjlbjvlt .gt_indent_3 {
   text-indent: 15px;
 }
 
-#nvchnsoxqw .gt_indent_4 {
+#sjrjlbjvlt .gt_indent_4 {
   text-indent: 20px;
 }
 
-#nvchnsoxqw .gt_indent_5 {
+#sjrjlbjvlt .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -4482,65 +4524,65 @@ frequentist MMRMs.
   </thead>
   <tbody class="gt_table_body">
     <tr><td headers="variable" class="gt_row gt_left">intercept</td>
-<td headers="bayes_se" class="gt_row gt_right">1.4222</td>
+<td headers="bayes_se" class="gt_row gt_right">1.4125</td>
 <td headers="freq_se" class="gt_row gt_right">1.4075</td>
-<td headers="diff_se" class="gt_row gt_right">0.0147</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0104</td></tr>
+<td headers="diff_se" class="gt_row gt_right">0.0050</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0035</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">fev1_bl</td>
-<td headers="bayes_se" class="gt_row gt_right">0.0280</td>
+<td headers="bayes_se" class="gt_row gt_right">0.0279</td>
 <td headers="freq_se" class="gt_row gt_right">0.0278</td>
-<td headers="diff_se" class="gt_row gt_right">0.0002</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0088</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis2</td>
-<td headers="bayes_se" class="gt_row gt_right">0.8184</td>
+<td headers="diff_se" class="gt_row gt_right">0.0001</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0046</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit2</td>
+<td headers="bayes_se" class="gt_row gt_right">0.8176</td>
 <td headers="freq_se" class="gt_row gt_right">0.7985</td>
-<td headers="diff_se" class="gt_row gt_right">0.0199</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0250</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis3</td>
-<td headers="bayes_se" class="gt_row gt_right">0.8306</td>
+<td headers="diff_se" class="gt_row gt_right">0.0191</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0239</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit3</td>
+<td headers="bayes_se" class="gt_row gt_right">0.8335</td>
 <td headers="freq_se" class="gt_row gt_right">0.8132</td>
-<td headers="diff_se" class="gt_row gt_right">0.0175</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0215</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis4</td>
-<td headers="bayes_se" class="gt_row gt_right">1.3366</td>
+<td headers="diff_se" class="gt_row gt_right">0.0203</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0250</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit4</td>
+<td headers="bayes_se" class="gt_row gt_right">1.3283</td>
 <td headers="freq_se" class="gt_row gt_right">1.3086</td>
-<td headers="diff_se" class="gt_row gt_right">0.0281</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0215</td></tr>
+<td headers="diff_se" class="gt_row gt_right">0.0198</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0151</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">raceblackorafricanamerican</td>
-<td headers="bayes_se" class="gt_row gt_right">0.5835</td>
+<td headers="bayes_se" class="gt_row gt_right">0.5857</td>
 <td headers="freq_se" class="gt_row gt_right">0.5787</td>
-<td headers="diff_se" class="gt_row gt_right">0.0048</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0082</td></tr>
+<td headers="diff_se" class="gt_row gt_right">0.0070</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0120</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">racewhite</td>
-<td headers="bayes_se" class="gt_row gt_right">0.6216</td>
+<td headers="bayes_se" class="gt_row gt_right">0.6252</td>
 <td headers="freq_se" class="gt_row gt_right">0.6163</td>
-<td headers="diff_se" class="gt_row gt_right">0.0053</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0086</td></tr>
+<td headers="diff_se" class="gt_row gt_right">0.0089</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0144</td></tr>
     <tr><td headers="variable" class="gt_row gt_left">sexfemale</td>
-<td headers="bayes_se" class="gt_row gt_right">0.5079</td>
+<td headers="bayes_se" class="gt_row gt_right">0.5119</td>
 <td headers="freq_se" class="gt_row gt_right">0.4927</td>
-<td headers="diff_se" class="gt_row gt_right">0.0152</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0308</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis1:armcdtrt</td>
-<td headers="bayes_se" class="gt_row gt_right">1.0737</td>
+<td headers="diff_se" class="gt_row gt_right">0.0192</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0390</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit1:armcdtrt</td>
+<td headers="bayes_se" class="gt_row gt_right">1.0651</td>
 <td headers="freq_se" class="gt_row gt_right">1.0454</td>
-<td headers="diff_se" class="gt_row gt_right">0.0283</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0271</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis2:armcdtrt</td>
-<td headers="bayes_se" class="gt_row gt_right">0.8312</td>
+<td headers="diff_se" class="gt_row gt_right">0.0197</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0188</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit2:armcdtrt</td>
+<td headers="bayes_se" class="gt_row gt_right">0.8260</td>
 <td headers="freq_se" class="gt_row gt_right">0.8135</td>
-<td headers="diff_se" class="gt_row gt_right">0.0177</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0218</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis3:armcdtrt</td>
-<td headers="bayes_se" class="gt_row gt_right">0.6811</td>
+<td headers="diff_se" class="gt_row gt_right">0.0125</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0154</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit3:armcdtrt</td>
+<td headers="bayes_se" class="gt_row gt_right">0.6771</td>
 <td headers="freq_se" class="gt_row gt_right">0.6657</td>
-<td headers="diff_se" class="gt_row gt_right">0.0154</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0232</td></tr>
-    <tr><td headers="variable" class="gt_row gt_left">avisitvis4:armcdtrt</td>
-<td headers="bayes_se" class="gt_row gt_right">1.6799</td>
+<td headers="diff_se" class="gt_row gt_right">0.0114</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0171</td></tr>
+    <tr><td headers="variable" class="gt_row gt_left">avisit4:armcdtrt</td>
+<td headers="bayes_se" class="gt_row gt_right">1.6805</td>
 <td headers="freq_se" class="gt_row gt_right">1.6605</td>
-<td headers="diff_se" class="gt_row gt_right">0.0194</td>
-<td headers="diff_relative_se" class="gt_row gt_right">0.0117</td></tr>
+<td headers="diff_se" class="gt_row gt_right">0.0200</td>
+<td headers="diff_relative_se" class="gt_row gt_right">0.0120</td></tr>
   </tbody>
   
   
@@ -4570,44 +4612,43 @@ frequentist MMRMs.
 #&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
-#&gt;  [1] posterior_1.5.0      mmrm_0.3.11          brms.mmrm_0.1.0.9005
-#&gt;  [4] purrr_1.0.2          gtsummary_1.7.2      gt_0.10.1           
+#&gt;  [1] posterior_1.5.0      mmrm_0.3.11          brms.mmrm_1.0.1.9005
+#&gt;  [4] purrr_1.0.2          gtsummary_1.9.9.9003 gt_0.10.1           
 #&gt;  [7] ggplot2_3.5.1        tidyr_1.3.1          dplyr_1.1.4         
 #&gt; [10] knitr_1.46          
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
 #&gt;  [1] tidyselect_1.2.1     svUnit_1.0.6         farver_2.1.2        
-#&gt;  [4] loo_2.7.0            tidybayes_3.0.6      fastmap_1.1.1       
-#&gt;  [7] TH.data_1.1-2        tensorA_0.36.2.1     broom.helpers_1.15.0
-#&gt; [10] digest_0.6.35        estimability_1.5     lifecycle_1.0.4     
-#&gt; [13] StanHeaders_2.32.8   processx_3.8.4       survival_3.5-8      
-#&gt; [16] magrittr_2.0.3       compiler_4.4.0       rlang_1.1.3         
-#&gt; [19] sass_0.4.9           tools_4.4.0          utf8_1.2.4          
-#&gt; [22] labeling_0.4.3       bridgesampling_1.1-2 pkgbuild_1.4.4      
-#&gt; [25] curl_5.2.1           plyr_1.8.9           xml2_1.3.6          
-#&gt; [28] abind_1.4-5          multcomp_1.4-25      withr_3.0.0         
-#&gt; [31] grid_4.4.0           stats4_4.4.0         fansi_1.0.6         
-#&gt; [34] xtable_1.8-4         colorspace_2.1-0     inline_0.3.19       
-#&gt; [37] emmeans_1.10.1       scales_1.3.0         gtools_3.9.5        
-#&gt; [40] MASS_7.3-60.2        ggridges_0.5.6       cli_3.6.2           
-#&gt; [43] mvtnorm_1.2-4        generics_0.1.3       RcppParallel_5.1.7  
-#&gt; [46] binom_1.1-1.1        reshape2_1.4.4       commonmark_1.9.1    
-#&gt; [49] rstan_2.32.6         stringr_1.5.1        splines_4.4.0       
-#&gt; [52] bayesplot_1.11.1     matrixStats_1.3.0    brms_2.21.0         
-#&gt; [55] vctrs_0.6.5          V8_4.4.2             Matrix_1.7-0        
-#&gt; [58] sandwich_3.1-0       jsonlite_1.8.8       callr_3.7.6         
-#&gt; [61] arrayhelpers_1.1-0   ggdist_3.3.2         glue_1.7.0          
-#&gt; [64] ps_1.7.6             codetools_0.2-20     distributional_0.4.0
-#&gt; [67] stringi_1.8.4        gtable_0.3.5         QuickJSR_1.1.3      
-#&gt; [70] munsell_0.5.1        tibble_3.2.1         pillar_1.9.0        
-#&gt; [73] htmltools_0.5.8.1    Brobdingnag_1.2-9    TMB_1.9.11          
-#&gt; [76] R6_2.5.1             Rdpack_2.6           evaluate_0.23       
-#&gt; [79] lattice_0.22-6       highr_0.10           markdown_1.12       
+#&gt;  [4] loo_2.7.0            tidybayes_3.0.6      fastmap_1.2.0       
+#&gt;  [7] TH.data_1.1-2        tensorA_0.36.2.1     digest_0.6.35       
+#&gt; [10] estimability_1.5     lifecycle_1.0.4      StanHeaders_2.32.8  
+#&gt; [13] processx_3.8.4       survival_3.5-8       magrittr_2.0.3      
+#&gt; [16] compiler_4.4.0       rlang_1.1.4          sass_0.4.9          
+#&gt; [19] tools_4.4.0          utf8_1.2.4           labeling_0.4.3      
+#&gt; [22] bridgesampling_1.1-2 pkgbuild_1.4.4       curl_5.2.1          
+#&gt; [25] plyr_1.8.9           xml2_1.3.6           abind_1.4-5         
+#&gt; [28] multcomp_1.4-25      withr_3.0.0          grid_4.4.0          
+#&gt; [31] stats4_4.4.0         fansi_1.0.6          xtable_1.8-4        
+#&gt; [34] colorspace_2.1-0     inline_0.3.19        emmeans_1.10.1      
+#&gt; [37] scales_1.3.0         gtools_3.9.5         MASS_7.3-60.2       
+#&gt; [40] ggridges_0.5.6       cli_3.6.2            mvtnorm_1.2-4       
+#&gt; [43] generics_0.1.3       RcppParallel_5.1.7   binom_1.1-1.1       
+#&gt; [46] reshape2_1.4.4       commonmark_1.9.1     rstan_2.32.6        
+#&gt; [49] stringr_1.5.1        splines_4.4.0        bayesplot_1.11.1    
+#&gt; [52] matrixStats_1.3.0    brms_2.21.0          vctrs_0.6.5         
+#&gt; [55] V8_4.4.2             Matrix_1.7-0         sandwich_3.1-0      
+#&gt; [58] jsonlite_1.8.8       callr_3.7.6          arrayhelpers_1.1-0  
+#&gt; [61] ggdist_3.3.2         glue_1.7.0           ps_1.7.6            
+#&gt; [64] codetools_0.2-20     distributional_0.4.0 stringi_1.8.4       
+#&gt; [67] gtable_0.3.5         QuickJSR_1.1.3       munsell_0.5.1       
+#&gt; [70] tibble_3.2.1         pillar_1.9.0         htmltools_0.5.8.1   
+#&gt; [73] Brobdingnag_1.2-9    TMB_1.9.11           R6_2.5.1            
+#&gt; [76] Rdpack_2.6           evaluate_0.23        lattice_0.22-6      
+#&gt; [79] highr_0.10           markdown_1.12        cards_0.1.0.9046    
 #&gt; [82] rbibutils_2.2.16     backports_1.4.1      trialr_0.1.6        
 #&gt; [85] rstantools_2.4.0     Rcpp_1.0.12          coda_0.19-4.1       
 #&gt; [88] gridExtra_2.3        nlme_3.1-164         checkmate_2.3.1     
-#&gt; [91] xfun_0.43            forcats_1.0.0        zoo_1.8-12          
-#&gt; [94] pkgconfig_2.0.3</code></pre>
+#&gt; [91] xfun_0.43            zoo_1.8-12           pkgconfig_2.0.3</code></pre>
 </div>
 
 

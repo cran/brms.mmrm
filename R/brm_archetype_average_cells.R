@@ -8,6 +8,7 @@
 #'
 #'   To illustrate, suppose the dataset has two treatment groups A and B,
 #'   time points 1, 2, and 3, and no other covariates.
+#'
 #'   Let `mu_gt` be the marginal mean of the response at group
 #'   `g` time `t` given data and hyperparameters.
 #'   The model has fixed effect parameters `beta_1`, `beta_2`, ..., `beta_6`
@@ -122,51 +123,40 @@
 #' }
 brm_archetype_average_cells <- function(
   data,
-  covariates = TRUE,
-  prefix_interest = "x_",
-  prefix_nuisance = "nuisance_",
+  intercept = FALSE,
   baseline = !is.null(attr(data, "brm_baseline")),
   baseline_subgroup = !is.null(attr(data, "brm_baseline")) &&
     !is.null(attr(data, "brm_subgroup")),
   baseline_subgroup_time = !is.null(attr(data, "brm_baseline")) &&
     !is.null(attr(data, "brm_subgroup")),
-  baseline_time = !is.null(attr(data, "brm_baseline"))
+  baseline_time = !is.null(attr(data, "brm_baseline")),
+  covariates = TRUE,
+  prefix_interest = "x_",
+  prefix_nuisance = "nuisance_"
 ) {
   brm_data_validate.default(data)
   data <- brm_data_remove_archetype(data)
   data <- brm_data_fill(data)
-  assert_chr(
-    prefix_interest %||nzchar% "x",
-    "prefix_interest must be a single character string"
-  )
-  assert_chr(
-    prefix_nuisance %||nzchar% "x",
-    "prefix_nuisance must be a single character string"
-  )
-  assert(
-    prefix_interest != prefix_nuisance,
-    message = "prefix_interest and prefix_nuisance must be different"
+  brm_archetype_assert_prefixes(
+    prefix_interest = prefix_interest,
+    prefix_nuisance = prefix_nuisance
   )
   archetype <- if_any(
     brm_data_has_subgroup(data),
     archetype_average_cells_subgroup(data, prefix_interest),
     archetype_average_cells(data, prefix_interest)
   )
-  nuisance <- archetype_nuisance(
-    data = data,
-    interest = archetype$interest,
-    prefix = prefix_nuisance,
-    covariates = covariates,
-    baseline = baseline,
-    baseline_subgroup = baseline_subgroup,
-    baseline_subgroup_time = baseline_subgroup_time,
-    baseline_time = baseline_time
-  )
   brm_archetype_init(
     data = data,
     interest = archetype$interest,
-    nuisance = nuisance,
     mapping = archetype$mapping,
+    intercept = intercept,
+    baseline = baseline,
+    baseline_subgroup = baseline_subgroup,
+    baseline_subgroup_time = baseline_subgroup_time,
+    baseline_time = baseline_time,
+    covariates = covariates,
+    prefix_nuisance = prefix_nuisance,
     subclass = "brms_mmrm_average_cells"
   )
 }
@@ -174,8 +164,8 @@ brm_archetype_average_cells <- function(
 archetype_average_cells <- function(data, prefix) {
   group <- attr(data, "brm_group")
   time <- attr(data, "brm_time")
-  levels_group <- attr(data, "brm_levels_group")
-  levels_time <- attr(data, "brm_levels_time")
+  levels_group <- brm_levels(data[[attr(data, "brm_group")]])
+  levels_time <- brm_levels(data[[attr(data, "brm_time")]])
   n_time <- length(levels_time)
   matrix <- NULL
   for (name_group in levels_group) {
@@ -194,7 +184,6 @@ archetype_average_cells <- function(data, prefix) {
   names_group <- rep(levels_group, each = n_time)
   names_time <- rep(levels_time, times = length(levels_group))
   names <- paste0(prefix, paste(names_group, names_time, sep = "_"))
-  names <- brm_levels(names)
   colnames(matrix) <- names
   interest <- tibble::as_tibble(as.data.frame(matrix))
   mapping <- tibble::tibble(
@@ -209,9 +198,9 @@ archetype_average_cells_subgroup <- function(data, prefix) {
   group <- attr(data, "brm_group")
   subgroup <- attr(data, "brm_subgroup")
   time <- attr(data, "brm_time")
-  levels_group <- attr(data, "brm_levels_group")
-  levels_subgroup <- attr(data, "brm_levels_subgroup")
-  levels_time <- attr(data, "brm_levels_time")
+  levels_group <- brm_levels(data[[group]])
+  levels_subgroup <- brm_levels(data[[subgroup]])
+  levels_time <- brm_levels(data[[time]])
   n_group <- length(levels_group)
   n_subgroup <- length(levels_subgroup)
   n_time <- length(levels_time)
@@ -243,7 +232,6 @@ archetype_average_cells_subgroup <- function(data, prefix) {
     prefix,
     paste(names_group, names_subgroup, names_time, sep = "_")
   )
-  names <- brm_levels(names)
   colnames(matrix) <- names
   interest <- tibble::as_tibble(as.data.frame(matrix))
   mapping <- tibble::tibble(

@@ -50,7 +50,6 @@ set.seed(0L)
 data <- brm_data(
   data = brm_simulate_simple()$data,
   outcome = "response",
-  role = "response",
   group = "group",
   time = "time",
   patient = "patient",
@@ -84,6 +83,7 @@ Other marginals:
 \code{\link{brm_marginal_data}()},
 \code{\link{brm_marginal_draws}()},
 \code{\link{brm_marginal_draws_average}()},
+\code{\link{brm_marginal_grid}()},
 \code{\link{brm_marginal_probabilities}()}
 }
 \concept{marginals}

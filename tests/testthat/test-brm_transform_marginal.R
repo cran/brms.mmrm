@@ -10,7 +10,6 @@ test_that("brm_transform_marginal(), response, non-subgroup", {
   data <- brm_data(
     data = raw_data,
     outcome = "FEV1",
-    role = "response",
     group = "ARMCD",
     time = "AVISIT",
     patient = "USUBJID",
@@ -46,6 +45,11 @@ test_that("brm_transform_marginal(), response, non-subgroup", {
       prefix = "",
       average_within_subgroup = average_within_subgroup
     )
+    suppressMessages(
+      expect_true(is.character(summary(transform, message = TRUE)))
+    )
+    expect_true(is.character(summary(transform, message = FALSE)))
+    tmp <- capture.output(print(transform))
     model_matrix <- brms::make_standata(
       formula = formula,
       data = dplyr::mutate(data, FEV1 = 0)
@@ -89,7 +93,6 @@ test_that("brm_transform_marginal(), change, non-subgroup", {
   data <- brm_data(
     data = raw_data,
     outcome = "FEV1_CHG",
-    role = "change",
     group = "ARMCD",
     time = "AVISIT",
     patient = "USUBJID",
@@ -174,7 +177,6 @@ test_that("brm_transform_marginal(), change, subgroup, global", {
   data <- brm_data(
     data = raw_data,
     outcome = "FEV1_CHG",
-    role = "change",
     group = "ARMCD",
     subgroup = "SEX",
     time = "AVISIT",
@@ -282,7 +284,6 @@ test_that("brm_transform_marginal(), change, subgroup, local", {
   data <- brm_data(
     data = raw_data,
     outcome = "FEV1_CHG",
-    role = "change",
     group = "ARMCD",
     subgroup = "SEX",
     time = "AVISIT",
@@ -387,7 +388,7 @@ test_that("archetype non-subgroup no nuisance", {
     )
   )
   expect_equal(
-    unname(transform),
+    unclass(unname(transform)),
     kronecker(diag(2), diag(3) + lower.tri(diag(3)))
   )
   terms <- c("response ~ 0", grep("^x_", colnames(scenario), value = TRUE))

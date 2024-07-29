@@ -6,89 +6,126 @@
 \usage{
 brm_data(
   data,
-  outcome = "CHG",
-  role = "change",
+  outcome,
   baseline = NULL,
-  group = "TRT01P",
+  group,
   subgroup = NULL,
-  time = "AVISIT",
-  patient = "USUBJID",
+  time,
+  patient,
   covariates = character(0L),
   missing = NULL,
-  reference_group = "Placebo",
-  level_control = NULL,
+  reference_group,
   reference_subgroup = NULL,
   reference_time = NULL,
-  level_baseline = NULL
+  role = NULL,
+  level_baseline = NULL,
+  level_control = NULL
 )
 }
 \arguments{
 \item{data}{Data frame or tibble with longitudinal data.}
 
-\item{outcome}{Character of length 1, name of the outcome variable.}
-
-\item{role}{Character of length 1. Either \code{"response"} if \code{outcome}
-is the raw response variable (e.g. AVAL) or \code{"change"} if \code{outcome}
-is change from baseline (e.g. CHG).}
+\item{outcome}{Character of length 1, name of the continuous
+outcome variable.
+Example possibilities from clinical trial datasets include
+\code{"CHG"} and \code{"AVAL"}.
+The \code{outcome} column in the data should be a numeric vector.}
 
 \item{baseline}{Character of length 1,
-name of the baseline response variable.
+name of the baseline response variable (for example, \code{"BASE"}
+in many clinical trial datasets).
 Only relevant if the response variable is change from baseline.
 Supply \code{NULL} to ignore or omit.}
 
 \item{group}{Character of length 1, name of the treatment group variable.
-Must point to a character vector in the data. Factors are converted
-to characters.}
+Example possibilities from clinical trial datasets include
+\code{"TRT01P"}, \code{"TREATMENT"}, \code{"TRT"}, and \code{"GROUP"}.
+The \code{group} column in the data should be a
+character vector or unordered factor.}
 
 \item{subgroup}{Character of length 1, optional name of the a
-discrete subgroup variable. Set to \code{NULL} to omit the subgroup (default).}
+discrete subgroup variable. Set to \code{NULL} to omit the subgroup (default).
+If present, the \code{subgroup} column in the data should be a
+character vector or unordered factor.}
 
 \item{time}{Character of length 1, name of the discrete time variable.
-Must point to a character vector in the data. Factors are converted
-to characters.}
+Example possibilities from clinical trial datasets include
+\code{"AVISIT"} and \code{"VISIT"}.
+For most analyses, please ensure the time column in the data
+is an ordered factor. You can easily turn
+the time variable into an ordered factor using
+\code{\link[=brm_data_chronologize]{brm_data_chronologize()}}, either before or immediately after
+\code{\link[=brm_data]{brm_data()}} (but before any \verb{brm_archetype_*()} functions).
+This ensures the time points sort in chronological order,
+which ensures the correctness of informative prior archetypes and
+autoregressive / moving average correlation structures.
 
-\item{patient}{Character of length 1, name of the patient ID variable.}
+Ordinarily, ordered factors automatically use polynomial contrasts from
+\code{\link[=contr.poly]{contr.poly()}}. This is undesirable for MMRMs, so if the time variable
+is an ordered factor, then \code{\link[=brm_data]{brm_data()}}
+manually sets \code{contrasts(data[[time]])} to a set of treatment contrasts
+using \code{\link[=contr.treatment]{contr.treatment()}}. If you prefer different contrasts, please
+manually set \code{contrasts(data[[time]])} to something else after
+calling \code{\link[=brm_data]{brm_data()}}.}
 
-\item{covariates}{Character vector of names of other covariates.}
+\item{patient}{Character of length 1, name of the patient ID variable.
+Example possibilities from clinical trial datasets include
+\code{"USUBJID"}, \code{"SUBJID"}, \code{"PATIENT"}, \code{"PATIENTID"}, \code{"SUBJECT"},
+\code{"SUBJIDID"}, \code{"SBJID"}, \code{"STYSID1A"}, \code{"SBJ1N"}, and \code{"ID"}.
+The \code{patient} column in the data should be a factor or character vector.}
+
+\item{covariates}{Character vector of names of other covariates.
+All these covariates are assumed to be non-time-varying. For time-varying
+covariates, please manually expand the data to the full grid of patients
+and time points before you call \code{\link[=brm_data]{brm_data()}}. See the "Preprocessing"
+section for details.}
 
 \item{missing}{Character of length 1, name of an optional variable
 in a simulated dataset to indicate which outcome values should be missing.
 Set to \code{NULL} to omit.}
 
-\item{reference_group}{Character of length 1, Level of the \code{group} column
-to indicate the control group.
+\item{reference_group}{Atomic value of length 1, Level of the \code{group}
+column to indicate the control group.
+Example possibilities from clinical trial datasets include
+\code{"Placebo"}, \code{"PLACEBO"}, \code{"PBO"}, \code{"PLB"}, \code{"CONTROL"}, \code{"CTRL"},
+\code{"REFERENCE"}, and \code{"REF"}.
 \code{reference_group} only applies to the post-processing that happens
 in functions like \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} downstream of the model.
 It does not control the fixed effect mapping in the
 model matrix that \code{brms} derives from the formula from \code{brm_formula()}.}
 
-\item{level_control}{Deprecated on 2024-01-11 (version 0.2.0.9002).
-Use \code{reference_group} instead.}
-
-\item{reference_subgroup}{Character of length 1,
+\item{reference_subgroup}{Atomic value of length 1,
 level of the \code{subgroup} column
 to use as a reference for pairwise differences in when computing
 marginal means downstream of the model.
 It does not control the fixed effect mapping in the
 model matrix that \code{brms} derives from the formula from \code{brm_formula()}.}
 
-\item{reference_time}{Character of length 1 or \code{NULL},
+\item{reference_time}{Atomic value of length 1 or \code{NULL},
 level of the \code{time} column to indicate the baseline time point.
-This value should not be present in the data if the outcome
-variable is change from baseline, but it must be in the data
-if the outcome variable is the raw response so that \code{brms.mmrm}
-can produce model-based marginal estimates of change from baseline.
-In other words, set \code{reference_time} to \code{NULL} if \code{role} is \code{"change"},
-and set \code{reference_time} to a non-null value in \code{data[[time]]}
-if \code{role} is \code{"response"}.
+Leave as \code{NULL} if there is no baseline or baseline is not included
+in \code{data[[time]]}.
+
+If \code{reference_time} is not \code{NULL}, then \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} will
+calculate change from baseline, and it will calculate treatment
+differences as differences between change-from-baseline values.
+If \code{reference_time} is not \code{NULL}, then \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} will
+not calculate change from baseline, and it will calculate treatment
+differences as differences between response values.
 
 Note: \code{reference_time} only applies to the post-processing that happens
 in functions like \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} downstream of the model.
 It does not control the fixed effect mapping in the
 model matrix that \code{brms} derives from the formula from \code{brm_formula()}.}
 
+\item{role}{Deprecated as unnecessary on 2024-07-11 (version 1.0.1.9007).
+Use \code{reference_time} to supply a baseline time point value if it exists.}
+
 \item{level_baseline}{Deprecated on 2024-01-11 (version 0.2.0.9002).
 Use \code{reference_time} instead.}
+
+\item{level_control}{Deprecated on 2024-01-11 (version 0.2.0.9002).
+Use \code{reference_group} instead.}
 }
 \value{
 A classed tibble with attributes which denote features of
@@ -108,7 +145,11 @@ are properly formatted.
 \code{make.names(unique = FALSE, allow_ = TRUE)} to ensure agreement
 between the data and the output of \code{brms}.
 \item For each implicitly missing outcome observation, add explicit row
-with the outcome variable equal to \code{NA_real_}.
+with the outcome variable equal to \code{NA_real_}. Missing values
+in the predictors are implicitly filled using \code{\link[zoo:na.locf]{zoo::na.locf()}}
+on within each patient, which is not valid for time-varying
+covariates. If any covariates are time-varying, please
+manually perform this step before calling \code{\link[=brm_data]{brm_data()}}.
 \item Arrange the rows of the data by group, then patient, then discrete time.
 \item Select only the columns of the data relevant to an MMRM analysis.
 }
@@ -132,7 +173,6 @@ data
 brm_data(
   data = data,
   outcome = "col_response",
-  role = "response",
   group = "col_group",
   time = "col_time",
   patient = "col_patient",
@@ -142,6 +182,7 @@ brm_data(
 }
 \seealso{
 Other data: 
-\code{\link{brm_data_change}()}
+\code{\link{brm_data_change}()},
+\code{\link{brm_data_chronologize}()}
 }
 \concept{data}

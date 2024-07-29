@@ -25,9 +25,9 @@
 #'     Analyzing longitudinal clinical trial data: A practical guide,
 #'     CRC Press, Taylor & Francis Group.
 #' @family help
-#' @importFrom brms brm brmsformula get_prior make_standata prior unstr
-#' @importFrom dplyr across bind_cols bind_rows left_join rename select
-#'   summarize
+#' @importFrom brms brm brmsformula get_prior make_standata mi prior unstr
+#' @importFrom dplyr across arrange bind_cols bind_rows distinct left_join
+#'   rename select summarize
 #' @importFrom ggplot2 aes facet_wrap geom_point geom_errorbar ggplot
 #'   position_dodge theme_gray xlab ylab
 #' @importFrom ggridges geom_density_ridges2
@@ -36,7 +36,8 @@
 #'   mcse_sd
 #' @importFrom purrr map_dbl map_df map2_df
 #' @importFrom rlang is_formula warn
-#' @importFrom stats as.formula median model.matrix rbinom rnorm runif sd
+#' @importFrom stats as.formula complete.cases contrasts<- contr.treatment
+#'   median model.matrix rbinom rnorm runif sd
 #' @importFrom tibble as_tibble tibble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider
 #' @importFrom tidyselect any_of everything starts_with

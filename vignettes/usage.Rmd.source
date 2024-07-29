@@ -1,5 +1,7 @@
 ---
 title: "Usage"
+bibliography: '`r system.file("bibliography.bib", package = "brms.mmrm")`'
+csl: '`r system.file("asa.csl", package = "brms.mmrm")`'
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -46,13 +48,21 @@ raw_data <- brm_simulate_simple(
 raw_data
 ```
 
+It is good practice to convert the time variable to an ordered factor so individual discrete time points correctly represent correct chronological order.^[Ordered factors usually have polynomial contrasts (`contr.poly()`), which makes the fixed effect parameterization counterintuitive. However, `brm_data()` manually sets the contrasts of the time variable to be treatment contrasts (`contr.treatment()`) so there are individual fixed effects for individual discrete time points. To revert back to polynomial contrasts, use `contr.poly()` after the call to `brm_data()`.]
+
+```{r}
+raw_data <- raw_data |>
+  brm_data_chronologize(time = "time", levels = paste0("time_", seq_len(4)))
+
+str(raw_data$time)
+```
+
 Next, create a special classed dataset that the package will recognize. The classed data object contains a pre-processed version of the data, along with attributes to declare the outcome variable, whether the outcome is response or change from baseline, the treatment group variable, the discrete time point variable, control group, baseline time point, and the covariates selected for analysis.
 
 ```{r}
 data <- brm_data(
   data = raw_data,
   outcome = "response",
-  role = "response",
   group = "group",
   patient = "patient",
   time = "time",
@@ -65,9 +75,9 @@ data
 
 class(data)
 
-roles <- attributes(data)
-roles$row.names <- NULL
-str(roles)
+attributes <- attributes(data)
+attributes$row.names <- NULL
+str(attributes)
 ```
 
 # Formula
@@ -155,25 +165,93 @@ model <- brm_model(data = data, formula = formula, refresh = 0)
 model <- brm_model(data = data, formula = formula, refresh = 0)
 ```
 
-The result is a `brms` model object.
+The result is a `brms` model object with extra list elements `brms.mmrm_data` and `brms.mmrm_formula` to keep track of the data and formula used to fit the model.
 
 ```{r}
 model
 ```
+
+```{r}
+model$brms.mmrm_data
+```
+
+```{r}
+model$brms.mmrm_formula
+```
+
+# Imputation of missing outcomes
+
+Under the missing at random (MAR) assumptions, MMRMs do not require imputation (@bamdd). However, if the outcomes in your data are not missing at random, or if you are targeting an alternative estimand, then you may need to impute missing outcomes. `brms.mmrm` can leverage either of the two alternative solutions described at <https://paul-buerkner.github.io/brms/articles/brms_missings.html>. 
+
+## Imputation before model fitting
+
+To impute missing outcomes before model fitting, first use create a list of imputed datasets using the multiple imputation method of your choice. The [`rbmi`](https://insightsengineering.github.io/rbmi/main/) package is uniquely suited to the multiple imputation of continuous longitudinal clinical trial data.
+
+```{r, eval = FALSE}
+variables <- rbmi::set_vars(
+  outcome = "response",
+  visit = "time",
+  subjid = "patient",
+  group = "group",
+  covariates = c("biomarker1", "biomarker2")
+)
+imputation_draws <- rbmi::draws(
+  data = data |>
+    mutate(
+      patient = as.factor(patient),
+      group = as.factor(group)
+    ),
+  vars = variables,
+  method = rbmi::method_condmean(type = "jackknife"),
+  quiet = TRUE
+)
+imputation_run <- rbmi::impute(
+  draws = imputation_draws,
+  references = c(
+    group_1 = "group_1",
+    group_2 = "group_1",
+    group_3 = "group_1"
+  )
+)
+imputed_datasets <- rbmi::extract_imputed_dfs(imputation_run)
+```
+
+At this point, `imputed_datasets` is a list of data frames with the response variable imputed with multiple imputation. Simply supply this list to the `imputed` argument of `brm_model()`. Internally, `brm_model()` calls `brms::brm_multiple(data = imputed, formula = formula)` instead of `brms::brm(data = data, formula = formula)` to fit an MMRM to each of the individual imputed datasets in the `imputed` object.
+
+```{r, eval = FALSE}
+model <- brm_model(
+  data = data, # Yes, please supply the original non-imputed dataset too.
+  formula = formula,
+  imputed = imputed_datasets,
+  refresh = 0
+)
+```
+
+Unless you set `combine = FALSE` in `brm_model()`, `brms` automatically combines posterior samples across imputed datasets. This means the downstream post-processing workflow below is exactly the same as the non-imputation case.
+
+## Imputation during model fitting
+
+Alternatively, to conduct imputation during the fitting of that model, set `model_missing_outcomes` to `TRUE` in `brm_formula()`. This formula uses `response | mi()` instead of just `response` on the left-hand side to tell `brms` to model each missing outcome as a model parameter. To use this type of imputation, simply supply the returned formula object to the `formula` argument of `brm_model()`.
+
+```{r}
+brm_formula(data, model_missing_outcomes = TRUE)
+```
+
+Unlike imputation before model fitting, this approach requires only one fit of the model. However, that model will sample posterior draws for each missing outcome as if it were a model parameter, so the MCMC may run slower and produce a larger output object.
 
 # Marginals
 
 Regardless of the choice of fixed effects formula, `brms.mmrm` performs inference on the marginal distributions at each treatment group and time point of the mean of the following quantities:
 
 1. Response.
-2. Change from baseline, if you set `role` to `"change"` in `brm_data()`.
-3. Treatment difference, in terms of change from baseline.
+2. Change from baseline. Only reported if you originally declared a baseline time point with the `reference_time` argument of `brm_data()`.
+3. Treatment difference. If you declared a baseline in (2), then treatment difference is calculated in terms of change from baseline. Otherwise, it is calculated in terms of raw response.
 4. Effect size: treatment difference divided by the residual standard deviation.
 
 To derive posterior draws of these marginals, use the `brm_marginal_draws()` function.
 
 ```{r, paged.print = FALSE}
-draws <- brm_marginal_draws(data = data, formula = formula, model = model)
+draws <- brm_marginal_draws(model = model)
 
 draws
 ```
@@ -274,3 +352,5 @@ brm_plot_draws(
   facet = "time"
 )
 ```
+
+# References

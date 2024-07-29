@@ -6,41 +6,34 @@
 \usage{
 brm_archetype_cells(
   data,
-  covariates = TRUE,
-  prefix_interest = "x_",
-  prefix_nuisance = "nuisance_",
+  intercept = FALSE,
   baseline = !is.null(attr(data, "brm_baseline")),
   baseline_subgroup = !is.null(attr(data, "brm_baseline")) && !is.null(attr(data,
     "brm_subgroup")),
   baseline_subgroup_time = !is.null(attr(data, "brm_baseline")) && !is.null(attr(data,
     "brm_subgroup")),
-  baseline_time = !is.null(attr(data, "brm_baseline"))
+  baseline_time = !is.null(attr(data, "brm_baseline")),
+  covariates = TRUE,
+  clda = FALSE,
+  prefix_interest = "x_",
+  prefix_nuisance = "nuisance_"
 )
 }
 \arguments{
 \item{data}{A classed data frame from \code{\link[=brm_data]{brm_data()}}, or an informative
 prior archetype from a function like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}}.}
 
-\item{covariates}{Logical of length 1.
-\code{TRUE} (default) to include any additive covariates declared with
-the \code{covariates} argument of \code{\link[=brm_data]{brm_data()}},
-\code{FALSE} to omit.
-For informative prior archetypes, this option is set in
-functions like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}} rather than in
-\code{\link[=brm_formula]{brm_formula()}} in order to make sure columns are appropriately
-centered and the underlying model matrix has full rank.}
-
-\item{prefix_interest}{Character string to prepend to the new columns
-of generated fixed effects of interest (relating to group, subgroup,
-and/or time).
-In rare cases, you may need to set a non-default prefix to prevent
-name conflicts with existing columns in the data, or rename
-the columns in your data.
-\code{prefix_interest} must not be the same value as \code{prefix_nuisance}.}
-
-\item{prefix_nuisance}{Same as \code{prefix_interest}, but relating to
-generated fixed effects NOT of interest (not relating to group,
-subgroup, or time). Must not be the same value as \code{prefix_interest}.}
+\item{intercept}{\code{TRUE} to make one of the parameters an intercept,
+\code{FALSE} otherwise. If \code{TRUE}, then the interpretation of the
+parameters in the "Details" section will change, and you are
+responsible for manually calling \code{summary()} on the archetype
+and interpreting the parameters according to the output.
+In addition, you are responsible for setting an
+appropriate prior on the intercept. In normal usage, \code{brms} looks for
+a model parameter called \code{"Intercept"} and uses the data to set the prior
+to help the MCMC runs smoothly. If \code{intercept = TRUE} for informative
+prior archetypes, the intercept will be called something else, and
+\code{brms} cannot auto-generate a sensible default prior.}
 
 \item{baseline}{Logical of length 1.
 \code{TRUE} to include an additive effect for baseline
@@ -75,6 +68,43 @@ For informative prior archetypes, this option should be set in
 functions like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}} rather than in
 \code{\link[=brm_formula]{brm_formula()}} in order to make sure columns are appropriately
 centered and the underlying model matrix has full rank.}
+
+\item{covariates}{Logical of length 1.
+\code{TRUE} (default) to include any additive covariates declared with
+the \code{covariates} argument of \code{\link[=brm_data]{brm_data()}},
+\code{FALSE} to omit.
+For informative prior archetypes, this option is set in
+functions like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}} rather than in
+\code{\link[=brm_formula]{brm_formula()}} in order to make sure columns are appropriately
+centered and the underlying model matrix has full rank.}
+
+\item{clda}{\code{TRUE} to opt into constrained longitudinal data analysis
+(cLDA), \code{FALSE} otherwise. To use cLDA, \code{reference_time} must have been
+non-\code{NULL} in the call to \code{\link[=brm_data]{brm_data()}} used to construct the data.
+
+Some archetypes cannot support cLDA
+(e.g. \code{\link[=brm_archetype_average_cells]{brm_archetype_average_cells()}} and
+\code{\link[=brm_archetype_average_effects]{brm_archetype_average_effects()}}).
+
+In cLDA, the fixed effects parameterization
+is restricted such that all treatment groups are pooled at baseline.
+(If you supplied a \code{subgroup} variable in \code{\link[=brm_data]{brm_data()}}, then
+this constraint is applied separately within each subgroup variable.)
+cLDA may result in more precise estimates when the \code{time} variable
+has a baseline level and the baseline outcomes are recorded
+before randomization in a clinical trial.}
+
+\item{prefix_interest}{Character string to prepend to the new columns
+of generated fixed effects of interest (relating to group, subgroup,
+and/or time).
+In rare cases, you may need to set a non-default prefix to prevent
+name conflicts with existing columns in the data, or rename
+the columns in your data.
+\code{prefix_interest} must not be the same value as \code{prefix_nuisance}.}
+
+\item{prefix_nuisance}{Same as \code{prefix_interest}, but relating to
+generated fixed effects NOT of interest (not relating to group,
+subgroup, or time). Must not be the same value as \code{prefix_interest}.}
 }
 \value{
 A special classed \code{tibble} with data tailored to

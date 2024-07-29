@@ -5,17 +5,21 @@
 \title{MCMC draws from the marginal posterior of an MMRM}
 \usage{
 brm_marginal_draws(
-  data,
-  formula,
   model,
-  transform = brms.mmrm::brm_transform_marginal(data, formula),
-  effect_size = TRUE,
+  data = model$brms.mmrm_data,
+  formula = model$brms.mmrm_formula,
+  transform = brms.mmrm::brm_transform_marginal(data = data, formula = formula,
+    average_within_subgroup = average_within_subgroup),
+  effect_size = attr(formula, "brm_allow_effect_size"),
+  average_within_subgroup = NULL,
   use_subgroup = NULL,
   control = NULL,
   baseline = NULL
 )
 }
 \arguments{
+\item{model}{A fitted model object from \code{\link[=brm_model]{brm_model()}}.}
+
 \item{data}{A classed data frame from \code{\link[=brm_data]{brm_data()}}, or an informative
 prior archetype from a function like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}}.}
 
@@ -24,8 +28,6 @@ or \code{brms::brmsformula()}. Should include the full mapping
 of the model, including fixed effects, residual correlation,
 and heterogeneity in the discrete-time-specific residual variance
 components.}
-
-\item{model}{A fitted model object from \code{\link[=brm_model]{brm_model()}}.}
 
 \item{transform}{Matrix with one row per marginal mean and one column
 per model parameter. \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} uses this matrix
@@ -43,6 +45,13 @@ effect size when baseline or covariates are included
 in the \code{\link[=brm_formula_sigma]{brm_formula_sigma()}} formula. If \code{effect_size} is \code{TRUE}
 in this case, then \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} will automatically
 omit effect size and throw an informative warning.}
+
+\item{average_within_subgroup}{\code{TRUE}, \code{FALSE}, or \code{NULL} to control
+whether nuisance parameters are averaged within subgroup levels
+in \code{\link[=brm_transform_marginal]{brm_transform_marginal()}}. Ignored if the \code{transform} argument
+is manually supplied by the user. See the help page of
+\code{\link[=brm_transform_marginal]{brm_transform_marginal()}} for details on the
+\code{average_within_subgroup} argument.}
 
 \item{use_subgroup}{Deprecated. No longer used. \code{\link[=brm_marginal_draws]{brm_marginal_draws()}}
 no longer marginalizes over the subgroup declared
@@ -67,20 +76,31 @@ list are described below:
 \item \code{difference_time}: change from baseline: the
 \code{response} at a particular time minus the \code{response} at baseline
 (\code{reference_time}).
-Only returned if the \code{role} argument of \code{\link[=brm_data]{brm_data()}} was
-\code{"response"}. (If \code{role} is \code{"change"}, then \code{response} already
-represents change from baseline.)
-\item \code{difference_group}: treatment effect: the
-the \code{difference_time} at each active group minus the \code{difference_time}
-at the control group (\code{reference_group}).
-If \code{role} is \code{"change"}, then treatment group
-is instead the difference between \code{response} at each active group minus
-the \code{response} at the control group.
+Only returned if the \code{reference_time} argument of \code{\link[=brm_data]{brm_data()}} was
+not \code{NULL} (i.e. if a baseline value for the time variable
+was identified).
+\item \code{difference_group}: treatment effect:
+These samples depend on the values of \code{reference_group} and
+\code{reference_time} which were originally declared in \code{\link[=brm_data]{brm_data()}}.
+\code{reference_group} is the control group, and \code{reference_time}
+is baseline. If baseline was originally given (via \code{reference_time}
+in \code{\link[=brm_data]{brm_data()}}),
+then \code{difference_time} is the change-from-baseline value of
+each active group minus that of the control group.
+Otherwise, if baseline is omitted (i.e. \code{reference_time = NULL}
+(default) in \code{\link[=brm_data]{brm_data()}}), then \code{difference_time} is the
+raw response at each active group minus that of the control group.
 \item \code{difference_subgroup}: subgroup differences: the \code{difference_group}
 at each subgroup level minus the \code{difference_group} at the subgroup
-reference level (\code{reference_subgroup}).
+reference level (\code{reference_subgroup}). Only reported if a subgroup
+analysis was specified through the appropriate arguments to
+\code{\link[=brm_data]{brm_data()}} and \code{\link[=brm_formula]{brm_formula()}}.
 \item \code{effect}: effect size, defined as the treatment difference
 divided by the residual standard deviation. Omitted if
+the \code{effect_size} argument is \code{FALSE} or if the
+\code{\link[=brm_formula_sigma]{brm_formula_sigma()}} includes baseline or covariates.
+\item \code{sigma}: posterior draws of linear-scale marginal standard deviations
+of residuals. Omitted if
 the \code{effect_size} argument is \code{FALSE} or if the
 \code{\link[=brm_formula_sigma]{brm_formula_sigma()}} includes baseline or covariates.
 }
@@ -88,6 +108,19 @@ the \code{effect_size} argument is \code{FALSE} or if the
 \description{
 Get marginal posterior draws from a fitted MMRM.
 }
+\section{Baseline}{
+
+The returned values from \code{\link[=brm_marginal_draws]{brm_marginal_draws()}}
+depend on whether a baseline time point
+was declared through the \code{reference_time} argument of \code{\link[=brm_data]{brm_data()}}.
+If \code{reference_time} was not \code{NULL}, then \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} will
+calculate change from baseline, and it will calculate treatment
+differences as differences between change-from-baseline values.
+If \code{reference_time} was not \code{NULL}, then \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} will
+not calculate change from baseline, and it will calculate treatment
+differences as differences between response values.
+}
+
 \section{Separation string}{
 
 Post-processing in \code{\link[=brm_marginal_draws]{brm_marginal_draws()}} names each of the
@@ -104,7 +137,6 @@ set.seed(0L)
 data <- brm_data(
   data = brm_simulate_simple()$data,
   outcome = "response",
-  role = "response",
   group = "group",
   time = "time",
   patient = "patient",
@@ -136,6 +168,7 @@ brm_marginal_draws(data = data, formula = formula, model = model)
 Other marginals: 
 \code{\link{brm_marginal_data}()},
 \code{\link{brm_marginal_draws_average}()},
+\code{\link{brm_marginal_grid}()},
 \code{\link{brm_marginal_probabilities}()},
 \code{\link{brm_marginal_summaries}()}
 }

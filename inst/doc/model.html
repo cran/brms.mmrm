@@ -265,6 +265,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><a href="#model" id="toc-model"><span class="toc-section-number">1</span> Model</a></li>
 <li><a href="#priors" id="toc-priors"><span class="toc-section-number">2</span> Priors</a></li>
 <li><a href="#sampling" id="toc-sampling"><span class="toc-section-number">3</span> Sampling</a></li>
+<li><a href="#imputation-of-missing-outcomes" id="toc-imputation-of-missing-outcomes"><span class="toc-section-number">4</span> Imputation of missing
+outcomes</a></li>
 <li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
@@ -355,6 +357,18 @@ The result of MCMC is a collection of draws from the full joint
 posterior distribution of the parameters given the data. Individual
 draws of scalar parameters such as <span class="math inline">\(\beta_3\)</span> are considered draws from the
 marginal posterior distribution of e.g. <span class="math inline">\(\beta_3\)</span> given the data.</p>
+</div>
+<div id="imputation-of-missing-outcomes" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Imputation of missing
+outcomes</h1>
+<p>Under the missing at random (MAR) assumptions, MMRMs do not require
+imputation (<span class="citation">Holzhauer and Weber (2024)</span>).
+However, if the outcomes in your data are not missing at random, or if
+you are targeting an alternative estimand, then you may need to impute
+missing outcomes. <code>brms.mmrm</code> can leverage either of the two
+alternative solutions described at <a href="https://paul-buerkner.github.io/brms/articles/brms_missings.html" class="uri">https://paul-buerkner.github.io/brms/articles/brms_missings.html</a>.
+Please see the <a href="https://openpharma.github.io/brms.mmrm/articles/usage.html">usage
+vignette</a> for details on the implementation and interface.</p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>

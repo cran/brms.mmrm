@@ -7,26 +7,10 @@
 #' @return A named list of tibbles of MCMC draws of the marginal posterior
 #'   distribution of each treatment group and time point
 #'   (or group-by-subgroup-by-time, if applicable).
-#'   In each tibble, there is 1 row per posterior sample sand one column for
-#'   each type of marginal distribution (i.e. each combination of treatment
-#'   group and discrete time point. The specific `tibble`s in the returned
-#'   list are described below:
-#'   * `response`: on the scale of the response variable.
-#'   * `difference_time`: change from baseline: the
-#'     `response` at a particular time minus the `response` at baseline
-#'     (`reference_time`).
-#'     Only returned if the `role` argument of [brm_data()] was
-#'     `"response"`. (If `role` is `"change"`, then `response` already
-#'     represents change from baseline.)
-#'   * `difference_group`: treatment effect: the
-#'     the `difference_time` at each active group minus the `difference_time`
-#'     at the control group (`reference_group`).
-#'     If `role` is `"change"`, then treatment group
-#'     is instead the difference between `response` at each active group minus
-#'     the `response` at the control group.
-#'   * `difference_subgroup`: subgroup differences: the `difference_group`
-#'     at each subgroup level minus the `difference_group` at the subgroup
-#'     reference level (`reference_subgroup`).
+#'   See [brm_marginal_draws()] for the full details of the return value.
+#'   The only difference is that [brm_marginal_draws_average()] returns
+#'   a single pseudo-time-point to represent the average across
+#'   multiple real time points.
 #' @inheritParams brm_marginal_draws
 #' @param draws List of posterior draws from [brm_marginal_draws()].
 #' @param times Character vector of discrete time point levels
@@ -44,7 +28,6 @@
 #' data <- brm_data(
 #'   data = brm_simulate_simple()$data,
 #'   outcome = "response",
-#'   role = "response",
 #'   group = "group",
 #'   time = "time",
 #'   patient = "patient",
@@ -79,8 +62,8 @@
 #' )
 #' }
 brm_marginal_draws_average <- function(
-  data,
   draws,
+  data,
   times = NULL,
   label = "average"
 ) {
@@ -89,17 +72,20 @@ brm_marginal_draws_average <- function(
     message = "marginals arg must be a named list from brm_marginal_draws()"
   )
   brm_data_validate(data)
-  levels_group <-  attr(data, "brm_levels_group")
-  levels_subgroup <-  attr(data, "brm_levels_subgroup")
-  levels_time <- brm_levels(unique(times %|||% attr(data, "brm_levels_time")))
+  levels_group <-  brm_levels(data[[attr(data, "brm_group")]])
+  levels_subgroup <- if_any(
+    is.null(attr(data, "brm_subgroup")),
+    character(0L),
+    brm_levels(data[[attr(data, "brm_subgroup")]])
+  )
+  all_times <- brm_levels(data[[attr(data, "brm_time")]])
+  levels_time <- unique(times %|||% all_times)
   assert(
     levels_time,
-    is.character(.),
     !anyDuplicated(.),
     !anyNA(.),
-    nzchar(.),
     length(.) > 0L,
-    all(. %in% attr(data, "brm_levels_time")),
+    all(. %in% all_times),
     message = "times argument must be valid discrete time points from the data"
   )
   label <- brm_levels(label)
@@ -109,7 +95,7 @@ brm_marginal_draws_average <- function(
     !anyNA(.),
     nzchar(.),
     length(.) == 1L,
-    !any(. %in% attr(data, "brm_levels_time")),
+    !any(. %in% all_times),
     message = paste(
       "label must be a string and must not conflict",
       "with existing time point labels."

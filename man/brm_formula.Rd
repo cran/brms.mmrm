@@ -8,6 +8,7 @@
 \usage{
 brm_formula(
   data,
+  model_missing_outcomes = FALSE,
   check_rank = TRUE,
   sigma = brms.mmrm::brm_formula_sigma(data = data, check_rank = check_rank),
   correlation = "unstructured",
@@ -19,6 +20,7 @@ brm_formula(
 
 \method{brm_formula}{default}(
   data,
+  model_missing_outcomes = FALSE,
   check_rank = TRUE,
   sigma = brms.mmrm::brm_formula_sigma(data = data, check_rank = check_rank),
   correlation = "unstructured",
@@ -50,18 +52,33 @@ brm_formula(
 
 \method{brm_formula}{brms_mmrm_archetype}(
   data,
+  model_missing_outcomes = FALSE,
   check_rank = TRUE,
   sigma = brms.mmrm::brm_formula_sigma(data = data, check_rank = check_rank),
   correlation = "unstructured",
   autoregressive_order = 1L,
   moving_average_order = 1L,
   residual_covariance_arma_estimation = FALSE,
-  ...
+  ...,
+  warn_ignored = TRUE
 )
 }
 \arguments{
 \item{data}{A classed data frame from \code{\link[=brm_data]{brm_data()}}, or an informative
 prior archetype from a function like \code{\link[=brm_archetype_successive_cells]{brm_archetype_successive_cells()}}.}
+
+\item{model_missing_outcomes}{Logical of length 1, \code{TRUE}
+to impute missing outcomes during model fitting as described in the
+"Imputation during model fitting" section of
+\url{https://paul-buerkner.github.io/brms/articles/brms_missings.html}.
+Specifically, if the outcome variable is \code{y}, then the formula will
+begin with \code{y | mi() ~ ...} instead of simply \code{y ~ ...}.
+Set to \code{FALSE} (default) to forgo this kind of imputation
+and discard missing observations from the data
+just prior to fitting the model inside \code{\link[=brm_model]{brm_model()}}. See
+\url{https://opensource.nibr.com/bamdd/src/02h_mmrm.html#what-estimand-does-mmrm-address} #nolint
+to understand the standard assumptions and decisions regarding MMRMs
+and missing outcomes.}
 
 \item{check_rank}{\code{TRUE} to check the rank of the model matrix and
 throw an error if rank deficiency is detected. \code{FALSE} to skip
@@ -213,6 +230,10 @@ Use \code{baseline_time} instead.}
 
 \item{interaction_group}{Deprecated on 2024-01-16 (version 0.0.2.9002).
 Use \code{group_time} instead.}
+
+\item{warn_ignored}{Set to \code{TRUE}
+to throw a warning if ignored arguments are specified,
+\code{FALSE} otherwise.}
 }
 \value{
 An object of class \code{"brmsformula"} returned from
@@ -276,7 +297,6 @@ set.seed(0)
 data <- brm_data(
   data = brm_simulate_simple()$data,
   outcome = "response",
-  role = "response",
   group = "group",
   time = "time",
   patient = "patient",
