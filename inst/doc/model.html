@@ -280,7 +280,8 @@ al. (2008)</span>, <span class="citation">Mallinckrodt and Lipkovich
 randomized controlled parallel studies with discrete time points, where
 each patient shares the same set of time points. Whereas the <a href="https://openpharma.github.io/mmrm/"><code>mmrm</code></a> package
 is frequentist, <code>brms.mmrm</code> fits models in Bayesian fashion
-using <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a> <span class="citation">(Bürkner 2017)</span>.</p>
+using <a href="https://paulbuerkner.com/brms/"><code>brms</code></a>
+<span class="citation">(Bürkner 2017)</span>.</p>
 <div id="model" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Model</h1>
 <p>Let <span class="math inline">\(y_1, \ldots, y_N\)</span> be
@@ -300,7 +301,7 @@ and its specific makeup is determined by arguments such as
 <code>intercept</code> and <code>group</code> in
 <code>brm_formula()</code>. <span class="math inline">\(b\)</span> is a
 constant-length vector of fixed effect parameters.</p>
-<p>The MMRM in <code>brms.mmrm</code> is a <a href="https://paul-buerkner.github.io/brms/articles/brms_distreg.html">distributional
+<p>The MMRM in <code>brms.mmrm</code> is a <a href="https://paulbuerkner.com/brms/articles/brms_distreg.html">distributional
 model</a>, which means it uses a linear regression structure for both
 the mean and the variance of the multivariate normal likelihood. In
 particular, the <span class="math inline">\(T \times T\)</span>
@@ -315,7 +316,7 @@ symmetric positive-definite residual covariance matrix <span class="math inline"
 <p>Above, <span class="math inline">\(\sigma_n\)</span> is a vector of
 <span class="math inline">\(T\)</span> time-specific scalar standard
 deviations, and <span class="math inline">\(\text{diag}(\sigma_n)\)</span> is a diagonal <span class="math inline">\(T \times T\)</span> matrix. <span class="math inline">\(Z_n\)</span> is a patient-specific matrix which
-controls how the <a href="https://paul-buerkner.github.io/brms/articles/brms_distreg.html">distributional
+controls how the <a href="https://paulbuerkner.com/brms/articles/brms_distreg.html">distributional
 parameters</a> <span class="math inline">\(b_\sigma\)</span> map to the
 more intuitive standard deviation vector <span class="math inline">\(\sigma_n\)</span>. The specific makeup of <span class="math inline">\(Z_n\)</span> is determined by the
 <code>sigma</code> argument of <code>brm_formula()</code>, which in turn
@@ -327,7 +328,7 @@ and off-diagonal elements between -1 and 1. The structure of <span class="math i
 could describe an unstructured parameterization, ARMA, compound
 symmetry, etc. These alternative structures and priors are available
 directly through <code>brms</code>. For specific details, please consult
-<a href="https://paul-buerkner.github.io/brms/reference/autocor-terms.html" class="uri">https://paul-buerkner.github.io/brms/reference/autocor-terms.html</a>
+<a href="https://paulbuerkner.com/brms/reference/autocor-terms.html" class="uri">https://paulbuerkner.com/brms/reference/autocor-terms.html</a>
 and <code>?brms.mmrm::brm_formula</code>.</p>
 </div>
 <div id="priors" class="section level1" number="2">
@@ -349,9 +350,10 @@ those new specialized parameters.</p>
 </div>
 <div id="sampling" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Sampling</h1>
-<p><code>brms.mmrm</code>, through <a href="https://paul-buerkner.github.io/brms/"><code>brms</code></a>, fits
-the model to the data using the Markov chain Monte Carlo (MCMC)
-capabilities of <a href="https://mc-stan.org/">Stan</a> <span class="citation">(Stan Development Team 2023)</span>. Please read <a href="https://mc-stan.org/users/documentation/" class="uri">https://mc-stan.org/users/documentation/</a> for more
+<p><code>brms.mmrm</code>, through <a href="https://paulbuerkner.com/brms/"><code>brms</code></a>, fits the
+model to the data using the Markov chain Monte Carlo (MCMC) capabilities
+of <a href="https://mc-stan.org/">Stan</a> <span class="citation">(Stan
+Development Team 2023)</span>. Please read <a href="https://mc-stan.org/users/documentation/" class="uri">https://mc-stan.org/users/documentation/</a> for more
 details on the methodology of <a href="https://mc-stan.org/">Stan</a>.
 The result of MCMC is a collection of draws from the full joint
 posterior distribution of the parameters given the data. Individual
@@ -366,7 +368,7 @@ imputation (<span class="citation">Holzhauer and Weber (2024)</span>).
 However, if the outcomes in your data are not missing at random, or if
 you are targeting an alternative estimand, then you may need to impute
 missing outcomes. <code>brms.mmrm</code> can leverage either of the two
-alternative solutions described at <a href="https://paul-buerkner.github.io/brms/articles/brms_missings.html" class="uri">https://paul-buerkner.github.io/brms/articles/brms_missings.html</a>.
+alternative solutions described at <a href="https://paulbuerkner.com/brms/articles/brms_missings.html" class="uri">https://paulbuerkner.com/brms/articles/brms_missings.html</a>.
 Please see the <a href="https://openpharma.github.io/brms.mmrm/articles/usage.html">usage
 vignette</a> for details on the implementation and interface.</p>
 </div>

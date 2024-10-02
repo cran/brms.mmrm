@@ -428,22 +428,23 @@ desired parameterization.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">attr</span>(archetype, <span class="st">&quot;brm_archetype_interest&quot;</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;x_PBO_VIS1&quot; &quot;x_PBO_VIS2&quot; &quot;x_PBO_VIS3&quot; &quot;x_PBO_VIS4&quot; &quot;x_TRT_VIS1&quot; &quot;x_TRT_VIS2&quot;</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; [7] &quot;x_TRT_VIS3&quot; &quot;x_TRT_VIS4&quot;</span></span></code></pre></div>
-<p>In addition, we have nuisance variables. Some nuisance variables are
+<p>We also have nuisance variables. Some nuisance variables are
 continuous covariates, while others are levels of one-hot-encoded
 concomitant factors or interactions of those concomitant factors with
 baseline and/or subgroup. All nuisance variables are centered at their
 means so the reference level of the model is at the “center” of the data
 and not implicitly conditional on a subset of the data.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> In addition, some
 nuisance variables are automatically dropped in order to ensure the
-model matrix is full-rank. This is critically important to preserve the
-interpretation of the columns of interest and make sure the informative
-priors behave as expected.</p>
+model matrix is full-rank, and automatic centering in <code>brms</code>
+is disabled<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. This is critically important to preserve
+the interpretation of the columns of interest and make sure the
+informative priors behave as expected.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">attr</span>(archetype, <span class="st">&quot;brm_archetype_nuisance&quot;</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;nuisance_WEIGHT&quot;   &quot;nuisance_SEX_Male&quot;</span></span></code></pre></div>
 <p>The factors of interest linearly map to marginal means. To see the
 mapping, call <code>summary()</code> on the archetype. The printed
 output helps build intuition on how the archetype is parameterized and
-what those parameters are doing.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+what those parameters are doing.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">summary</span>(archetype)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; # This is the &quot;successive cells&quot; informative prior archetype in brms.mmrm.</span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # The following equations show the relationships between the</span></span>
@@ -546,7 +547,7 @@ with a template and manually fill in the Stan code.</p>
 <span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; 7 student_t(4,  7.65, 8.24) TRT   VIS3 </span></span>
 <span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; 8 student_t(4,  4.64, 8.21) TRT   VIS4</span></span></code></pre></div>
 <p>After you have a labeling scheme, <code>brm_prior_archetype()</code>
-can create a <code>brms</code> prior for the important fixed effects.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
+can create a <code>brms</code> prior for the important fixed effects.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">brm_prior_archetype</span>(<span class="at">label =</span> label, <span class="at">archetype =</span> archetype)</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>prior</span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt;                      prior class       coef group resp dpar nlpar   lb   ub source</span></span>
@@ -587,7 +588,7 @@ priors to our existing <code>prior</code> object:</p>
 <p>The model still has many parameters where we did not set priors, and
 <code>brms</code> sets automatic defaults. You can see these defaults
 with <code>brms::get_prior()</code>.</p>
-<p><a href="https://paul-buerkner.github.io/brms/reference/set_prior.html" class="uri">https://paul-buerkner.github.io/brms/reference/set_prior.html</a>
+<p><a href="https://paulbuerkner.com/brms/reference/set_prior.html" class="uri">https://paulbuerkner.com/brms/reference/set_prior.html</a>
 documents many of the default priors set by <code>brms</code>. In
 particular, <code>&quot;(flat)&quot;</code> denotes an improper uniform prior over
 all the real numbers.</p>
@@ -831,9 +832,12 @@ support cLDA (e.g. <code>brm_archetype_average_cells()</code> and
 <ol>
 <li id="fn1"><p><code>brm_recenter_nuisance()</code> can retroactively
 recenter a nuisance column to a fixed value other than its mean.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p><code>summary()</code> also invisibly returns a simple
-character vector with the equations below.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p><code>brms</code> priors are documented in <a href="https://paul-buerkner.github.io/brms/reference/set_prior.html" class="uri">https://paul-buerkner.github.io/brms/reference/set_prior.html</a>.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><code>brm_formula()</code> assigns
+<code>center = FALSE</code> in <code>brmsformula()</code> for all
+informative prior archetypes.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><code>summary()</code> also invisibly returns a simple
+character vector with the equations below.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p><code>brms</code> priors are documented in <a href="https://paulbuerkner.com/brms/reference/set_prior.html" class="uri">https://paulbuerkner.com/brms/reference/set_prior.html</a>.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
