@@ -7,7 +7,6 @@ knitr::opts_chunk$set(
 )
 library(brms.mmrm)
 library(dplyr)
-library(fst)
 library(ggplot2)
 library(tibble)
 library(tidyr)
@@ -23,7 +22,7 @@ source("sbc/R/response.R")
 source("sbc/R/scenarios.R")
 
 read_ranks <- function(path) {
-  fst::read_fst(path) |>
+  utils::read.csv(path, check.names = FALSE) |>
     tibble::as_tibble() |>
     pivot_longer(
       cols = everything(),
@@ -50,7 +49,7 @@ setup_prior(subgroup) |>
   as.data.frame()
 
 ## -----------------------------------------------------------------------------
-ranks_subgroup <- read_ranks("sbc/results/subgroup.fst")
+ranks_subgroup <- read_ranks("sbc/results/subgroup.csv")
 
 ## -----------------------------------------------------------------------------
 ranks_subgroup |>
@@ -77,7 +76,7 @@ setup_prior(unstructured) |>
   as.data.frame()
 
 ## -----------------------------------------------------------------------------
-ranks_unstructured <- read_ranks("sbc/results/unstructured.fst")
+ranks_unstructured <- read_ranks("sbc/results/unstructured.csv")
 
 ## -----------------------------------------------------------------------------
 ranks_unstructured |>
@@ -105,7 +104,7 @@ setup_prior(autoregressive_moving_average) |>
 
 ## -----------------------------------------------------------------------------
 ranks_autoregressive_moving_average <- read_ranks(
-  "sbc/results/autoregressive_moving_average.fst"
+  "sbc/results/autoregressive_moving_average.csv"
 )
 
 ## -----------------------------------------------------------------------------
@@ -133,7 +132,7 @@ setup_prior(autoregressive) |>
   as.data.frame()
 
 ## -----------------------------------------------------------------------------
-ranks_autoregressive <- read_ranks("sbc/results/autoregressive.fst")
+ranks_autoregressive <- read_ranks("sbc/results/autoregressive.csv")
 
 ## -----------------------------------------------------------------------------
 ranks_autoregressive |>
@@ -160,7 +159,7 @@ setup_prior(moving_average) |>
   as.data.frame()
 
 ## -----------------------------------------------------------------------------
-ranks_moving_average <- read_ranks("sbc/results/moving_average.fst")
+ranks_moving_average <- read_ranks("sbc/results/moving_average.csv")
 
 ## -----------------------------------------------------------------------------
 ranks_moving_average |>
@@ -187,7 +186,7 @@ setup_prior(compound_symmetry) |>
   as.data.frame()
 
 ## -----------------------------------------------------------------------------
-ranks_compound_symmetry <- read_ranks("sbc/results/compound_symmetry.fst")
+ranks_compound_symmetry <- read_ranks("sbc/results/compound_symmetry.csv")
 
 ## -----------------------------------------------------------------------------
 ranks_compound_symmetry |>
@@ -214,7 +213,7 @@ setup_prior(diagonal) |>
   as.data.frame()
 
 ## -----------------------------------------------------------------------------
-ranks_diagonal <- read_ranks("sbc/results/diagonal.fst")
+ranks_diagonal <- read_ranks("sbc/results/diagonal.csv")
 
 ## -----------------------------------------------------------------------------
 ranks_diagonal |>

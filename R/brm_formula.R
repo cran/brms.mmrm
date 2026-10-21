@@ -58,6 +58,9 @@
 #'   functions like [brm_archetype_successive_cells()] rather than in
 #'   [brm_formula()] in order to make sure columns are appropriately
 #'   centered and the underlying model matrix has full rank.
+#'   See the Nuisance variables section of
+#'   [brm_archetype_successive_cells()] for how baseline interactions
+#'   are centered.
 #' @param baseline_subgroup Logical of length 1.
 #'   `TRUE` to include baseline-by-subgroup interaction, `FALSE` to omit.
 #'   Default is `TRUE` if [brm_data()] previously declared baseline
@@ -67,6 +70,9 @@
 #'   functions like [brm_archetype_successive_cells()] rather than in
 #'   [brm_formula()] in order to make sure columns are appropriately
 #'   centered and the underlying model matrix has full rank.
+#'   See the Nuisance variables section of
+#'   [brm_archetype_successive_cells()] for how baseline interactions
+#'   are centered.
 #' @param baseline_subgroup_time Logical of length 1.
 #'   `TRUE` to include baseline-by-subgroup-by-time interaction,
 #'   `FALSE` to omit.
@@ -77,6 +83,9 @@
 #'   functions like [brm_archetype_successive_cells()] rather than in
 #'   [brm_formula()] in order to make sure columns are appropriately
 #'   centered and the underlying model matrix has full rank.
+#'   See the Nuisance variables section of
+#'   [brm_archetype_successive_cells()] for how baseline interactions
+#'   are centered.
 #' @param baseline_time Logical of length 1.
 #'   `TRUE` to include baseline-by-time interaction, `FALSE` to omit.
 #'   Default is `TRUE` if [brm_data()] previously declared a baseline
@@ -86,6 +95,9 @@
 #'   functions like [brm_archetype_successive_cells()] rather than in
 #'   [brm_formula()] in order to make sure columns are appropriately
 #'   centered and the underlying model matrix has full rank.
+#'   See the Nuisance variables section of
+#'   [brm_archetype_successive_cells()] for how baseline interactions
+#'   are centered.
 #' @param group Logical of length 1.
 #'   `TRUE` (default) to include additive effects for
 #'   treatment groups, `FALSE` to omit.
@@ -358,7 +370,7 @@ brm_formula.default <- function(
       message = "brm_data() found no baseline column in the data."
     )
   }
-  expect_subgroup <-  baseline_subgroup ||
+  expect_subgroup <- baseline_subgroup ||
     baseline_subgroup_time ||
     group_subgroup ||
     group_subgroup_time ||
@@ -457,8 +469,7 @@ brm_formula.default <- function(
     brm_correlation = correlation,
     brm_autoregressive_order = autoregressive_order,
     brm_moving_average_order = moving_average_order,
-    brm_residual_covariance_arma_estimation =
-      residual_covariance_arma_estimation,
+    brm_residual_covariance_arma_estimation = residual_covariance_arma_estimation,
     brm_model_missing_outcomes = model_missing_outcomes,
     brm_allow_effect_size = attr(sigma, "brm_allow_effect_size")
   )
@@ -563,8 +574,7 @@ brm_formula.brms_mmrm_archetype <- function(
     brm_correlation = correlation,
     brm_autoregressive_order = autoregressive_order,
     brm_moving_average_order = moving_average_order,
-    brm_residual_covariance_arma_estimation =
-      residual_covariance_arma_estimation,
+    brm_residual_covariance_arma_estimation = residual_covariance_arma_estimation,
     brm_allow_effect_size = attr(sigma, "brm_allow_effect_size"),
     brm_model_missing_outcomes = model_missing_outcomes
   )
@@ -680,8 +690,7 @@ brm_formula_new <- function(
     brm_correlation = brm_correlation,
     brm_autoregressive_order = brm_autoregressive_order,
     brm_moving_average_order = brm_moving_average_order,
-    brm_residual_covariance_arma_estimation =
-      brm_residual_covariance_arma_estimation,
+    brm_residual_covariance_arma_estimation = brm_residual_covariance_arma_estimation,
     brm_allow_effect_size = brm_allow_effect_size,
     brm_model_missing_outcomes = brm_model_missing_outcomes
   )
@@ -704,8 +713,7 @@ brm_formula_archetype_new <- function(
     brm_correlation = brm_correlation,
     brm_autoregressive_order = brm_autoregressive_order,
     brm_moving_average_order = brm_moving_average_order,
-    brm_residual_covariance_arma_estimation =
-      brm_residual_covariance_arma_estimation,
+    brm_residual_covariance_arma_estimation = brm_residual_covariance_arma_estimation,
     brm_allow_effect_size = brm_allow_effect_size,
     brm_model_missing_outcomes = brm_model_missing_outcomes
   )

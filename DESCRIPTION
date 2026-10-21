@@ -1,6 +1,6 @@
 Package: brms.mmrm
 Title: Bayesian MMRMs using 'brms'
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
   person(
     given = c("William", "Michael"),
@@ -49,28 +49,27 @@ License: MIT + file LICENSE
 URL: https://openpharma.github.io/brms.mmrm/,
         https://github.com/openpharma/brms.mmrm
 BugReports: https://github.com/openpharma/brms.mmrm/issues
-Depends: R (>= 4.0.0)
+Depends: R (>= 4.1.0)
 Imports: brms (>= 2.19.0), dplyr, ggplot2, ggridges, MASS, posterior,
         purrr, rlang, stats, tibble, tidyr, tidyselect, trialr, utils,
         zoo
-Suggests: BH, emmeans (>= 1.8.7), fst, gt, gtsummary, knitr (>= 1.30),
-        markdown (>= 1.1), mmrm, parallel, Rcpp, RcppEigen,
-        RcppParallel, rmarkdown (>= 2.4), rstan, StanHeaders, testthat
-        (>= 3.0.0)
+Suggests: BH, emmeans (>= 1.8.7), gt, gtsummary, knitr, markdown (>=
+        1.1), mmrm, parallel, Rcpp, RcppEigen, RcppParallel, rmarkdown,
+        rstan, StanHeaders, testthat (>= 3.0.0), withr
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
-RoxygenNote: 7.3.2
+Config/roxygen2/version: 8.1.1
 NeedsCompilation: no
-Packaged: 2024-10-02 19:39:46 UTC; C240390
-Author: William Michael Landau [aut, cre]
-    (<https://orcid.org/0000-0003-1878-3253>),
-  Kevin Kunzmann [aut] (<https://orcid.org/0000-0002-1140-7143>),
+Packaged: 2026-10-21 12:27:21 UTC; C240390
+Author: William Michael Landau [aut, cre] (ORCID:
+    <https://orcid.org/0000-0003-1878-3253>),
+  Kevin Kunzmann [aut] (ORCID: <https://orcid.org/0000-0002-1140-7143>),
   Yoni Sidi [aut],
-  Christian Stock [aut] (<https://orcid.org/0000-0002-3493-3234>),
+  Christian Stock [aut] (ORCID: <https://orcid.org/0000-0002-3493-3234>),
   Eli Lilly and Company [cph, fnd],
   Boehringer Ingelheim Pharma GmbH & Co. KG [cph, fnd]
 Maintainer: William Michael Landau <will.landau.oss@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-10-02 20:10:01 UTC
+Date/Publication: 2026-10-21 13:10:47 UTC

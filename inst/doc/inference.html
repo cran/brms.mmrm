@@ -48,6 +48,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -148,6 +149,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
+margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -486,7 +488,7 @@ involved.</p>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;     AVISIT + RACE + SEX + WEIGHT</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;center&quot;)</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x11da6fe40&gt;</span></span></code></pre></div>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x118ac2ab0&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">colnames</span>(<span class="fu">model.matrix</span>(<span class="at">object =</span> base_formula, <span class="at">data =</span> data))</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;(Intercept)&quot;                   &quot;FEV1_BL&quot;                      </span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;ARMCDTRT&quot;                      &quot;AVISITVIS2&quot;                   </span></span>
@@ -573,20 +575,19 @@ estimates of marginal means.</p>
 <p>This technique is similar to <a href="https://cran.r-project.org/package=emmeans"><code>emmeans::emmeans(weights = &quot;proportional&quot;)</code></a><a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> (<span class="citation">Lenth (2016)</span>, <span class="citation">Searle et
 al. (1980)</span>) and produces similar estimates.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;emmeans&#39; was built under R version 4.4.1</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Welcome to emmeans.</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; Caution: You lose important information if you filter this package&#39;s results.</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; See &#39;? untidy&#39;</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>marginals_emmeans <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(</span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">object =</span> model,</span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="at">specs =</span> <span class="sc">~</span>ARMCD<span class="sc">:</span>AVISIT,</span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">weights =</span> <span class="st">&quot;proportional&quot;</span>,</span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  <span class="at">nuisance =</span> <span class="fu">c</span>(<span class="st">&quot;USUBJID&quot;</span>, <span class="st">&quot;RACE&quot;</span>, <span class="st">&quot;SEX&quot;</span>)</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  <span class="fu">select</span>(ARMCD, AVISIT, emmean) <span class="sc">|&gt;</span></span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>  <span class="fu">arrange</span>(ARMCD, AVISIT)</span></code></pre></div>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; Welcome to emmeans.</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Caution: You lose important information if you filter this package&#39;s results.</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; See &#39;? untidy&#39;</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>marginals_emmeans <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">object =</span> model,</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">specs =</span> <span class="sc">~</span>ARMCD<span class="sc">:</span>AVISIT,</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="at">weights =</span> <span class="st">&quot;proportional&quot;</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">nuisance =</span> <span class="fu">c</span>(<span class="st">&quot;USUBJID&quot;</span>, <span class="st">&quot;RACE&quot;</span>, <span class="st">&quot;SEX&quot;</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="fu">select</span>(ARMCD, AVISIT, emmean) <span class="sc">|&gt;</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  <span class="fu">arrange</span>(ARMCD, AVISIT)</span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>marginals_emmeans</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 3</span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;   ARMCD AVISIT emmean</span></span>
@@ -602,13 +603,13 @@ al. (1980)</span>) and produces similar estimates.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>marginals_custom <span class="sc">-</span> marginals_emmeans<span class="sc">$</span>emmean</span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt;                  [,1]</span></span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; PBO|VIS1 4.440892e-15</span></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; PBO|VIS2 3.996803e-15</span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; PBO|VIS3 3.552714e-15</span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; PBO|VIS4 4.440892e-15</span></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; TRT|VIS1 3.774758e-15</span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; TRT|VIS2 3.552714e-15</span></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; TRT|VIS3 4.440892e-15</span></span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; TRT|VIS4 3.552714e-15</span></span></code></pre></div>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; PBO|VIS2 5.329071e-15</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; PBO|VIS3 5.329071e-15</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; PBO|VIS4 5.329071e-15</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; TRT|VIS1 5.551115e-15</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; TRT|VIS2 5.329071e-15</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; TRT|VIS3 6.217249e-15</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; TRT|VIS4 7.105427e-15</span></span></code></pre></div>
 <p>For our Bayesian MMRMs in <code>brms.mmrm</code>, the transformation
 from <code>brm_transform_marginal()</code> operates on each individual
 draw from the joint posterior distribution. The transformation matrix
@@ -802,14 +803,14 @@ from <code>emmeans</code>.</p>
 <span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 8 × 5</span></span>
 <span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt;   ARMCD AVISIT emmean custom difference</span></span>
 <span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt;   &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;</span></span>
-<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; 1 PBO   VIS1   -4.60  -4.60    1.78e-15</span></span>
-<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="co">#&gt; 2 PBO   VIS2   -2.54  -2.54    1.78e-15</span></span>
-<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="co">#&gt; 3 PBO   VIS3    0.984  0.984   1.78e-15</span></span>
-<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt; 4 PBO   VIS4    5.60   5.60    1.78e-15</span></span>
-<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co">#&gt; 5 TRT   VIS1   -1.29  -1.29    1.78e-15</span></span>
-<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="co">#&gt; 6 TRT   VIS2    0.847  0.847   1.78e-15</span></span>
-<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co">#&gt; 7 TRT   VIS3    3.80   3.80    1.78e-15</span></span>
-<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt; 8 TRT   VIS4   10.1   10.1     1.78e-15</span></span></code></pre></div>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; 1 PBO   VIS1   -4.60  -4.60    3.55e-15</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="co">#&gt; 2 PBO   VIS2   -2.54  -2.54    3.55e-15</span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="co">#&gt; 3 PBO   VIS3    0.984  0.984   3.55e-15</span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt; 4 PBO   VIS4    5.60   5.60    3.55e-15</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co">#&gt; 5 TRT   VIS1   -1.29  -1.29    3.55e-15</span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="co">#&gt; 6 TRT   VIS2    0.847  0.847   3.55e-15</span></span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co">#&gt; 7 TRT   VIS3    3.80   3.80    3.55e-15</span></span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt; 8 TRT   VIS4   10.1   10.1     3.55e-15</span></span></code></pre></div>
 <p><code>brms.mmrm</code> follows the procedure above, but in a Bayesian
 context. The <code>brm_transform_marginal()</code> creates the matrix
 above, and <code>brm_marginal_draws()</code> uses it to transform
@@ -1053,7 +1054,7 @@ subgroup levels, the results will differ from those of
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-bedrick1996" class="csl-entry">
 Bedrick, E. J., Christensen, R., and Johnson, W. (1996), <span>“A new
 perspective on priors for generalized linear models,”</span> <em>Journal
